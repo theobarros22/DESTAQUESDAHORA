@@ -4,12 +4,21 @@ export function collapseWhitespace(s: string): string {
   return s.replace(/\s+/g, " ").trim();
 }
 
-/** A declared language wins; otherwise Han text is Chinese only without Japanese or Korean script. */
+/**
+ * Destaques da Hora: "Chinese" in the engine's names means "the site's language", here Brazilian Portuguese
+ * (the name is kept so upstream updates still merge; translations stay keyed 'zh' in the database).
+ * A declared language wins; otherwise Portuguese is told by its marks (ã, õ, ç, -ção) or its function words.
+ */
+const PT_WORDS = new Set(["de", "que", "não", "em", "do", "da", "dos", "das", "no", "na", "nos", "nas", "um", "uma", "para", "com", "por", "pelo", "pela", "ao", "à", "é", "são", "foi", "está", "também", "mais", "os", "as", "se", "ou", "seu", "sua", "sobre", "lei", "governo", "projeto", "decide", "aprova", "vota", "diz", "hoje", "após", "contra", "entre"]);
 export function isChineseText(text: string, language?: string | null): boolean {
   const declared = language?.toLowerCase().split(/[-_]/)[0];
-  if (declared === "zh") return true;
+  if (declared === "pt") return true;
   if (declared && !["und", "unknown", "other", "zxx"].includes(declared)) return false;
-  return /\p{Script=Han}/u.test(text) && !/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(text);
+  if (/[ãõâêôç]/i.test(text)) return true;
+  const words = text.toLowerCase().match(/\p{L}+/gu) ?? [];
+  if (words.length === 0) return false;
+  const hits = words.filter((w) => PT_WORDS.has(w)).length;
+  return words.length <= 10 ? hits >= 1 : hits >= 2 && hits / words.length >= 0.1;
 }
 
 export function truncate(s: string, max: number, ellipsis = "…"): string {
@@ -120,9 +129,9 @@ export function cjkRatio(s: string): number {
   return cjk.length / letters.length;
 }
 
+/** "zh" stands for the site's language (Portuguese), as everywhere in the engine. */
 export function guessLanguage(s: string): "zh" | "en" | "other" {
-  const ratio = cjkRatio(s);
-  if (ratio > 0.3) return "zh";
+  if (isChineseText(s)) return "zh";
   if (/[a-z]/i.test(s)) return "en";
   return "other";
 }

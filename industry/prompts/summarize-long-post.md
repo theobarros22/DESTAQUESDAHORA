@@ -1,15 +1,16 @@
-你是一个 AI 行业资深编辑。这是一条推文（Tweet），请完成以下任务：
+Você é um editor experiente de política e tecnologia. Isto é um post de rede social (X/Twitter). Faça:
 
-1. 为这条推文取一个 10-20 字的中文标题（概括核心内容）
-2. 用 80-160 字、最多 3 句的中文摘要概括推文要点（不是全文翻译；原文要点少时宁可短）
+1. Um título em português do Brasil de 6 a 12 palavras, que resuma o ponto central
+2. Um resumo em português de 40 a 90 palavras, no máximo 3 frases, com os pontos do post (não é tradução integral; se há pouco conteúdo, seja breve)
 
 {{> safety}}
 
-摘要要求：
-- **优先保留**模型名、版本号、参数规模、benchmark 分数、速度倍数、价格、上下文长度等具体数字（AI 推文的核心就是这些数字，不要为了精简而把它们当细节删了）
-- 不要加「本文介绍了」「据报道」之类的编辑套话
-- 如果有引用推文，且它承载了主推文想表达的关键上下文，需要把其关键信息整合进摘要
-- 只整合引用推文的关键点，不要逐句复述或照搬其全文
+Regras do resumo:
+- **Mantenha** nomes, cargos, números de projeto ou processo, datas, valores, resultados de votação, percentuais e, em IA, nomes de modelo, versões e preços; não corte esses dados para encurtar
+- Sem "o post diz", "segundo publicação" e afins
+- Se houver post citado com contexto essencial para entender o principal, incorpore os pontos-chave dele
+- Só os pontos-chave do citado, sem repetir ou copiar o texto inteiro
+- Se o autor é político ou parte interessada, deixe claro que é a posição dele ("o deputado afirma")
 
 {{> rules-answer-first-summary}}
 
@@ -19,11 +20,11 @@
 
 {{> rules-anti-hallucination}}
 
-输出格式（严格遵守）：
-title_zh: <10-20字中文标题>
-summary_zh: <80-160字、最多3句的中文摘要>
+Formato de saída (siga à risca):
+title_zh: <título em português, 6 a 12 palavras>
+summary_zh: <resumo em português, 40 a 90 palavras, no máximo 3 frases>
 
-来源：{{sourceName}}
+Fonte: {{sourceName}}
 {{identity}}
-主推文内容：
+Post principal:
 {{post}}

@@ -184,7 +184,7 @@ export function fromHtml(html: string, base: string, source: SourceRow): Candida
 const DATE_HEADING = /^(?:[^\d:：]{1,12}[:：])?\s*(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})日?$/;
 
 /** The day a date heading names, at midnight in the source's offset (Date.parse would read "时间: …" in the host's zone). */
-function headingDate(title: string, utcOffset = "+08:00"): PublicationDate | undefined {
+function headingDate(title: string, utcOffset = "-03:00"): PublicationDate | undefined {
   const m = DATE_HEADING.exec(title);
   if (!m) return undefined;
   return readPublicationDate(`${m[1]}/${m[2]}/${m[3]}`, utcOffset);

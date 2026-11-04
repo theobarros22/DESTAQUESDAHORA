@@ -1,12 +1,334 @@
 {
-  "$comment": "示范信源：首次启动时导入（scripts/seed.ts），已存在的不会被覆盖。之后在后台“信源”里新建、修改和暂停。字段说明见 docs/customize.md。",
+  "$comment": "Fontes iniciais do Destaques da Hora: importadas no primeiro start (scripts/seed.ts); as que já existem não são sobrescritas. Depois, gerencie em /admin/sources. Itens com $comment 'A VERIFICAR' tiveram a URL inferida e precisam de teste. Agência Brasil publica sob CC BY: texto integral liberado com crédito (site_fulltext true). Senado, TSE, Alerj e governo do RJ: adicionar pelo painel depois de confirmar a URL do feed.",
   "sources": [
+    {
+      "id": "rss-agencia-brasil",
+      "name": "Agência Brasil — Últimas",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://agenciabrasil.ebc.com.br/feed/ultimasnoticias/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Oficial",
+        "Política",
+        "Licença CC BY"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-agencia-camara",
+      "name": "Agência Câmara — Últimas notícias",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.camara.leg.br/noticias/rss/ultimas-noticias",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "camara",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Oficial",
+        "Congresso"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-stf-noticias",
+      "name": "STF — Notícias",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://noticias.stf.jus.br/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "stf",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Justiça"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-g1-politica",
+      "name": "g1 Política",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://g1.globo.com/rss/g1/politica/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "Imprensa",
+        "Política"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-g1-economia",
+      "name": "g1 Economia",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://g1.globo.com/rss/g1/economia/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Economia"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-folha-poder",
+      "name": "Folha — Poder",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://feeds.folha.uol.com.br/poder/rss091.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Imprensa",
+        "Política"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-poder360",
+      "name": "Poder360",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.poder360.com.br/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "Imprensa",
+        "Política"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-congresso-em-foco",
+      "name": "Congresso em Foco",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://congressoemfoco.uol.com.br/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Congresso"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-nucleo",
+      "name": "Núcleo Jornalismo",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://nucleo.jor.br/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "Imprensa",
+        "IA & Política",
+        "Redes sociais"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-aos-fatos",
+      "name": "Aos Fatos",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.aosfatos.org/noticias/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "Checagem",
+        "Desinformação"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-g1-tecnologia",
+      "name": "g1 Tecnologia",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://g1.globo.com/dynamo/tecnologia/rss2.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Tecnologia"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-tecnoblog",
+      "name": "Tecnoblog",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://tecnoblog.net/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Tecnologia"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-olhar-digital",
+      "name": "Olhar Digital",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://olhardigital.com.br/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Tecnologia"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-canaltech",
+      "name": "Canaltech",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://canaltech.com.br/rss/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Tecnologia",
+        "Dicas"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
     {
       "id": "rss-openai-news",
       "name": "OpenAI News",
       "kind": "rss",
       "config": {
         "feedUrl": "https://openai.com/news/rss.xml",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
@@ -16,7 +338,8 @@
       "participation_mode": "editorial",
       "interval_minutes": 120,
       "tags": [
-        "官方"
+        "Oficial",
+        "IA"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
@@ -27,6 +350,7 @@
       "kind": "rss",
       "config": {
         "feedUrl": "https://deepmind.google/blog/rss.xml",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
@@ -36,332 +360,8 @@
       "participation_mode": "editorial",
       "interval_minutes": 120,
       "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-google-research",
-      "name": "Google Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://research.google/blog/rss/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": "google",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "研究"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-hugging-face",
-      "name": "Hugging Face Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://huggingface.co/blog/feed.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": "hugging-face",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "开源"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-microsoft-research",
-      "name": "Microsoft Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.microsoft.com/en-us/research/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": "microsoft",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "研究"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-nvidia-blog",
-      "name": "NVIDIA Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://blogs.nvidia.com/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": "nvidia",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-aws-ml",
-      "name": "AWS Machine Learning Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://aws.amazon.com/blogs/machine-learning/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "教程"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-github-ai",
-      "name": "GitHub Blog · AI & ML",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://github.blog/ai-and-ml/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-mistral",
-      "name": "Mistral AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://mistral.ai/news/rss",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-bair",
-      "name": "Berkeley AI Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://bair.berkeley.edu/blog/feed.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
-      "tags": [
-        "研究"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-the-verge-ai",
-      "name": "The Verge · AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-techcrunch-ai",
-      "name": "TechCrunch · AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://techcrunch.com/category/artificial-intelligence/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-ars-technica-ai",
-      "name": "Ars Technica · AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://arstechnica.com/ai/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-mit-tech-review-ai",
-      "name": "MIT Technology Review · AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.technologyreview.com/topic/artificial-intelligence/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-the-decoder",
-      "name": "The Decoder",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://the-decoder.com/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-simon-willison",
-      "name": "Simon Willison",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://simonwillison.net/atom/everything/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "个人"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-import-ai",
-      "name": "Import AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://importai.substack.com/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
-      "tags": [
-        "个人",
-        "周刊"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-latent-space",
-      "name": "Latent Space",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.latent.space/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
-      "tags": [
-        "个人"
+        "Oficial",
+        "IA"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false

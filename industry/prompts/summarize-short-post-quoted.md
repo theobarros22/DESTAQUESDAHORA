@@ -1,3 +1,3 @@
-引用式 teaser 例外：若主推文几乎没有信息量（纯感叹 / 转发 / 号召，如「Go build!」「活久见」），而下面这条引用推文才是真正的新闻，则 body_zh 改为用一两句话概括【引用推文】的核心要点，让正文和标题对得上（别只输出一句空洞的主推文），可在结尾带一句主推文的简短反应；其余情况仍然只翻译主推文。
-{{quotedLabel}}（仅供理解上下文；按上面的「引用式 teaser 例外」判断要不要概括它）：
+Exceção de chamada com citação: se o post principal quase não tem informação (só exclamação, compartilhamento ou chamada, como "Vejam isso!" ou "Inacreditável"), e a notícia de verdade está no post citado abaixo, então body_zh resume em uma ou duas frases os pontos centrais do 【post citado】, para que texto e título combinem (não devolva só a frase vazia do post principal); pode terminar com uma breve menção à reação do post principal. Nos demais casos, traduza só o post principal.
+{{quotedLabel}} (só para entender o contexto; use a "exceção de chamada com citação" acima para decidir se resume):
 {{quotedText}}

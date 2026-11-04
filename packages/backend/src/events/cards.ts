@@ -53,7 +53,7 @@ export async function readerOf(articleId: string): Promise<Reader | null> {
 }
 
 /** Why a report stays out of 精选: the title is what the reader has already seen. */
-export const alreadyOnCard = (title: string) => `读者已在精选看过同一条新闻：${title}`;
+export const alreadyOnCard = (title: string) => `O leitor já viu este mesmo fato na seleção: ${title}`;
 
 /** The review model reads the pair the other way round. */
 async function sameNews(reader: Reader, card: CardRow): Promise<boolean> {

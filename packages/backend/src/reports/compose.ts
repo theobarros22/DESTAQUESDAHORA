@@ -77,7 +77,7 @@ async function saveReport(kind: ReportKind, key: string, start: Date, end: Date,
 /** "10 月 4 日 08:00": one end of a quiet issue's window, as its lead paragraph names it. */
 function windowPoint(at: Date): string {
   const day = beijingDate(at);
-  return `${Number(day.slice(5, 7))} 月 ${Number(day.slice(8, 10))} 日 ${beijingTime(at)}`;
+  return `${Number(day.slice(8, 10))}/${day.slice(5, 7)} às ${beijingTime(at)}`;
 }
 
 /**
@@ -125,8 +125,8 @@ const OVERVIEW_CHARS = { weekly: 240, monthly: 340 } as const;
 const INTRO_CHARS = 90;
 /** The brief's values for each kind: its name, its span and how long its overview should be. */
 const BRIEF = {
-  weekly: { kindName: "周报", span: "一周", sentences: "三句话", chars: "160" },
-  monthly: { kindName: "月报", span: "个月", sentences: "三到四句话", chars: "240" },
+  weekly: { kindName: "resumo semanal", span: "nesta semana", sentences: "três frases", chars: "420" },
+  monthly: { kindName: "balanço mensal", span: "neste mês", sentences: "três a quatro frases", chars: "620" },
 } as const;
 
 export const PeriodSchema = z.object({
@@ -145,10 +145,10 @@ export function periodPrompt(kind: "weekly" | "monthly", startDate: string, endD
   return {
     system: promptText("report-period", {
       ...BRIEF[kind],
-      sections: introduced.length ? promptText("report-period-sections", { columns: introduced.map((l) => `「${l}」`).join("") }) : promptText("report-period-no-sections"),
+      sections: introduced.length ? promptText("report-period-sections", { columns: introduced.map((l) => `"${l}"`).join(", ") }) : promptText("report-period-no-sections"),
       sectionsExample: introduced.length ? `{"${introduced[0]}": "..."}` : "{}",
     }),
-    user: `本期：${startDate} 至 ${endDateInclusive}\n${list}`,
+    user: `Período desta edição: ${startDate} a ${endDateInclusive}\n${list}`,
   };
 }
 
@@ -238,7 +238,7 @@ async function composePeriod(kind: "weekly" | "monthly", key: string, startDate:
   const [lead] = top as [Candidate, ...Candidate[]];
   const content = {
     kind,
-    title: kind === "weekly" ? `${SITE.name} 周报 · ${key}` : `${SITE.name} 月报 · ${key}`,
+    title: kind === "weekly" ? `${SITE.name} · Resumo semanal · ${key}` : `${SITE.name} · Balanço mensal · ${key}`,
     ...(kind === "weekly" ? { isoLabel: key } : { monthLabel: key }),
     periodStart: startDate,
     periodEnd: endDateInclusive,

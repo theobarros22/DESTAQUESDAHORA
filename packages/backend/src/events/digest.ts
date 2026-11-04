@@ -30,10 +30,10 @@ export const byReportTime = (a: { at: Date }, b: { at: Date }) => a.at.getTime()
  */
 export function buildStoryDigestInput(story: { title: string; digest: string | null }, reports: Omit<DigestReport, "story_id">[], opts: { corrected: boolean; knownArticleIds?: string[] }) {
   const known = new Set(opts.knownArticleIds ?? []);
-  const lines = reports.slice(-40).map((r) => `${opts.corrected || known.has(r.id) ? "" : "【新】"}报道 ${r.id}｜事实 ${r.fact_id}｜${beijingDate(r.at)} ${beijingTime(r.at)}｜${r.source_name}${r.first_party ? "（一手）" : ""}｜${r.title}｜${r.summary ?? ""}\n事实条件与来源证据：${JSON.stringify(digestFactEvidence(r))}`);
+  const lines = reports.slice(-40).map((r) => `${opts.corrected || known.has(r.id) ? "" : "【NOVA】"}Matéria ${r.id} | fato ${r.fact_id} | ${beijingDate(r.at)} ${beijingTime(r.at)}| ${r.source_name}${r.first_party ? " (fonte primária)" : ""} | ${r.title} | ${r.summary ?? ""}\nCondições do fato e evidência da fonte: ${JSON.stringify(digestFactEvidence(r))}`);
   return opts.corrected
-    ? `事件当前标题：${story.title}\n\n报道内容或事实证据经过更正。请只依据下面这些报道的当前内容重写综述，不要沿用以前版本的说法。\n报道（按时间）：\n${lines.join("\n")}`
-    : `事件当前标题：${story.title}\n${story.digest ? `上一版综述：${story.digest}\n` : ""}\n报道（按时间，标【新】的是上一版之后的新报道）：\n${lines.join("\n")}`;
+    ? `Título atual do fato: ${story.title}\n\nO conteúdo das matérias ou a evidência foi corrigido. Reescreva o panorama só com base no conteúdo atual das matérias abaixo, sem reaproveitar a versão anterior.\nMatérias (em ordem de data):\n${lines.join("\n")}`
+    : `Título atual do fato: ${story.title}\n${story.digest ? `Panorama anterior: ${story.digest}\n` : ""}\nMatérias (em ordem de data; as marcadas 【NOVA】 chegaram depois do panorama anterior):\n${lines.join("\n")}`;
 }
 
 /**
