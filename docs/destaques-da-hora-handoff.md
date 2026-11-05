@@ -97,7 +97,7 @@ Aprovar o layout da capa; decidir sobre o PR para a `main`; conta DigitalPlat/Cl
 
 ### Próximos passos (nesta ordem)
 1. Verificar a casca (acima) e corrigir o que quebrar.
-2. **Faixa "Agora" (ticker)**: ficou de fora do cabeçalho porque o loader do `root.tsx` só busca `/api/site/meta`; precisa de um endpoint ou campo com as últimas manchetes, lido pela camada `packages/backend/src/publication/`.
+2. (Capa feita, ver abaixo.) **Faixa "Agora" (ticker)**: ficou de fora do cabeçalho porque o loader do `root.tsx` só busca `/api/site/meta`; precisa de um endpoint ou campo com as últimas manchetes, lido pela camada `packages/backend/src/publication/`.
 3. **Capa nova** (`apps/web/app/routes/` home): "As últimas", manchete grande, "Escolhas da redação", "Rio agora" (tema `rio-de-janeiro`), "Em alta" numerado, grades por editoria; usar `item.cover` com o crédito visível, e capa tipográfica quando `cover` for nulo.
 4. Fontes: testar os feeds da lista do Theo (revistaoeste, gazetadopovo, g1/globonews, pleno.news, tecnologia, economia) e adicionar os que passarem como "A VERIFICAR"; confirmar a licença das fotos da Agência Brasil na Carta de Serviços da EBC; adicionar feeds do Senado, TSE, Alerj e TRE-RJ com `site_images` só se a licença permitir. Pendente a resposta do Theo sobre uma editoria "Economia" e sobre fontes de equilíbrio.
 5. Atualizar a nota do mockup em `project/canvas.json` (hoje diz "capas tipográficas, sem foto de terceiros") e a altura do Celular depois da checagem visual.
@@ -111,3 +111,8 @@ Aprovar o layout da capa; decidir sobre o PR para a `main`; conta DigitalPlat/Cl
 - **Faixa do topo não é ticker**: o endpoint `faixa-topo` do plugin é uma faixa de **anúncio** (origem Google Ad Manager, recarrega a cada 30 s). A faixa "Agora" do nosso mockup continua sendo ideia nossa (últimas manchetes), não cópia deles.
 - **Receita**: Google Ad Manager e AdSense, anúncios nativos, vídeo patrocinado na home e nas matérias, push (OneSignal), newsletter e o botão "Seguir no Google" (fonte preferida no Discover).
 - **Ideias aproveitáveis**: hora de "atualizado" visível; bloco "Mais lidas" (já temos `/hot`); "Rio Já" como fluxo rápido (equivale ao tema `rio-de-janeiro`); newsletter (o boletim diário já existe); esporte do Rio como editoria de audiência.
+
+### Capa nova da home (05/11/2026)
+- `apps/web/app/features/feed/FrontPage.tsx`, exibida em `routes/home.tsx` só quando não há filtros (`hasFeedFilters`). Manchete = a de maior `score` entre as 12 primeiras (empate: a que tem foto); "Escolhas da redação" (3 seguintes), "As últimas" (6 seguintes, com hora) e "Rio agora" (5 itens de `/api/site/topics/rio-de-janeiro`; some se o tema falhar ou estiver vazio). Foto só via `item.cover` (fonte com `site_images`), com o crédito embaixo; sem foto, bloco tipográfico azul-marinho (tarja baixa no celular).
+- Verificado no Chromium em 1280 e 393 px com dados de teste. O `build` do web precisa ser refeito antes de qualquer teste de navegador (o servidor de teste usa `apps/web/build`).
+- **Pendências desta capa**: a lista cronológica continua abaixo e repete a manchete e as escolhas (decidir se a lista começa depois delas); "Em alta agora" (`HotTopics`) segue com o visual antigo; a barra de categorias e o título "Destaques" ainda ficam acima da capa no computador; o logo (`Wordmark`) usa a cor de destaque verde-azulada do tema, não o laranja; criar teste de comportamento para `pickLead` (em `tests/`, como standalone) antes do PR.
