@@ -628,6 +628,124 @@
       "site_fulltext": false,
       "syndicate_fulltext": false,
       "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-alerj-noticias",
+      "name": "Alerj — Notícias",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.alerj.rj.gov.br/rss/noticias",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "alerj",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Rio de Janeiro",
+        "Alerj"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: URL inferida, teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-governo-rj-noticias",
+      "name": "Governo do RJ — Notícias",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.rj.gov.br/rss/noticias",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "governo-rj",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Rio de Janeiro"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: URL inferida, teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-prefeitura-rio",
+      "name": "Prefeitura do Rio — Notícias",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://prefeitura.rio/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Rio de Janeiro"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: URL inferida, teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-tre-rj",
+      "name": "TRE-RJ — Notícias",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.tre-rj.jus.br/comunicacao/noticias/rss",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Rio de Janeiro",
+        "Eleições"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: URL inferida, teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-agencia-brasil-rj",
+      "name": "Agência Brasil — Rio de Janeiro",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/rio-de-janeiro/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Rio de Janeiro",
+        "Licença CC BY"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: URL inferida, teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
     }
   ]
 }
