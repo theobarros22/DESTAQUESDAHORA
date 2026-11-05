@@ -25,12 +25,12 @@ export function Badge({ tone = "neutral", dot = false, children, className = "",
 export function SelectedBadge() {
   return (
     <Badge tone="selected" dot>
-      精选
+      Destaque
     </Badge>
   );
 }
 
 /** A selected report whose fact is shown by another report (the one holding its selected seat). */
 export function SameEventBadge() {
-  return <Badge title="这件事已有另一篇入选精选">同事件</Badge>;
+  return <Badge title="Outra matéria deste mesmo fato já está nos destaques">Mesmo fato</Badge>;
 }

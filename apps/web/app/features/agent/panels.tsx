@@ -6,7 +6,7 @@ import { Link } from "react-router";
 import { PUBLIC_INTERFACE_VERSION } from "@aihot/contracts/http-policy";
 import { MCP_TOOL_NAMES as T, MCP_TOOLS } from "@aihot/contracts/mcp";
 import { feedCategoryLabel, PUBLIC_API_CATEGORY_KEYS } from "@aihot/contracts/taxonomy";
-import { ACCESS, AGENT, EDITION_WHEN, POLICY, REPORTS, SITE, subjectAfter, withSubject } from "@aihot/site";
+import { ACCESS, AGENT, EDITION_TIMES, EDITION_WHEN, POLICY, REPORTS, SITE, subjectAfter, withSubject } from "@aihot/site";
 import { CodeBlock, CopyButton } from "./CodeBlock";
 import { PillTabs } from "../../components/ui/Tabs";
 import type { AgentPanelProps } from "../../modules";
@@ -27,8 +27,8 @@ function addressOf({ base, tag }: AgentPanelProps, path: string): string {
 const MCP_CLIENTS = [
   { key: "claude", label: "Claude Code" },
   { key: "codex", label: "Codex" },
-  { key: "json", label: "JSON 配置" },
-  { key: "other", label: "其他客户端" },
+  { key: "json", label: "Configuração JSON" },
+  { key: "other", label: "Outros clientes" },
 ] as const;
 
 export function McpPanel(props: AgentPanelProps) {
@@ -37,39 +37,39 @@ export function McpPanel(props: AgentPanelProps) {
   const [client, setClient] = useState<string>("claude");
   return (
     <>
-      <PanelHead label={`MCP · ${V}`} title={`填一个地址，Agent 多出 ${mcpToolCount()} 个工具`}>
-        标准 Streamable HTTP，匿名只读，不用 token，也不读你的登录状态。适合 Claude 桌面版、Cursor、Cherry Studio 这类支持远程 MCP 的客户端。
+      <PanelHead label={`MCP · ${V}`} title={`Cole um endereço e seu agente ganha ${mcpToolCount()} ferramentas`}>
+        Streamable HTTP padrão, anônimo e só leitura: sem token e sem ler seu login. Serve para clientes com MCP remoto, como o Claude Desktop, o Cursor e o Cherry Studio.
       </PanelHead>
       <Steps>
-        <Step n={1} title="复制服务地址">
+        <Step n={1} title="Copie o endereço do serviço">
           <Address url={url} />
           {TAG && <p className="mt-2 text-[13px] text-ink-3">{TAG.mcp}</p>}
         </Step>
-        <Step n={2} title="加到你的客户端">
-          <PillTabs className="mt-3" size="xs" layoutId="agent-mcp-client" label="客户端" active={client} onSelect={setClient} items={MCP_CLIENTS.map((c) => ({ key: c.key, label: c.label }))} />
+        <Step n={2} title="Adicione ao seu cliente">
+          <PillTabs className="mt-3" size="xs" layoutId="agent-mcp-client" label="Cliente" active={client} onSelect={setClient} items={MCP_CLIENTS.map((c) => ({ key: c.key, label: c.label }))} />
           {client === "claude" && <CodeBlock className="mb-0 mt-3" lang="bash" code={`claude mcp add --transport http ${name} '${url}'`} />}
           {client === "codex" && <CodeBlock className="mb-0 mt-3" lang="bash" code={`codex mcp add ${name} --url '${url}'`} />}
-          {client === "json" && <CodeBlock className="mb-0 mt-3" title="Cursor、Cherry Studio 等用 JSON 配置的客户端" lang="json" code={JSON.stringify({ mcpServers: { [name]: { type: "http", url } } }, null, 2)} />}
-          {client === "other" && <p className="mt-3">{`在客户端的 MCP 或连接器设置里新建一项：名称填 ${name}，地址填上面的网址，认证选“无”，不要填 API Key。只支持本地命令的客户端，先用它自带的远程 MCP 代理。`}</p>}
+          {client === "json" && <CodeBlock className="mb-0 mt-3" title="Cursor, Cherry Studio e outros clientes configurados por JSON" lang="json" code={JSON.stringify({ mcpServers: { [name]: { type: "http", url } } }, null, 2)} />}
+          {client === "other" && <p className="mt-3">{`Nas configurações de MCP ou conectores do cliente, crie um item: nome ${name}, endereço igual ao de cima, autenticação "nenhuma", sem API Key. Se o cliente só aceita comandos locais, use primeiro o proxy de MCP remoto que ele oferece.`}</p>}
         </Step>
-        <Step n={3} title="让 Agent 调一次">
-          <Ask text={`请调用 ${T.latest}，告诉我过去 24 小时最重要的${subjectAfter(" 5 条", "资讯")}，并附 ${SITE.name} 链接。`} />
-          <p className="mt-2 text-[13px] text-ink-3">{`客户端显示调用了 ${T.latest}，回答里有时间范围、中文摘要和 ${new URL(props.base).host} 链接，就是连上了。`}</p>
+        <Step n={3} title="Peça ao agente para usar">
+          <Ask text={`Use ${T.latest} e me diga as 5 notícias mais importantes das últimas 24 horas, com o link do ${SITE.name}.`} />
+          <p className="mt-2 text-[13px] text-ink-3">{`Se o cliente mostrar que chamou ${T.latest} e a resposta trouxer período, resumos em português e links de ${new URL(props.base).host}, está conectado.`}</p>
         </Step>
       </Steps>
 
-      <Block title={`${mcpToolCount()} 个工具`}>
+      <Block title={`${mcpToolCount()} ferramentas`}>
         <Table
-          head={["工具", "能做什么", "可以这样问"]}
+          head={["Ferramenta", "O que faz", "Exemplo de pedido"]}
           minWidth={600}
           rows={[
-            [<Mono>{T.latest}</Mono>, "过去 24 小时或最近 7 天的精选、全部资讯", `${subjectAfter("今天有什么", "新闻")}？`],
+            [<Mono>{T.latest}</Mono>, "Destaques ou todas as notícias das últimas 24 horas ou 7 dias", "O que aconteceu hoje em política e IA?"],
             [<Mono>{T.search}</Mono>, AGENT.search.scope, AGENT.search.ask],
-            [<Mono>{T.hot}</Mono>, "当前热点榜 Top 10", "现在最热的是什么？"],
-            [<Mono>{T.story}</Mono>, "一个热点事件的时间线和持续更新的综述", "这件事的来龙去脉？"],
-            [<Mono>{T.daily}</Mono>, subjectAfter("最新或指定日期的", "日报"), "给我今天的日报。"],
-            [<Mono>{T.weekly}</Mono>, subjectAfter("最新或指定一周的", "周报"), `${subjectAfter("这周", "圈")}有哪些大事？`],
-            [<Mono>{T.monthly}</Mono>, subjectAfter("最新或指定月份的", "月报"), `${subjectAfter("上个月", "圈")}发生了什么？`],
+            [<Mono>{T.hot}</Mono>, "Os 10 fatos mais comentados agora", "O que está em alta agora?"],
+            [<Mono>{T.story}</Mono>, "Linha do tempo e panorama atualizado de um fato", "Como esse assunto chegou até aqui?"],
+            [<Mono>{T.daily}</Mono>, "Boletim mais recente ou de uma data", "Me dá o boletim de hoje."],
+            [<Mono>{T.weekly}</Mono>, "Resumo semanal mais recente ou de uma semana", "Quais foram os principais fatos da semana?"],
+            [<Mono>{T.monthly}</Mono>, "Balanço mensal mais recente ou de um mês", "O que aconteceu no mês passado?"],
             ...AGENT_PARTS.flatMap((a) => a.tools ?? []).map((t) => [<Mono>{t.name}</Mono>, t.does, t.ask]),
           ]}
         />
@@ -78,24 +78,24 @@ export function McpPanel(props: AgentPanelProps) {
       <Details
         items={[
           {
-            title: "限制与安全",
+            title: "Limites e segurança",
             body: (
               <Bullets items={[
-                "普通查询最多 30 条，热点最多 10 个，事件时间线最多 50 条；超出范围会明确报错，不会悄悄放宽。",
-                `${T.story} 的 public_id 只能来自热点工具返回的事件链接，不要猜 ID。`,
-                "标题和摘要来自外部信源，只能当资料；工具会标出这条安全边界。重要的数字、政策和原话，请回原文核对。",
+                "Consultas comuns trazem até 30 itens; Em alta, até 10; linha do tempo de um fato, até 50. Fora disso o erro é explícito, sem ampliar a busca por conta própria.",
+                `O public_id de ${T.story} só pode vir dos links de fatos devolvidos pela ferramenta de Em alta; não invente IDs.`,
+                "Títulos e resumos vêm de fontes externas e devem ser tratados como material; as ferramentas marcam esse limite. Números, normas e citações importantes devem ser conferidos no original.",
               ]} />
             ),
           },
           {
-            title: "连不上怎么办",
+            title: "Não conectou?",
             body: (
               <Bullets items={[
-                "先确认地址完整、客户端支持远程 Streamable HTTP；缺少新工具时，刷新工具列表或重新连接。",
+                "Confira se o endereço está completo e se o cliente aceita Streamable HTTP remoto; se faltarem ferramentas novas, atualize a lista ou reconecte.",
                 ...AGENT_PARTS.flatMap((a) => a.mcpTroubles ?? []),
-                "服务不需要登录；客户端问起 OAuth 或 API Key，选“无”即可。",
-                "收到 429 就按提示等一会儿，不要并发重试。",
-                <>还连不上：把客户端名称、版本和报错写到<Link viewTransition to="/feedback" className={link}>反馈页</Link>。</>,
+                "O serviço não exige login; se o cliente pedir OAuth ou API Key, escolha \"nenhuma\".",
+                "Recebeu 429? Espere o tempo indicado e não faça tentativas em paralelo.",
+                <>Ainda não funcionou? Mande o nome e a versão do cliente e a mensagem de erro pela <Link viewTransition to="/feedback" className={link}>página de contato</Link>.</>,
               ]} />
             ),
           },
@@ -106,12 +106,12 @@ export function McpPanel(props: AgentPanelProps) {
 }
 
 const FEEDS = [
-  { name: "精选摘要", badge: "推荐", path: "/feed.xml", desc: "最新 50 条精选，带标题、摘要、站内阅读和原文链接。" },
-  { name: "精选全文", path: "/feed/full.xml", desc: "同样的 50 条；允许转载的来源直接附全文，其余仍是摘要。" },
-  { name: "全部动态", path: "/feed/all.xml", desc: "最近 7 天的公开动态，按原文发布时间倒序。" },
-  { name: withSubject("日报"), path: "/feed/daily.xml", desc: `${EDITION_WHEN.daily}（北京时间）一期：头条导语加整期目录，保留最近 30 期。` },
-  { name: withSubject("周报"), path: "/feed/weekly.xml", desc: `${EDITION_WHEN.weekly}（北京时间）一期：总述加按栏目分好的${REPORTS.entry.noun}，保留最近 12 期。` },
-  { name: withSubject("月报"), path: "/feed/monthly.xml", desc: `${EDITION_WHEN.monthly}（北京时间）一期：总述加按栏目分好的${REPORTS.entry.noun}，保留最近 12 期。` },
+  { name: "Destaques (resumo)", badge: "Recomendado", path: "/feed.xml", desc: "Os 50 destaques mais recentes, com título, resumo, link de leitura no site e link do original." },
+  { name: "Destaques (texto integral)", path: "/feed/full.xml", desc: "Os mesmos 50 itens; fontes que permitem republicação vêm com texto integral, as demais com resumo." },
+  { name: "Todas as notícias", path: "/feed/all.xml", desc: "Notícias públicas dos últimos 7 dias, da mais recente para a mais antiga." },
+  { name: "Boletim diário", path: "/feed/daily.xml", desc: `Uma edição ${EDITION_WHEN.daily} (horário de Brasília): abertura e sumário completo; guarda as últimas 30 edições.` },
+  { name: "Resumo semanal", path: "/feed/weekly.xml", desc: `Uma edição ${EDITION_WHEN.weekly} (horário de Brasília): abertura e ${REPORTS.entry.noun} por seção; guarda as últimas 12 edições.` },
+  { name: "Balanço mensal", path: "/feed/monthly.xml", desc: `Uma edição ${EDITION_WHEN.monthly} (horário de Brasília): abertura e ${REPORTS.entry.noun} por seção; guarda as últimas 12 edições.` },
 ];
 
 /** The category feeds, under the names the feeds themselves use. */
@@ -119,10 +119,10 @@ const FEED_CATEGORIES = PUBLIC_API_CATEGORY_KEYS.map((key) => [key, feedCategory
 
 export function RssPanel(props: AgentPanelProps) {
   const { base } = props;
-  const lead = `${["兼容主流 RSS 2.0 阅读器，也能接 n8n、Zapier 这类自动化工具。地址长期不变", ...AGENT_PARTS.flatMap((a) => a.rssLead ?? [])].join("；")}。`;
+  const lead = `${["Funciona com leitores de RSS 2.0 e com automações como n8n, Make e Zapier. Os endereços não mudam", ...AGENT_PARTS.flatMap((a) => a.rssLead ?? [])].join("; ")}.`;
   return (
     <>
-      <PanelHead label="RSS" title="复制地址，用阅读器订阅">
+      <PanelHead label="RSS" title="Copie o endereço e assine no seu leitor">
         {lead}
       </PanelHead>
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -135,16 +135,16 @@ export function RssPanel(props: AgentPanelProps) {
             <p className="mt-1 flex-1 text-[13px] leading-[1.7] text-ink-3">{f.desc}</p>
             <div className="mt-3 flex items-center gap-2 border-t border-line-soft pt-3">
               <code className="mono min-w-0 flex-1 truncate text-[12px] text-ink-4">{base}{f.path}</code>
-              <CopyButton text={addressOf(props, f.path)} label="复制地址" className="shrink-0" />
+              <CopyButton text={addressOf(props, f.path)} label="Copiar endereço" className="shrink-0" />
             </div>
           </div>
         ))}
       </div>
       {TAG && <p className="mt-3 text-[12.5px] text-ink-4">{TAG.rss}</p>}
 
-      <Block title="按分类订阅">
+      <Block title="Assinar por editoria">
         <Table
-          head={["分类", "摘要", "全文"]}
+          head={["Editoria", "Resumo", "Texto integral"]}
           minWidth={420}
           rows={FEED_CATEGORIES.map(([slug, label]) => [
             <span className="font-medium text-ink">{label}</span>,
@@ -154,109 +154,109 @@ export function RssPanel(props: AgentPanelProps) {
         />
       </Block>
 
-      <Block title="刷新多快合适">
-        <p>阅读器会带着上次的 ETag 来问，内容没变时只回一个很小的 304，不重复下载。30 分钟刷新一次就够，更快也拿不到新的内容。</p>
-        <p className="mt-3 text-[13px] text-ink-3">{`条目链接指向站内阅读页，原文链接在摘要里。能匿名订阅不等于所有用途都获许可${POLICY.terms.notes ? `：${POLICY.terms.notes.rss}` : ""}，见`}<Link viewTransition to="/terms" className={link}>{POLICY.terms.name}</Link>。</p>
+      <Block title="Com que frequência atualizar">
+        <p>O leitor envia o ETag da última consulta; se nada mudou, recebe um 304 bem pequeno, sem baixar tudo de novo. Atualizar a cada 30 minutos basta: mais rápido não traz conteúdo novo.</p>
+        <p className="mt-3 text-[13px] text-ink-3">{`Os itens apontam para a página de leitura no site; o link do original está no resumo. Assinar sem cadastro não autoriza qualquer uso${POLICY.terms.notes ? `: ${POLICY.terms.notes.rss}` : ""}; veja os `}<Link viewTransition to="/terms" className={link}>{POLICY.terms.name}</Link>.</p>
       </Block>
     </>
   );
 }
 
 const RECIPES = [
-  { key: "latest", label: "盯最新资讯" },
-  { key: "sync", label: "同步全部精选" },
+  { key: "latest", label: "Acompanhar as últimas" },
+  { key: "sync", label: "Sincronizar todos os destaques" },
 ];
 
 export function ApiPanel(props: AgentPanelProps) {
   const { base, tag } = props;
   const userAgent = [ACCESS.userAgent, TAG && tag ? TAG.userAgent(tag) : null].filter(Boolean).join(" ");
   const curl = `curl --compressed${userAgent ? ` -A '${userAgent}'` : ""}`;
-  let pace = `内容多久变一次：新资讯全天陆续进来，精选每天变几次到几十次，日报${EDITION_WHEN.daily}、周报${EDITION_WHEN.weekly}、月报${EDITION_WHEN.monthly}（北京时间）各一期。`;
-  if (ACCESS.ratePerMinute) pace += `同一个 IP 每分钟超过约 ${ACCESS.ratePerMinute} 次会收到 429，请按 Retry-After 等待，不要并发重试。`;
+  let pace = `Ritmo do conteúdo: notícias novas entram o dia todo, os destaques mudam de algumas a dezenas de vezes por dia, e há um boletim ${EDITION_WHEN.daily}, um resumo semanal ${EDITION_WHEN.weekly} e um balanço mensal ${EDITION_WHEN.monthly} (horário de Brasília).`;
+  if (ACCESS.ratePerMinute) pace += ` Acima de cerca de ${ACCESS.ratePerMinute} pedidos por minuto do mesmo IP, a resposta é 429: espere o Retry-After e não faça tentativas em paralelo.`;
   const [recipe, setRecipe] = useState<string>("latest");
   const recipes = AGENT_PARTS.flatMap((a) => a.recipes ?? []);
   const items = `${base}/api/v1/items?mode=selected&window=24h&limit=20`;
   return (
     <>
-      <PanelHead label={`REST API · ${V}`} title="匿名 GET，拿来就能用">
-        不用 token；浏览器跨域、curl 和各语言默认的 HTTP 客户端都能直接调。路径是 /api/v1，字段和错误码以 <a href="/openapi-v1.json" className={link}>OpenAPI</a> 为准。
+      <PanelHead label={`API REST · ${V}`} title="GET anônimo, pronto para usar">
+        Sem token: navegador (com CORS), curl e o cliente HTTP padrão de qualquer linguagem funcionam direto. O caminho é /api/v1; campos e códigos de erro seguem o <a href="/openapi-v1.json" className={link}>OpenAPI</a>.
       </PanelHead>
-      <CodeBlock className="mt-6" title="第一个请求" lang="bash" code={`${curl} '${items}'`} />
+      <CodeBlock className="mt-6" title="Primeira requisição" lang="bash" code={`${curl} '${items}'`} />
 
-      <Block title="按分类筛选">
-        <p>在资讯请求中加上 <Mono>category</Mono>，只取对应分类；不传则包含全部分类。返回条目的 <Mono>category</Mono> 也使用下表中的值。</p>
-        <Table head={["分类", "请求参数"]} rows={FEED_CATEGORIES.map(([key, name]) => [name, <Mono>{`category=${key}`}</Mono>])} />
+      <Block title="Filtrar por editoria">
+        <p>Acrescente <Mono>category</Mono> à consulta de notícias para receber só aquela editoria; sem ele, vêm todas. O <Mono>category</Mono> dos itens devolvidos usa os mesmos valores da tabela.</p>
+        <Table head={["Editoria", "Parâmetro"]} rows={FEED_CATEGORIES.map(([key, name]) => [name, <Mono>{`category=${key}`}</Mono>])} />
       </Block>
 
-      <Block title="用得省，也更快">
+      <Block title="Mais leve e mais rápido">
         <Tips
           items={[
-            { title: "开压缩", text: <>curl 加 <Mono>--compressed</Mono>，其他客户端打开 gzip 或 br。JSON 压缩后只有原来的 1/4 到 1/8。</> },
-            { title: "带上 ETag", text: <>保存响应里的 ETag，下次带 <Mono>If-None-Match</Mono>；内容没变时返回 304，不传正文。</> },
-            { title: "按节奏取", text: `资讯和热点最快一分钟一次；日报${EDITION_WHEN.daily} 后取一次，周报、月报出刊后取一次；往回翻页翻到已有的那条就停。` },
+            { title: "Ative compressão", text: <>No curl, use <Mono>--compressed</Mono>; nos outros clientes, gzip ou br. O JSON comprimido fica com 1/4 a 1/8 do tamanho.</> },
+            { title: "Use ETag", text: <>Guarde o ETag da resposta e envie <Mono>If-None-Match</Mono> na próxima; se nada mudou, volta 304 sem corpo.</> },
+            { title: "Respeite o ritmo", text: `Notícias e Em alta: no máximo uma vez por minuto. Boletim: uma vez depois das ${EDITION_TIMES.daily}; resumo semanal e balanço mensal: uma vez depois de publicados. Ao paginar para trás, pare quando encontrar um item que você já tem.` },
           ]}
         />
         <p className="mt-3 text-[13px] leading-[1.75] text-ink-3">{pace}</p>
       </Block>
 
-      <Block title="接口一览">
+      <Block title="Todos os endpoints">
         <Table
-          head={["路径", "用来做什么", "多久取一次"]}
+          head={["Caminho", "Para que serve", "Frequência"]}
           minWidth={640}
           rows={[
-            { group: "资讯" },
-            [<Mono>/api/v1/items</Mono>, "精选或最近 7 天全部动态，可按分类、时间窗、关键词筛", "最快 1 分钟一次"],
-            { group: "热点与事件" },
-            [<Mono>/api/v1/hot-topics</Mono>, "当前热点榜 Top 10", "最快 1 分钟一次"],
-            [<Mono>{"/api/v1/stories/{publicId}"}</Mono>, "一个事件的报道时间线、AI 综述和关联事件", "需要时"],
-            { group: "日报" },
-            [<Mono>/api/v1/dailies/latest</Mono>, "最新一期日报", `${EDITION_WHEN.daily} 后一次`],
-            [<Mono>{"/api/v1/dailies/{date}"}</Mono>, "指定日期日报；撤稿会移除引用", "缓存过期后使用前验证 ETag"],
-            [<Mono>/api/v1/dailies</Mono>, "日报日期索引", "每天一次"],
-            { group: "周报与月报" },
-            [<Mono>/api/v1/weeklies/latest</Mono>, "最新一期周报：头条、总述和一周重点，按栏目分好", `${EDITION_WHEN.weekly} 后一次`],
-            [<Mono>{"/api/v1/weeklies/{week}"}</Mono>, "指定一周，ISO 周如 2026-W39；撤稿会移除引用", "缓存过期后使用前验证 ETag"],
-            [<Mono>/api/v1/weeklies</Mono>, "周报索引", "每周一次"],
-            [<Mono>/api/v1/monthlies/latest</Mono>, "最新一期月报", `${EDITION_WHEN.monthly} 后一次`],
-            [<Mono>{"/api/v1/monthlies/{month}"}</Mono>, "指定月份，如 2026-09", "缓存过期后使用前验证 ETag"],
-            [<Mono>/api/v1/monthlies</Mono>, "月报索引", "每月一次"],
+            { group: "Notícias" },
+            [<Mono>/api/v1/items</Mono>, "Destaques ou todas as notícias dos últimos 7 dias, com filtro por editoria, período e palavra-chave", "No máximo 1 vez por minuto"],
+            { group: "Em alta e fatos" },
+            [<Mono>/api/v1/hot-topics</Mono>, "Os 10 fatos mais comentados agora", "No máximo 1 vez por minuto"],
+            [<Mono>{"/api/v1/stories/{publicId}"}</Mono>, "Linha do tempo das matérias, panorama feito pela IA e fatos relacionados", "Quando precisar"],
+            { group: "Boletim diário" },
+            [<Mono>/api/v1/dailies/latest</Mono>, "Boletim mais recente", `Uma vez depois das ${EDITION_TIMES.daily}`],
+            [<Mono>{"/api/v1/dailies/{date}"}</Mono>, "Boletim de uma data; matérias retiradas saem da edição", "Valide o ETag quando o cache expirar"],
+            [<Mono>/api/v1/dailies</Mono>, "Índice de datas dos boletins", "Uma vez por dia"],
+            { group: "Resumo semanal e balanço mensal" },
+            [<Mono>/api/v1/weeklies/latest</Mono>, "Resumo semanal mais recente: manchete, abertura e principais fatos por seção", `Uma vez depois das ${EDITION_TIMES.weekly} de segunda`],
+            [<Mono>{"/api/v1/weeklies/{week}"}</Mono>, "Uma semana específica, no padrão ISO (ex.: 2026-W39); matérias retiradas saem da edição", "Valide o ETag quando o cache expirar"],
+            [<Mono>/api/v1/weeklies</Mono>, "Índice dos resumos semanais", "Uma vez por semana"],
+            [<Mono>/api/v1/monthlies/latest</Mono>, "Balanço mensal mais recente", `Uma vez depois das ${EDITION_TIMES.monthly} do dia 1º`],
+            [<Mono>{"/api/v1/monthlies/{month}"}</Mono>, "Um mês específico, ex.: 2026-09", "Valide o ETag quando o cache expirar"],
+            [<Mono>/api/v1/monthlies</Mono>, "Índice dos balanços mensais", "Uma vez por mês"],
             ...AGENT_PARTS.flatMap((a) => (a.api ? [{ group: a.api.group }, ...a.api.rows.map(([path, does, often]) => [<Mono>{path}</Mono>, does, often])] : [])),
-            { group: "给 AI 助手" },
-            [<Mono>/api/v1/agent</Mono>, `给 Agent 的使用说明，列出的地址返回整理好的中文 Markdown${GUIDE_CLIENTS ? `；${GUIDE_CLIENTS} 用的就是它们` : ""}`, "需要时"],
-            { group: "完整精选同步" },
-            [<Mono>/api/v1/selected/snapshot</Mono>, "当前全部精选，分页一次拿全", "只在第一次"],
-            [<Mono>/api/v1/selected/changes</Mono>, "之后的新增、修改和撤选", "几分钟一次"],
+            { group: "Para assistentes de IA" },
+            [<Mono>/api/v1/agent</Mono>, `Instruções de uso para agentes; os endereços listados devolvem Markdown organizado em português${GUIDE_CLIENTS ? `; ${GUIDE_CLIENTS} usam esses endereços` : ""}`, "Quando precisar"],
+            { group: "Sincronização completa dos destaques" },
+            [<Mono>/api/v1/selected/snapshot</Mono>, "Todos os destaques atuais, paginados", "Só na primeira vez"],
+            [<Mono>/api/v1/selected/changes</Mono>, "Inclusões, alterações e remoções desde então", "A cada poucos minutos"],
           ]}
         />
       </Block>
 
-      <Block title="常见用法">
-        <PillTabs size="xs" layoutId="agent-api-recipe" label="用法" active={recipe} onSelect={setRecipe} items={[...RECIPES, ...recipes].map((r) => ({ key: r.key, label: r.label }))} />
+      <Block title="Usos comuns">
+        <PillTabs size="xs" layoutId="agent-api-recipe" label="Uso" active={recipe} onSelect={setRecipe} items={[...RECIPES, ...recipes].map((r) => ({ key: r.key, label: r.label }))} />
         {recipe === "latest" && (
           <>
-            <CodeBlock className="mb-3 mt-3" lang="bash" code={`# 第一次：保存响应头里的 ETag\n${curl} -i '${items}'\n# 之后最快每分钟一次，带上 ETag；返回 304 就是没变化\n${curl} -i -H 'If-None-Match: <上次的 ETag>' '${items}'`} />
-            <p>需要往回翻页时，把 <Mono>page.nextCursor</Mono> 作为 cursor 传回去，翻到已经有的那条就停，不要每次把 7 天重翻一遍。</p>
+            <CodeBlock className="mb-3 mt-3" lang="bash" code={`# Primeira vez: guarde o ETag do cabeçalho da resposta\n${curl} -i '${items}'\n# Depois, no máximo uma vez por minuto, envie o ETag; 304 significa que nada mudou\n${curl} -i -H 'If-None-Match: <ETag anterior>' '${items}'`} />
+            <p>Para paginar para trás, devolva <Mono>page.nextCursor</Mono> como cursor e pare ao encontrar um item que você já tem; não percorra os 7 dias inteiros toda vez.</p>
           </>
         )}
         {recipe === "sync" && (
           <>
-            <CodeBlock className="mb-3 mt-3" lang="bash" code={`# 第一次：分页拿全。保存第一页响应里的 cursor（每页都一样）\n${curl} '${base}/api/v1/selected/snapshot?fields=minimal&limit=500'\n# hasMore 为 true 就带上 nextPage 继续翻，直到翻完\n${curl} '${base}/api/v1/selected/snapshot?fields=minimal&limit=500&page=<上一页的 nextPage>'\n# 之后：原样传回 cursor，只拿新增、修改和撤选\n${curl} '${base}/api/v1/selected/changes?cursor=<第一页的 cursor>&limit=100'`} />
-            <p>每页成功写进本地后再保存新的 cursor。cursor 是流水账水位，放多久都不会过期；返回 409 <Mono>snapshot_required</Mono> 时重新取一次快照，不会悄悄漏数据。</p>
+            <CodeBlock className="mb-3 mt-3" lang="bash" code={`# Primeira vez: baixe tudo, página por página. Guarde o cursor da primeira resposta (é igual em todas)\n${curl} '${base}/api/v1/selected/snapshot?fields=minimal&limit=500'\n# Enquanto hasMore for true, siga com nextPage\n${curl} '${base}/api/v1/selected/snapshot?fields=minimal&limit=500&page=<nextPage anterior>'\n# Depois: devolva o cursor como está e receba só inclusões, alterações e remoções\n${curl} '${base}/api/v1/selected/changes?cursor=<cursor da primeira página>&limit=100'`} />
+            <p>Só guarde o cursor novo depois de gravar a página localmente. O cursor é uma marca de posição no histórico e não expira; se voltar 409 <Mono>snapshot_required</Mono>, baixe o snapshot de novo, sem perder dados em silêncio.</p>
           </>
         )}
         {recipes.map((r) => recipe === r.key && <r.Body key={r.key} base={base} curl={curl} />)}
       </Block>
 
-      <Block title="出错了怎么办" id="agent-api-recovery">
+      <Block title="Se der erro" id="agent-api-recovery">
         <dl className="grid grid-cols-[76px_minmax(0,1fr)] gap-x-3 gap-y-2.5">
           <dt className="mono text-[13px] text-ink">400</dt>
-          <dd>参数不对：按 OpenAPI 和返回的 code 修正，不要自动换成更宽的查询。cursor 无效或滑出时间窗返回 invalid_cursor，从第一页重来。</dd>
+          <dd>Parâmetro inválido: corrija conforme o OpenAPI e o code devolvido, sem trocar por uma consulta mais ampla. Cursor inválido ou fora da janela de tempo devolve invalid_cursor; comece da primeira página.</dd>
           <dt className="mono text-[13px] text-ink">409</dt>
-          <dd>snapshot_required：增量没法安全续上，重新取一次完整快照。</dd>
+          <dd>snapshot_required: não dá para continuar com segurança a partir do cursor; baixe o snapshot completo de novo.</dd>
           <dt className="mono text-[13px] text-ink">429</dt>
-          <dd>请求太密：按 Retry-After 等待，不要并发重试。</dd>
+          <dd>Pedidos rápidos demais: espere o Retry-After e não faça tentativas em paralelo.</dd>
           <dt className="mono text-[13px] text-ink">5xx</dt>
-          <dd>指数退避，先用上次成功的结果；公开服务不承诺 SLA。</dd>
+          <dd>Use espera exponencial e, enquanto isso, o último resultado bom; o serviço público não tem SLA.</dd>
           {AGENT_PARTS.flatMap((a) => a.apiErrors ?? []).map(([status, what]) => (
             <Fragment key={status}>
               <dt className="mono text-[13px] text-ink">{status}</dt>
@@ -264,7 +264,7 @@ export function ApiPanel(props: AgentPanelProps) {
             </Fragment>
           ))}
         </dl>
-        <p className="mt-4 text-[13px] text-ink-3">{`能匿名调用不等于所有用途都获许可${POLICY.terms.notes ? `：${POLICY.terms.notes.api}` : ""}，见`}<Link viewTransition to="/terms" className={link}>{POLICY.terms.name}</Link>。</p>
+        <p className="mt-4 text-[13px] text-ink-3">{`Chamar sem cadastro não autoriza qualquer uso${POLICY.terms.notes ? `: ${POLICY.terms.notes.api}` : ""}; veja os `}<Link viewTransition to="/terms" className={link}>{POLICY.terms.name}</Link>.</p>
       </Block>
 
     </>

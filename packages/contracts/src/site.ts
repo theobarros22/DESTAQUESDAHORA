@@ -369,7 +369,7 @@ export interface SiteMeta {
 export interface ChangelogRelease {
   date: string;
   time: string;
-  kind: "更新" | "优化" | "公告" | "下线";
+  kind: "Novidade" | "Melhoria" | "Aviso" | "Removido";
   title: string;
   body: string[];
   /** A notice readers must act on: drawn in the warning red so it cannot be skimmed past. */

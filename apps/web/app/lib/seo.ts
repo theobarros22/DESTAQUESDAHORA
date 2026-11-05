@@ -155,8 +155,8 @@ export function siteLd() {
       "@context": "https://schema.org",
       "@type": "Dataset",
       "@id": `${base}/#dataset`,
-      name: `${SITE.name} — ${withSubject("行业动态数据集")}`,
-      description: `${subjectAfter("持续更新的中文", "行业动态")}：每条附中文摘要、评分与原文出处，${subjectAfter("另有每日精选与", "日报")}，可通过 RSS 与公开 API 获取。`,
+      name: `${SITE.name} — conjunto de dados de notícias de política, IA e tecnologia`,
+      description: "Notícias de política, inteligência artificial e tecnologia, atualizadas continuamente: cada item tem resumo em português e link para a fonte original, além da seleção diária e do boletim, disponíveis por RSS e API pública.",
       url: base,
       inLanguage: SITE.locale,
       isAccessibleForFree: true,
@@ -165,12 +165,12 @@ export function siteLd() {
       creator: orgRef(),
       publisher: orgRef(),
       distribution: [
-        { "@type": "DataDownload", name: "精选 RSS", encodingFormat: "application/rss+xml", contentUrl: `${base}/feed.xml` },
-        { "@type": "DataDownload", name: "全部动态 RSS", encodingFormat: "application/rss+xml", contentUrl: `${base}/feed/all.xml` },
-        { "@type": "DataDownload", name: `${withSubject("日报")} RSS`, encodingFormat: "application/rss+xml", contentUrl: `${base}/feed/daily.xml` },
-        { "@type": "DataDownload", name: `${withSubject("周报")} RSS`, encodingFormat: "application/rss+xml", contentUrl: `${base}/feed/weekly.xml` },
-        { "@type": "DataDownload", name: `${withSubject("月报")} RSS`, encodingFormat: "application/rss+xml", contentUrl: `${base}/feed/monthly.xml` },
-        { "@type": "DataDownload", name: "公开 API v1", encodingFormat: "application/json", contentUrl: `${base}/api/v1/items` },
+        { "@type": "DataDownload", name: "RSS dos destaques", encodingFormat: "application/rss+xml", contentUrl: `${base}/feed.xml` },
+        { "@type": "DataDownload", name: "RSS de todas as notícias", encodingFormat: "application/rss+xml", contentUrl: `${base}/feed/all.xml` },
+        { "@type": "DataDownload", name: "RSS do boletim diário", encodingFormat: "application/rss+xml", contentUrl: `${base}/feed/daily.xml` },
+        { "@type": "DataDownload", name: "RSS do resumo semanal", encodingFormat: "application/rss+xml", contentUrl: `${base}/feed/weekly.xml` },
+        { "@type": "DataDownload", name: "RSS do balanço mensal", encodingFormat: "application/rss+xml", contentUrl: `${base}/feed/monthly.xml` },
+        { "@type": "DataDownload", name: "API pública v1", encodingFormat: "application/json", contentUrl: `${base}/api/v1/items` },
         { "@type": "DataDownload", name: "OpenAPI", encodingFormat: "application/json", contentUrl: `${base}/openapi-v1.json` },
       ],
     },
@@ -237,7 +237,7 @@ export function archiveLd(path: string, name: string, entries: Array<{ path: str
 export function reportTitle(report: ReportDetail): string {
   const lead = report.lead?.title.trim() || report.highlights.find((item) => item.available)?.title.trim();
   const name = `${withSubject(REPORT_NAMES[report.kind])}｜${reportDateLabel(report.kind, report.key)}`;
-  return lead ? `${name}：${lead}` : name;
+  return lead ? `${name}: ${lead}` : name;
 }
 
 /** One report issue: an editorial round-up by the site (no personal byline), sections as its sections. */
@@ -273,7 +273,7 @@ export function storyLd(story: StoryDetail) {
     ...(reports.length ? {
       mainEntity: {
         "@type": "ItemList",
-        name: "报道时间线",
+        name: "Linha do tempo das matérias",
         itemListOrder: "https://schema.org/ItemListOrderDescending",
         numberOfItems: reports.length,
         itemListElement: reports.map((report, index) => ({ "@type": "ListItem", position: index + 1, name: report.title })),

@@ -22,19 +22,19 @@ export function byBeijingDay<T>(list: readonly T[], at: (entry: T) => string): A
 
 /** "周六" of a calendar date (YYYY-MM-DD). */
 export function weekdayShort(date: string): string {
-  return beijingWeekday(date).replace("星期", "周");
+  return beijingWeekday(date).replace("-feira", "").replace(/^./, (c) => c.toUpperCase()).slice(0, 3) + ".";
 }
 
 export function relativeTime(iso: string, now = Date.now()): string {
   const t = Date.parse(iso);
   const s = Math.max(0, Math.round((now - t) / 1000));
-  if (s < 60) return "刚刚";
+  if (s < 60) return "agora";
   const m = Math.round(s / 60);
-  if (m < 60) return `${m} 分钟前`;
+  if (m < 60) return `há ${m} min`;
   const h = Math.round(m / 60);
-  if (h < 24) return `${h} 小时前`;
+  if (h < 24) return `há ${h} h`;
   const d = Math.round(h / 24);
-  if (d < 30) return `${d} 天前`;
+  if (d < 30) return `há ${d} ${d === 1 ? "dia" : "dias"}`;
   return beijingDate(iso);
 }
 
