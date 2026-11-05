@@ -365,6 +365,269 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-agencia-brasil-geral",
+      "name": "Agência Brasil — Geral",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/geral/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Oficial",
+        "Brasil",
+        "Licença CC BY"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-agencia-brasil-economia",
+      "name": "Agência Brasil — Economia",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/economia/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Brasil",
+        "Economia",
+        "Licença CC BY"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-agencia-brasil-saude",
+      "name": "Agência Brasil — Saúde",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/saude/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Brasil",
+        "Saúde",
+        "Licença CC BY"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-agencia-brasil-internacional",
+      "name": "Agência Brasil — Internacional",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/internacional/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Oficial",
+        "Mundo",
+        "Licença CC BY"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-agencia-brasil-esportes",
+      "name": "Agência Brasil — Esportes",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/esportes/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Oficial",
+        "Esportes",
+        "Licença CC BY"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-agencia-brasil-cultura",
+      "name": "Agência Brasil — Cultura",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/cultura/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Cinema e Séries",
+        "Cultura",
+        "Licença CC BY"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-onu-news-pt",
+      "name": "ONU News — Português",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.un.org/feed/subscribe/pt/news/all/rss.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Mundo"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-bbc-brasil",
+      "name": "BBC News Brasil",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://feeds.bbci.co.uk/portuguese/rss.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Imprensa",
+        "Mundo",
+        "Brasil"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-dw-brasil",
+      "name": "DW Brasil",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://rss.dw.com/xml/rss-br-all",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Mundo"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-cnn-brasil-esportes",
+      "name": "CNN Brasil — Esportes",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.cnnbrasil.com.br/esportes/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Imprensa",
+        "Esportes"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-cnn-brasil-entretenimento",
+      "name": "CNN Brasil — Entretenimento",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.cnnbrasil.com.br/entretenimento/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Cinema e Séries"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
     }
   ]
 }

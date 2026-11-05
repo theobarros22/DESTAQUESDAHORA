@@ -12,20 +12,21 @@ Escreva com neutralidade jornalística: nenhum adjetivo de valor sobre político
 
 ## Tipo de conteúdo
 
-`itemType` deve ser um destes oito:
+`itemType` deve ser um destes nove:
 
 - `official_act`: lei, decreto, medida provisória, portaria, resolução, decisão judicial ou norma publicada
 - `political_event`: votação, articulação, nomeação, CPI, aliança, crise ou movimento político já ocorrido
 - `election_event`: fato eleitoral (candidaturas, regras e julgamentos da Justiça Eleitoral, campanhas, propaganda, financiamento)
 - `ai_release`: lançamento ou grande atualização de modelo, produto ou ferramenta de IA
 - `tech_news`: fato de tecnologia (plataformas, big techs, segurança digital, telecom, governo digital)
+- `general_news`: fato noticioso geral fora de política e tecnologia (Brasil, Mundo, Esportes, Cinema e Séries)
 - `research_data`: pesquisa (inclusive eleitoral registrada), estudo, relatório ou levantamento de dados
 - `opinion_analysis`: opinião, análise, entrevista, coluna ou previsão
 - `practical_tip`: dica, tutorial ou passo a passo aplicável
 
 Prioridade: ato publicado ou decisão proferida é `official_act`, mesmo que o tema seja eleitoral ou de IA; fato eleitoral sem ato formal é `election_event`; lançamento de IA é `ai_release`; pesquisa ou estudo é `research_data`. Se o texto trata o lançamento como algo passado e agora explica o uso, é `practical_tip`.
 
-Antes de responder, confira se `itemType` combina com a primeira etiqueta: `official_act` → "Ato oficial" ou "Decisão judicial"; `political_event` → "Votação/Legislativo" ou "Negócios/Mercado" (só se for política econômica) ou "Outros"; `election_event` → "Eleições"; `ai_release` → "Lançamento de IA" ou "Produto/Atualização"; `tech_news` → "Produto/Atualização", "Segurança digital", "Negócios/Mercado" ou "Deepfake/Desinformação"; `research_data` → "Pesquisa/Estudo"; `opinion_analysis` → "Análise/Opinião"; `practical_tip` → "Dica/Tutorial". Temas de regulação de IA usam "Regulação de IA" com `official_act` ou `political_event`. Se houver conflito, corrija pelo fato central.
+Antes de responder, confira se `itemType` combina com a primeira etiqueta: `official_act` → "Ato oficial" ou "Decisão judicial"; `political_event` → "Votação/Legislativo" ou "Negócios/Mercado" (só se for política econômica) ou "Outros"; `election_event` → "Eleições"; `ai_release` → "Lançamento de IA" ou "Produto/Atualização"; `tech_news` → "Produto/Atualização", "Segurança digital", "Negócios/Mercado" ou "Deepfake/Desinformação"; `general_news` → "Cotidiano/Brasil", "Mundo/Geopolítica", "Esportes", "Cinema/Séries" ou "Negócios/Mercado" (economia do país ou do esporte); `research_data` → "Pesquisa/Estudo"; `opinion_analysis` → "Análise/Opinião"; `practical_tip` → "Dica/Tutorial". Temas de regulação de IA usam "Regulação de IA" com `official_act` ou `political_event`. Se houver conflito, corrija pelo fato central.
 
 ## Papel do autor
 

@@ -1,5 +1,5 @@
 // Editorias, etiquetas, entidades (instituições e empresas) e o dicionário que impede a IA de atribuir
-// um fato à instituição ou empresa errada. Destaques da Hora — Política, IA e Tecnologia.
+// um fato à instituição ou empresa errada. Destaques da Hora — Política, IA, Tecnologia, Brasil, Mundo, Esportes e Cinema.
 // As chaves das editorias aparecem nas URLs (/all?category=…): depois de publicar, não mude.
 
 /**
@@ -13,6 +13,10 @@ export const CATEGORIES = [
   { key: "ia-politica", tagColor: "violet", label: "IA & Política", feedLabel: "IA & Política", section: "IA & Política", guide: "O cruzamento entre inteligência artificial e poder público: regulação de IA (PL 2338/2023 e outras), deepfakes e desinformação com IA, uso de IA em campanhas, regras do TSE sobre IA, IA no governo e na Justiça, ANPD e dados pessoais em sistemas de IA, regulação de plataformas quando envolve IA. É a editoria-núcleo do site." },
   { key: "ia", tagColor: "indigo", label: "Inteligência Artificial", feedLabel: "Inteligência Artificial", section: "Inteligência Artificial", guide: "Lançamentos e atualizações de modelos, produtos e ferramentas de IA, negócios das empresas de IA, pesquisas e estudos relevantes. Sem envolvimento do poder público. Tutorial de como usar uma ferramenta vai para Dicas." },
   { key: "tecnologia", tagColor: "turquoise", label: "Tecnologia", feedLabel: "Tecnologia", section: "Tecnologia", guide: "Big techs, redes sociais, celulares e hardware, telecom, internet, cibersegurança e vazamentos, governo digital (gov.br, Pix, serviços públicos digitais) e regulação de plataformas sem foco em IA." },
+  { key: "brasil", tagColor: "orange", label: "Brasil", feedLabel: "Brasil", section: "Brasil", guide: "O que acontece no país fora da disputa política: cotidiano, economia (inflação, juros, emprego, preços), segurança pública, saúde, educação, meio ambiente, clima, cidades e o estado do Rio de Janeiro. Ato de governo, votação e decisão judicial vão para Política; eleição vai para Eleições; golpe digital e vazamento vão para Tecnologia ou Dicas." },
+  { key: "mundo", tagColor: "wathet", label: "Mundo", feedLabel: "Mundo", section: "Mundo", guide: "Fatos internacionais: geopolítica, guerras e conflitos, eleições e governos de outros países, organismos como ONU e OMS, economia global, desastres e clima no exterior. Quando o fato afeta diretamente o Brasil, mantenha em Mundo e cite o impacto. Regulação de IA no exterior vai para IA & Política; empresa de tecnologia estrangeira vai para Tecnologia ou Inteligência Artificial." },
+  { key: "esportes", tagColor: "lime", label: "Esportes", feedLabel: "Esportes", section: "Esportes", guide: "Resultados, decisões, transferências, convocações e bastidores do esporte: futebol (Brasileirão, Copa do Brasil, Libertadores, seleção, clubes do Rio), Olimpíadas, F1, vôlei, basquete, lutas e outros. Não é comentário: coluna e opinião esportiva vão para Análise. Negócios do esporte (direitos de transmissão, SAF) ficam em Esportes." },
+  { key: "cinema", tagColor: "carmine", label: "Cinema e Séries", feedLabel: "Cinema e Séries", section: "Cinema e Séries", guide: "Cinema, séries, streaming e premiações: estreias, bilheteria, festivais, trailers, elenco e produção, cinema nacional. Resenha e crítica assinada vão para Análise; uso de IA na produção audiovisual vai para Inteligência Artificial." },
   { key: "dicas", tagColor: "green", label: "Dicas", feedLabel: "Dicas", section: "Dicas e Análises", guide: "Conteúdo prático que o leitor pode aplicar: como usar uma ferramenta de IA, prompts, configurações de privacidade e segurança, golpes digitais e como se proteger, produtividade. O foco é o passo a passo; lançar uma ferramenta é Inteligência Artificial ou Tecnologia.", commentary: true },
   { key: "analise", tagColor: "purple", label: "Análise", feedLabel: "Análise e Opinião", section: "Dicas e Análises", guide: "O centro é a interpretação, opinião, previsão, entrevista ou coluna de alguém. Fato novo noticiado por um político em rede social continua sendo notícia, não opinião; ser famoso não transforma o texto em análise.", commentary: true },
 ] as const satisfies ReadonlyArray<{ key: string; tagColor: string; label: string; feedLabel?: string; section: string; guide: string; commentary?: true }>;
@@ -24,14 +28,14 @@ export const RELEASE: { category: string; tag: string; unit: string } | null = {
 export const PLAIN_TERMS: readonly string[] = ["ia", "api", "stf", "stj", "tse", "tre", "pec", "pl", "cpi", "lgpd", "anpd", "pib", "ceo", "rj", "alerj", "gov.br", "pix"];
 
 /** Tipo de conteúdo atribuído na etapa de compreensão (prompts/content-understanding.md). A nota usa pesos diferentes por tipo. */
-export const ITEM_TYPES = ["official_act", "political_event", "election_event", "ai_release", "tech_news", "research_data", "opinion_analysis", "practical_tip"] as const;
+export const ITEM_TYPES = ["official_act", "political_event", "election_event", "ai_release", "tech_news", "general_news", "research_data", "opinion_analysis", "practical_tip"] as const;
 
 // ── Etiquetas ─────────────────────────────────────────────────────────────────────────
 
 /** A primeira etiqueta de cada matéria tem de ser uma destas. A última é a de reserva. */
 export const CATEGORY_TAGS = [
   "Ato oficial", "Votação/Legislativo", "Decisão judicial", "Eleições", "Regulação de IA", "Deepfake/Desinformação", "Lançamento de IA",
-  "Produto/Atualização", "Pesquisa/Estudo", "Segurança digital", "Negócios/Mercado", "Dica/Tutorial", "Análise/Opinião", "Outros",
+  "Produto/Atualização", "Pesquisa/Estudo", "Segurança digital", "Negócios/Mercado", "Cotidiano/Brasil", "Mundo/Geopolítica", "Esportes", "Cinema/Séries", "Dica/Tutorial", "Análise/Opinião", "Outros",
 ] as const;
 
 /** Etiquetas de tema (opcionais). */
@@ -56,6 +60,10 @@ export const TAG_SYNONYMS: Readonly<Record<string, string>> = {
   pesquisa: "Pesquisa/Estudo", estudo: "Pesquisa/Estudo", relatório: "Pesquisa/Estudo", dados: "Pesquisa/Estudo",
   segurança: "Segurança digital", vazamento: "Segurança digital", ataque: "Segurança digital", hacker: "Segurança digital",
   negócios: "Negócios/Mercado", mercado: "Negócios/Mercado", investimento: "Negócios/Mercado", aquisição: "Negócios/Mercado", empresa: "Negócios/Mercado",
+  cotidiano: "Cotidiano/Brasil", brasil: "Cotidiano/Brasil", economia: "Cotidiano/Brasil", saúde: "Cotidiano/Brasil", "segurança pública": "Cotidiano/Brasil", educação: "Cotidiano/Brasil",
+  mundo: "Mundo/Geopolítica", internacional: "Mundo/Geopolítica", geopolítica: "Mundo/Geopolítica", guerra: "Mundo/Geopolítica",
+  esporte: "Esportes", esportes: "Esportes", futebol: "Esportes", jogo: "Esportes", campeonato: "Esportes",
+  cinema: "Cinema/Séries", filme: "Cinema/Séries", série: "Cinema/Séries", streaming: "Cinema/Séries", estreia: "Cinema/Séries",
   dica: "Dica/Tutorial", tutorial: "Dica/Tutorial", "passo a passo": "Dica/Tutorial", "como fazer": "Dica/Tutorial",
   opinião: "Análise/Opinião", análise: "Análise/Opinião", coluna: "Análise/Opinião", entrevista: "Análise/Opinião",
   outro: "Outros", outros: "Outros",
