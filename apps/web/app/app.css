@@ -19,8 +19,6 @@
 /* Touch screens (no hover): pressed states for rows and cards, and the desktop shell's 44px targets on
    tablets, unfolded foldables and large phones held sideways. */
 @custom-variant touch (@media (hover: none));
-/* Short windows (an unfolded foldable held sideways): the desktop sidebar scrolls as one column. */
-@custom-variant short (@media (max-height: 700px));
 
 @theme {
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
@@ -34,7 +32,8 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-raised: var(--raised);
-  --color-sidebar: var(--sidebar);
+  --color-masthead: var(--masthead);
+  --color-masthead-hi: var(--masthead-hi);
   --color-daybar: var(--daybar);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
@@ -75,11 +74,10 @@
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
 
   /* Breakpoints: phones ≤ 640, the mobile shell up to 699, desktop pages above (an unfolded Android
-     foldable upright is about 711px wide, an iPad mini 744, an iPhone Duo held sideways 951). Up to
-     `wide` the site navigation is a rail of the phone's tabs, from there the full sidebar. From `side` a
-     desktop page sets its side column (an article's rail, a reading page's aside, the report archive)
-     beside the text, which keeps about 600px next to the site sidebar; narrower desktops read in one
-     column, as phones do. */
+     foldable upright is about 711px wide, an iPad mini 744, an iPhone Duo held sideways 951). From `lg`
+     the site navigation is the masthead band across the top. From `side` a desktop page sets its side
+     column (an article's rail, a reading page's aside, the report archive) beside the text; narrower
+     desktops read in one column, as phones do. */
   --breakpoint-sm: 641px;
   --breakpoint-lg: 700px;
   --breakpoint-md: 768px;
@@ -93,9 +91,9 @@
   /* Page widths follow the screen's shape. Lists fill the screen up to 21:9
      and centre beyond it (32:9); reading pages fill a 16:9 screen and centre on wider ones. A browser
      window is shorter than its screen (tabs, address bar), so a 16:9 screen gives a window of about 2:1
-     and a 21:9 screen one of about 2.7:1. 236px is the sidebar and the main area's padding. */
-  --page-max-wide: max(1200px, calc(270dvh - 236px));
-  --page-max-reading: max(1100px, calc(200dvh - 236px));
+     and a 21:9 screen one of about 2.7:1. 56px is the main area's side padding. */
+  --page-max-wide: max(1200px, calc(270dvh - 56px));
+  --page-max-reading: max(1100px, calc(200dvh - 56px));
   /* The phone shell (below lg): the top bar's height, which sticky headers inside pages sit below, and
      side gutters that keep clear of the notch in landscape. The desktop shell has no top bar. */
   --bar-h: 48px;
@@ -111,6 +109,9 @@
   --surface-2: #fdfdfb;
   --raised: #ffffff;
   --sidebar: #fdfdfb;
+  /* Faixa de navegação do computador: azul-marinho com destaque laranja. */
+  --masthead: #0a2a52;
+  --masthead-hi: #f26419;
   --daybar: #f0f2ee;
   --ink: #202a30;
   --ink-2: #303c42;
@@ -169,6 +170,8 @@
   --surface-2: #1d272b;
   --raised: #202a2f;
   --sidebar: #161e21;
+  --masthead: #0a2a52;
+  --masthead-hi: #f26419;
   --daybar: #182024;
   --ink: #e7eceb;
   --ink-2: #d2dada;
@@ -582,7 +585,7 @@
 }
 
 /* Report pages read on a faintly toned paper in the light theme, lighter than the site's page ground;
-   the archive column is halfway between the site sidebar and white. */
+   the archive column is halfway between the sidebar tone and white. */
 :root:not([data-theme="dark"]) body:has(.report-shell) {
   background: color-mix(in srgb, var(--bg) 60%, var(--surface));
 }

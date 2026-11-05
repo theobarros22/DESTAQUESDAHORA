@@ -1,4 +1,4 @@
-// Site navigation in one place: the desktop sidebar's sections and the phone tab bar's tabs, the engine's
+// Site navigation in one place: the desktop masthead's sections and the phone tab bar's tabs, the engine's
 // and the site's modules'.
 import type { ReactNode } from "react";
 import { NAV, subjectAfter, withSubject } from "@aihot/site";
@@ -59,10 +59,10 @@ export function navUp(entry: keyof typeof UP): { to: string; name: string; back:
 }
 
 /**
- * The sidebar: the engine's sections with the modules' between Conteúdo and Mais; a module naming a section
+ * The masthead nav: the engine's sections with the modules' between Conteúdo and Mais; a module naming a section
  * that is already there adds to it.
  */
-export function sidebar(): Array<{ title: string; items: NavItem[] }> {
+export function mastheadNav(): Array<{ title: string; items: NavItem[] }> {
   const [content, ...rest] = SECTIONS;
   const more = rest.pop()!;
   const sections = [content!, ...rest].map((s) => ({ ...s, items: s.items.filter((i) => inNav(i.to)) }));
@@ -75,8 +75,8 @@ export function sidebar(): Array<{ title: string; items: NavItem[] }> {
   return [...sections, more];
 }
 
-/** A sidebar entry is lit on its pages; resumo diário also covers weekly and monthly reports. */
-export function sidebarIsActive(item: Pick<NavItem, "to" | "end">, pathname: string): boolean {
+/** A nav entry is lit on its pages; resumo diário also covers weekly and monthly reports. */
+export function navIsActive(item: Pick<NavItem, "to" | "end">, pathname: string): boolean {
   if (item.end) return pathname === item.to;
   if (item.to === "/daily") return /^\/(daily|weekly|monthly)(\/|$)/.test(pathname);
   return pathname === item.to || pathname.startsWith(`${item.to}/`);
@@ -113,21 +113,4 @@ const ENGINE_TABS: Tab[] = [
 /** The tab bar: the engine's, the modules' before Minha área. */
 export function tabs(): Tab[] {
   return [...ENGINE_TABS.slice(0, -1).filter((t) => inNav(t.to)), ...webModules().flatMap((m) => m.tabs ?? []), ENGINE_TABS.at(-1)!];
-}
-
-/**
- * The rail that stands in for the sidebar on narrow desktops (unfolded foldables, tablets upright): the
- * tabs, with Todas after Seleção since desktop pages have no Seleção | Todas switch.
- */
-export function rail(): Tab[] {
-  const all = tabs();
-  if (!inNav("/all")) return all;
-  const at = all.findIndex((t) => t.key === "featured") + 1;
-  return [...all.slice(0, at), { key: "all", to: "/all", label: "Todas", icon: IconList }, ...all.slice(at)];
-}
-
-/** A rail entry is lit on its pages; Minha área also on the pages that sit under it on phones. */
-export function railIsActive(tab: Tab, pathname: string, screenTab: TabKey | undefined): boolean {
-  if (tab.key === "me") return pathname === tab.to || screenTab === "me";
-  return sidebarIsActive({ to: tab.to, end: tab.to === "/" }, pathname);
 }

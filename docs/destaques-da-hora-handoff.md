@@ -73,3 +73,30 @@ Aprovar o layout da capa; decidir sobre o PR para a `main`; conta DigitalPlat/Cl
 - Traduzidos para o português: README, documentação (`docs/`), `.github/`, comentários do código (apps, packages, scripts, testes), `industry/selection.ts`, `site/models.ts`, `site/README.md`, `industry/README.md`, `assets/`, exemplos `.jsonl` e mensagens dos scripts.
 - Mantido em chinês de propósito: analisadores de data, RSS, limpeza de texto e regex que tratam texto chinês (`sources/dates.ts`, `rss.ts`, `web-list.ts`, `content/sanitize.ts`, `lib/text.ts`, `editorial/writing.ts`), dados de teste que exercitam esse comportamento, direitos autorais do projeto original (`LICENSE`, `NOTICE`) e migrações já publicadas (imutáveis).
 - Verificação: `npm run typecheck` passa; testes standalone com a mesma linha de base (120 passam / 38 falham).
+
+## Atualização — 05/11/2026 (fotos licenciadas, redação própria e novo cabeçalho)
+
+**Regra permanente do Theo**: tudo que for feito é salvo no repositório (commit + push em `destaques-da-hora`) com instruções para o próximo agente continuar. Ao terminar qualquer etapa, atualize esta seção e o doc do Project `claude/destaques-da-hora-status.md`.
+
+### Decisões do Theo
+- **Redação própria**: o portal reescreve os fatos com palavras próprias (síntese de várias fontes), sem copiar texto, estrutura ou ângulo. Implementado em `industry/prompts/rules-original-wording.md`, incluído por `summarize-article`, `summarize-long-post`, `understand` e `story-digest`.
+- **Fotos primeiro, mas só com licença**: o Theo pediu fotos da internet "com crédito, ou reprodução da internet". Isso foi recusado (Lei 9.610, art. 108: risco de indenização) e ele aceitou. Caminho: foto de fonte licenciada (Câmara, Senado, Agência Brasil após confirmar licença, arquivo próprio, Wikimedia com licença, bancos livres, agência paga, ilustração de IA rotulada); sem foto licenciada, capa tipográfica.
+- **Casca (opção A)**: faixa de navegação azul-marinho (#0A2A52, destaque laranja #F26419) no topo do computador, no lugar da barra lateral, em todas as páginas; o celular mantém a barra inferior.
+- Linguagem de design: modelo "Politica." (mockup no artifact 9e208c1c-0f02-4036-a061-2422b5d107da, `project/Main.dc.html`).
+
+### Feito e commitado
+- `site_images` por fonte (migração `0124_sources_site_images.sql`, padrão desligado; admin, contratos, seed, `industry/sources.json`). Só a Agência Câmara está ligada. A foto sai de `coverView()` em `packages/backend/src/publication/items.ts` via proxy assinado, com crédito `Foto: Arquivo/<fonte>`. Teste em `tests/image-url.standalone.test.ts`. Docs em `docs/customize.md` e `docs/sources.md`.
+- Testes avulsos: 121 passam / 38 falham (os 38 são ambientais, linha de base).
+
+### Feito, ainda NÃO verificado (código novo da casca)
+- `apps/web/app/components/shell/Masthead.tsx` (faixa com data, `ThemeSwitch`, nome do site e navegação; `DesktopFooter` com GitHub e registros), `apps/web/app/lib/changelog-dot.ts` (hook movido), tokens `--masthead`/`--masthead-hi` em `app.css`, `root.tsx` em coluna, `Sidebar.tsx` removido (junto com o trilho `rail()` e a variante `short`), `nav.ts` com `mastheadNav()` e `navIsActive()`. `--page-max-wide` agora desconta 56px, não 236px.
+- **Falta rodar**: `npm run typecheck`, `npm run build -w @aihot/web && npm run test:web` (`apps/web/tests/page-width.test.ts` cita o trilho/barra lateral nos comentários e mede larguras 669/711/941: confira e atualize), e conferir no navegador em duas larguras (desktop e ~800px): faixa rolando de lado com poucas e muitas entradas, botão de voltar, entrada "Minha área" (`/more`), barra inferior do celular, configuração padrão e não padrão de `site/site.ts` NAV (exigência do AGENTS.md para mudanças de navegação).
+
+### Próximos passos (nesta ordem)
+1. Verificar a casca (acima) e corrigir o que quebrar.
+2. **Faixa "Agora" (ticker)**: ficou de fora do cabeçalho porque o loader do `root.tsx` só busca `/api/site/meta`; precisa de um endpoint ou campo com as últimas manchetes, lido pela camada `packages/backend/src/publication/`.
+3. **Capa nova** (`apps/web/app/routes/` home): "As últimas", manchete grande, "Escolhas da redação", "Rio agora" (tema `rio-de-janeiro`), "Em alta" numerado, grades por editoria; usar `item.cover` com o crédito visível, e capa tipográfica quando `cover` for nulo.
+4. Fontes: testar os feeds da lista do Theo (revistaoeste, gazetadopovo, g1/globonews, pleno.news, tecnologia, economia) e adicionar os que passarem como "A VERIFICAR"; confirmar a licença das fotos da Agência Brasil na Carta de Serviços da EBC; adicionar feeds do Senado, TSE, Alerj e TRE-RJ com `site_images` só se a licença permitir. Pendente a resposta do Theo sobre uma editoria "Economia" e sobre fontes de equilíbrio.
+5. Atualizar a nota do mockup em `project/canvas.json` (hoje diz "capas tipográficas, sem foto de terceiros") e a altura do Celular depois da checagem visual.
+6. Hospedagem: confirmar `http://34.27.26.143` de fora; DNS de `destaquesdahora.dpdns.org` + Caddy HTTPS (ver seção anterior); renomear `aihot-*` no `docker-compose`; fechar a aba 1728210419 (Cloud Shell) do Chrome. Coleta e chamadas de modelo seguem desligadas até o Theo decidir o custo.
+7. Termos e privacidade precisam de CNPJ, responsável e contato, e de revisão jurídica.
