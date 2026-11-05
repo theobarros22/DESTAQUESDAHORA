@@ -40,7 +40,7 @@ export const CATEGORY_TAGS = [
 
 /** Etiquetas de tema (opcionais). */
 export const TOPIC_TAGS = [
-  "Congresso", "Governo federal", "Governo do RJ", "Partidos", "Orçamento", "Pesquisa eleitoral", "Campanha", "Big techs", "Redes sociais",
+  "Rio de Janeiro", "Congresso", "Governo federal", "Governo do RJ", "Partidos", "Orçamento", "Pesquisa eleitoral", "Campanha", "Big techs", "Redes sociais",
   "IA generativa", "Agentes de IA", "Privacidade/LGPD", "Cibersegurança", "Golpes digitais", "Celulares/Hardware", "Governo digital",
 ] as const;
 

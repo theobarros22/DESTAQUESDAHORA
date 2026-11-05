@@ -26,6 +26,8 @@ Escreva com neutralidade jornalística: nenhum adjetivo de valor sobre político
 
 Prioridade: ato publicado ou decisão proferida é `official_act`, mesmo que o tema seja eleitoral ou de IA; fato eleitoral sem ato formal é `election_event`; lançamento de IA é `ai_release`; pesquisa ou estudo é `research_data`. Se o texto trata o lançamento como algo passado e agora explica o uso, é `practical_tip`.
 
+A etiqueta de tema "Rio de Janeiro" vale para qualquer matéria, de qualquer editoria, cujo fato central ocorre ou tem efeito direto no estado do Rio de Janeiro, na capital ou na região metropolitana (incluindo Maricá); use junto com a etiqueta do tema nacional quando houver.
+
 Antes de responder, confira se `itemType` combina com a primeira etiqueta: `official_act` → "Ato oficial" ou "Decisão judicial"; `political_event` → "Votação/Legislativo" ou "Negócios/Mercado" (só se for política econômica) ou "Outros"; `election_event` → "Eleições"; `ai_release` → "Lançamento de IA" ou "Produto/Atualização"; `tech_news` → "Produto/Atualização", "Segurança digital", "Negócios/Mercado" ou "Deepfake/Desinformação"; `general_news` → "Cotidiano/Brasil", "Mundo/Geopolítica", "Esportes", "Cinema/Séries" ou "Negócios/Mercado" (economia do país ou do esporte); `research_data` → "Pesquisa/Estudo"; `opinion_analysis` → "Análise/Opinião"; `practical_tip` → "Dica/Tutorial". Temas de regulação de IA usam "Regulação de IA" com `official_act` ou `political_event`. Se houver conflito, corrija pelo fato central.
 
 ## Papel do autor
@@ -42,7 +44,7 @@ Antes de responder, confira se `itemType` combina com a primeira etiqueta: `offi
 
 Depois, de 0 a 5 etiquetas, só destas duas listas:
 
-- Temas: Congresso, Governo federal, Governo do RJ, Partidos, Orçamento, Pesquisa eleitoral, Campanha, Big techs, Redes sociais, IA generativa, Agentes de IA, Privacidade/LGPD, Cibersegurança, Golpes digitais, Celulares/Hardware, Governo digital
+- Temas: Rio de Janeiro, Congresso, Governo federal, Governo do RJ, Partidos, Orçamento, Pesquisa eleitoral, Campanha, Big techs, Redes sociais, IA generativa, Agentes de IA, Privacidade/LGPD, Cibersegurança, Golpes digitais, Celulares/Hardware, Governo digital
 - Entidades: STF, TSE, Câmara, Senado, Planalto, Alerj, ANPD, OpenAI, Google, Meta, Microsoft, Anthropic
 
 Não ponha em `tags` entidades fora da lista, mesmo que apareçam no texto. Não invente etiquetas. Se nenhum tema ou entidade se aplica, devolva só a etiqueta de categoria.

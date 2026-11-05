@@ -30,9 +30,9 @@ export const SITE = {
   feedbackLead: "Encontrou um erro, quer um recurso ou algo te incomodou? Conta pra gente.",
   feedbackEmailHint: "Deixe seu e-mail se quiser resposta",
   /** Descrição curta: buscadores, cartões de compartilhamento, RSS, llms.txt. */
-  description: `Política, inteligência artificial e tecnologia: as notícias que importam, sem repetição, reunidas por fato, com boletim ${EDITION_WHEN.daily}.`,
+  description: `O portal do Rio de Janeiro: política, IA, tecnologia, Brasil, mundo, esportes e cinema, as notícias que importam, sem repetição, reunidas por fato, com boletim ${EDITION_WHEN.daily}.`,
   llmsIntro: "Portal brasileiro de curadoria automática: coleta fontes oficiais (Congresso, STF, TSE, governo do RJ) e veículos de política, IA e tecnologia, seleciona com IA o que é relevante, agrupa coberturas do mesmo fato e publica resumos com link para a fonte original." as string | null,
-  tagline: "O que importa em política, IA e tecnologia",
+  tagline: "O Rio e o que importa: política, IA e tecnologia",
   keywords: ["notícias de política", "inteligência artificial", "IA na política", "tecnologia", "TSE", "Congresso", "boletim diário"] as string[],
   since: "2026" as string | null,
   locale: "pt-BR",

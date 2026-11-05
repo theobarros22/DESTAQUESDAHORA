@@ -1,6 +1,11 @@
 {
   "groups": [
     {
+      "key": "regiao",
+      "name": "Destaque: Rio de Janeiro",
+      "blurb": "O que acontece no estado e na cidade do Rio, Maricá e região metropolitana"
+    },
+    {
       "key": "company",
       "name": "Instituições e empresas",
       "blurb": "Acompanhe STF, TSE, Congresso, governo e as empresas de IA e tecnologia"
@@ -17,6 +22,15 @@
     }
   ],
   "topics": [
+    {
+      "slug": "rio-de-janeiro",
+      "name": "Rio de Janeiro",
+      "group": "regiao",
+      "tags": [
+        "Rio de Janeiro"
+      ],
+      "definition": "Tudo o que importa no estado e na capital do Rio de Janeiro e região metropolitana: governo, Alerj, prefeituras, eleições, segurança, economia, esportes e cultura locais."
+    },
     {
       "slug": "stf",
       "name": "STF",
