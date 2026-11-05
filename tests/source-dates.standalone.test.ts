@@ -226,3 +226,13 @@ test("today's time inside other text, or no real time, is no date", () => {
     assert.deepEqual(readRelativeDate(v, now), { publishedAt: null, publicationTime: null }, v);
   }
 });
+
+test("Portuguese dates and ages read in Brasília time", () => {
+  assert.equal(iso("05/11/2026 10:30"), "2026-11-05T13:30:00.000Z");
+  assert.equal(iso("5 de novembro de 2026 às 10h30"), "2026-11-05T13:30:00.000Z");
+  assert.equal(iso("12 de out. de 2026"), "2026-10-12T03:00:00.000Z");
+  const now = new Date("2026-11-05T15:00:00Z");
+  assert.equal(readRelativeDate("há 2 horas", now).publishedAt?.toISOString(), "2026-11-05T13:00:00.000Z");
+  assert.equal(readRelativeDate("ontem", now).publicationTime, "2026-11-04");
+  assert.equal(readRelativeDate("hoje 15:46", now).publishedAt?.toISOString(), "2026-11-05T18:46:00.000Z");
+});

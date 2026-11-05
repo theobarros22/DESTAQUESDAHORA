@@ -30,16 +30,28 @@ function atOffset(y: string | number, mo: string | number, d: string | number, h
  * on every host: a time with its zone. A calendar day always belongs to the source, including ISO date-only text. Anything else it would read
  * in the server's local zone (UTC in Docker), so "2026-09-26 10:00" is read in the source's offset instead.
  */
+const PT_MONTHS: Record<string, string> = { jan: "01", fev: "02", mar: "03", abr: "04", mai: "05", jun: "06", jul: "07", ago: "08", set: "09", out: "10", nov: "11", dez: "12" };
+
+/** a/b/yyyy: day first unless the second number cannot be a month ("10/18/2026"); ambiguous ones read as the Brazilian dd/mm. */
+const dayFirst = (match: string[]) => Number(match[1]) > 12 || Number(match[2]) <= 12;
+
 export function parseLooseDate(value: string | null | undefined, utcOffset = "-03:00"): Date | null {
   if (!value) return null;
   // "Sep 26, 2026 at 10:30": "at" joins a date and its time like a space.
-  const v = value.trim().replace(/(\d),?\s+at\s+(?=\d{1,2}:\d{2})/gi, "$1 ");
+  const v = value.trim().replace(/(\d),?\s+at\s+(?=\d{1,2}:\d{2})/gi, "$1 ")
+    // "5 de novembro de 2026 às 10h30" -> "2026-11-05 10:30"
+    .replace(/\b(\d{1,2})\s+de\s+([a-zç]{3,9})\.?\s+de\s+(\d{4})\b/gi, (all, d: string, mon: string, y: string) => {
+      const mm = PT_MONTHS[mon.toLowerCase().slice(0, 3)];
+      return mm ? `${y}-${mm}-${d.padStart(2, "0")}` : all;
+    })
+    .replace(/\s+às\s+(?=\d)/gi, " ")
+    .replace(/\b(\d{1,2})h(\d{2})\b/g, "$1:$2");
   if (!v) return null;
   const compact = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(v);
   if (compact) return atOffset(compact[1]!, compact[2]!, compact[3]!, compact[4]!, compact[5]!, compact[6]!, utcOffset);
   const yearFirst = /(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})日?(?:(?:T|\s*)(\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(v);
   const monthFirst = /\b(\d{1,2})\/(\d{1,2})\/(\d{4})(?:(?:T|\s+)(\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(v);
-  const numeric = yearFirst ?? monthFirst?.map((part, i, match) => i === 1 ? match[3]! : i === 2 ? match[1]! : i === 3 ? match[2]! : part);
+  const numeric = yearFirst ?? monthFirst?.map((part, i, match) => i === 1 ? match[3]! : i === 2 ? (dayFirst(match) ? match[2]! : match[1]!) : i === 3 ? (dayFirst(match) ? match[1]! : match[2]!) : part);
   if (numeric && !calendarDay(numeric[1]!, numeric[2]!, numeric[3]!)) return null;
   const english = /\b([a-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?[,]?\s+(\d{4})\b/i.exec(v)
     ?? /\b(\d{1,2})\s+([a-z]{3,9})\.?[,]?\s+(\d{2}|\d{4})\b/i.exec(v)?.map((part, i, match) => i === 1 ? match[2]! : i === 2 ? match[1]! : part);
@@ -95,8 +107,8 @@ export function describePublicationTime(at: Date | null, source: string | null |
   return `${beijingDate(at)} ${beijingTime(at)} (horário de Brasília)`;
 }
 
-const RELATIVE_UNITS: Record<string, number> = { 秒: 1e3, 分钟: 60e3, 分: 60e3, 小时: 3600e3, 天: 86400e3, second: 1e3, minute: 60e3, min: 60e3, m: 60e3, hour: 3600e3, hr: 3600e3, h: 3600e3, day: 86400e3, d: 86400e3 };
-const DAYS_BACK: Record<string, number> = { 今天: 0, 昨天: 1, 前天: 2, yesterday: 1 };
+const RELATIVE_UNITS: Record<string, number> = { 秒: 1e3, 分钟: 60e3, 分: 60e3, 小时: 3600e3, 天: 86400e3, segundo: 1e3, minuto: 60e3, hora: 3600e3, dia: 86400e3, second: 1e3, minute: 60e3, min: 60e3, m: 60e3, hour: 3600e3, hr: 3600e3, h: 3600e3, day: 86400e3, d: 86400e3 };
+const DAYS_BACK: Record<string, number> = { 今天: 0, 昨天: 1, 前天: 2, yesterday: 1, hoje: 0, ontem: 1, anteontem: 2 };
 
 /** The calendar day `at` falls on in the given offset, as YYYY-MM-DD. */
 function dayAt(at: Date, utcOffset: string): string {
@@ -116,18 +128,19 @@ export function readRelativeDate(value: string | null | undefined, now: Date, ut
   const v = collapse(value).replace(/^[^·]+·\s*/, "");
   const none = { publishedAt: null, publicationTime: null };
   if (!v) return none;
-  const dayTime = /^(今天|昨天|前天)\s*(\d{1,2}):(\d{2})$/.exec(v);
+  const dayTime = /^(今天|昨天|前天|hoje|ontem|anteontem)\s*(?:às\s*)?(\d{1,2})[:h](\d{2})$/i.exec(v);
   if (dayTime) {
-    const day = dayAt(new Date(now.getTime() - DAYS_BACK[dayTime[1]!]! * 86400e3), utcOffset);
+    const day = dayAt(new Date(now.getTime() - DAYS_BACK[dayTime[1]!.toLowerCase()]! * 86400e3), utcOffset);
     const at = atOffset(day.slice(0, 4), day.slice(5, 7), day.slice(8, 10), dayTime[2]!, dayTime[3]!, 0, utcOffset);
     return at ? { publishedAt: at, publicationTime: at.toISOString() } : none;
   }
   let ms: number | null = null;
   let unitMs = 0;
-  if (/^(刚刚|just now)$/i.test(v)) ms = 0;
-  else if (/^(昨天|前天|yesterday)$/i.test(v)) [ms, unitMs] = [DAYS_BACK[v.toLowerCase()]! * 86400e3, 86400e3];
+  if (/^(刚刚|just now|agora|agora mesmo)$/i.test(v)) ms = 0;
+  else if (/^(昨天|前天|yesterday|ontem|anteontem)$/i.test(v)) [ms, unitMs] = [DAYS_BACK[v.toLowerCase()]! * 86400e3, 86400e3];
   else {
-    const m = /^(\d{1,3})\s*(秒|分钟|分|小时|天)前$/.exec(v) ?? /^(\d{1,3})\s*(?:(second|minute|min|hour|hr|day)s?|(m|h|d))\s+ago$/i.exec(v);
+    const m = /^(\d{1,3})\s*(秒|分钟|分|小时|天)前$/.exec(v) ?? /^(\d{1,3})\s*(?:(second|minute|min|hour|hr|day)s?|(m|h|d))\s+ago$/i.exec(v)
+      ?? /^(?:há\s+)?(\d{1,3})\s+(segundo|minuto|hora|dia)s?(?:\s+atrás)?$/i.exec(v);
     const name = (m?.[2] ?? m?.[3])?.toLowerCase();
     if (m && name) [ms, unitMs] = [Number(m[1]) * RELATIVE_UNITS[name]!, RELATIVE_UNITS[name]!];
   }

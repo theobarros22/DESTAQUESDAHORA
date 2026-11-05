@@ -89,7 +89,7 @@ async function fetchListingText(source: SourceRow): Promise<{ text: string; viaJ
 }
 
 /** A listing title that is no headline: a label that swallowed its summary, or a call to action. */
-export const isCallToActionTitle = (title: string) => /^(read more|read the blog|learn more|continue reading|more|阅读全文|阅读更多|查看详情|了解更多)$/i.test(title.trim());
+export const isCallToActionTitle = (title: string) => /^(read more|read the blog|learn more|continue reading|more|leia mais|saiba mais|continue lendo|ver mais|leia a matéria|阅读全文|阅读更多|查看详情|了解更多)$/i.test(title.trim());
 export const needsTitle = (title: string) => title.length > 100 || isCallToActionTitle(title);
 
 /** Image destinations may contain balanced parentheses, including inside a linked card. */

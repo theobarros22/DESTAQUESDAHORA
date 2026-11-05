@@ -196,7 +196,7 @@ async function redirectEmptiedStories(articleId: string, storyId: number): Promi
       AND NOT EXISTS (SELECT 1 FROM facts f JOIN fact_articles fa ON fa.fact_id = f.id WHERE f.story_id = st.id AND fa.role IN ('primary', 'report'))`;
   const redirected: number[] = [];
   for (const { id } of emptied) {
-    if (await mergeStoryInto(Number(id), storyId, `报道已全部移走，旧地址跳到报道所在事件（最后一篇 ${articleId}）`, "grouping")) redirected.push(Number(id));
+    if (await mergeStoryInto(Number(id), storyId, `Todas as reportagens foram movidas; o endereço antigo passa a apontar para o caso das reportagens (última: ${articleId})`, "grouping")) redirected.push(Number(id));
   }
   return redirected;
 }
@@ -503,7 +503,7 @@ async function decide(articleId: string, opts: GroupOptions, revision: number, r
     const card = faced.into;
     if (factId) {
       const from: number = factId;
-      const merged = await mergeFactInto(from, card.fact_id, `同一条新闻，并入读者已看到的卡片（报道 ${articleId}）`, "grouping");
+      const merged = await mergeFactInto(from, card.fact_id, `Mesma notícia, unida ao cartão que o leitor já viu (reportagem ${articleId})`, "grouping");
       absorbed = merged && { from, moved: merged.moved };
     }
     factId = card.fact_id;
