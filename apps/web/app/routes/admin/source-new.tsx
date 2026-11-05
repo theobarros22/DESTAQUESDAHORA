@@ -23,7 +23,7 @@ const TEMPLATES: Record<string, Record<string, unknown>> = {
 export default function NewSource() {
   const navigate = useNavigate();
   const { run, pending } = useAdminAction();
-  const [form, setForm] = useState({ id: "", name: "", kind: "rss", tier: "T2", selection_class: "", participation_mode: "editorial", interval_minutes: 30, first_party: false, site_fulltext: SOURCE_DEFAULTS.siteFulltext, syndicate_fulltext: false, tags: "" });
+  const [form, setForm] = useState({ id: "", name: "", kind: "rss", tier: "T2", selection_class: "", participation_mode: "editorial", interval_minutes: 30, first_party: false, site_fulltext: SOURCE_DEFAULTS.siteFulltext, site_images: SOURCE_DEFAULTS.siteImages, syndicate_fulltext: false, tags: "" });
   const [config, setConfig] = useState(JSON.stringify(TEMPLATES.rss, null, 2));
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<AdminSourcePreview | null>(null);
@@ -87,6 +87,7 @@ export default function NewSource() {
             <div className="flex flex-col justify-end gap-2 text-[13px] text-ink-2">
               {([
                 ["site_fulltext", "Mostrar texto integral no site"],
+                ["site_images", "Mostrar a foto de capa (só com licença; crédito automático)"],
                 ["syndicate_fulltext", "Enviar texto integral por RSS e API"],
               ] as const).map(([k, label]) => (
                 <label key={k} className="inline-flex items-center gap-2">

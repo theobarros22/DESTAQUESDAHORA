@@ -157,6 +157,8 @@ export const ALERTS = {
 export const SOURCE_DEFAULTS = {
   /** false: o site mostra só resumo e link para o original (recomendado por direito autoral). */
   siteFulltext: false,
+  /** false: nenhuma foto de matéria no site; só fontes com licença expressa (agências oficiais) ligam. */
+  siteImages: false,
 };
 
 export const COMMUNITY_FEEDS: { dev: string[]; hn: string[] } = {

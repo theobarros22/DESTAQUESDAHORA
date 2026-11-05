@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { isNonArticleImage } from "../packages/backend/src/lib/image-url.ts";
 import { sanitizeBody } from "../packages/backend/src/content/sanitize.ts";
 import { proxiedImage, proxyBodyImages } from "../packages/backend/src/media/imgproxy.ts";
+import { coverView } from "../packages/backend/src/publication/items.ts";
 
 test("YouTube embed, /v/, and youtu.be pages are not article images", () => {
   assert.equal(isNonArticleImage("https://www.youtube.com/embed/dQw4w9WgXcQ"), true);
@@ -33,4 +34,15 @@ test("inline images retain image MIME types and reject documents across ingestio
     assert.ok(cleaned.includes(`src="${src}"`), src);
     assert.equal(sanitizeBody(cleaned, base), cleaned);
   }
+});
+
+test("a cover appears only for a source licensed to show images, with the credit its agency asks for", () => {
+  process.env.IMG_PROXY_SIGN_SECRET ??= "test-img-secret-0123456789";
+  const media = [{ kind: "video", url: "https://example.org/a.mp4" }, { kind: "image", url: "https://example.org/foto.jpg" }];
+  const licensed = coverView({ site_images: true, article_media: media, source_name: "Câmara dos Deputados — Agência Câmara" });
+  assert.equal(licensed?.credit, "Foto: Arquivo/Câmara dos Deputados");
+  assert.match(licensed?.url ?? "", /^\/api\/img-proxy\?u=/);
+  assert.equal(coverView({ site_images: false, article_media: media, source_name: "Qualquer" }), null);
+  assert.equal(coverView({ article_media: media, source_name: "Qualquer" }), null);
+  assert.equal(coverView({ site_images: true, article_media: [], source_name: "Qualquer" }), null);
 });

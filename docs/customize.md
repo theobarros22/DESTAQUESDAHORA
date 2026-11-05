@@ -48,6 +48,7 @@ Campos principais de cada fonte:
 | `owner_entity_id` | Opcional: a que empresa a fonte pertence (id em `ENTITIES`). Várias fontes da mesma empresa contam como uma só parte na popularidade; uma conta oficial `T1_5` que deva ser a reportagem representante também precisa dele (veja [Fontes](sources.md)) |
 | `participation_mode` | `editorial` entra na seleção e em todas as atualizações; `hot_signal` serve só de evidência de popularidade; `isolated` não aparece em nenhuma página pública |
 | `site_fulltext` | Se o site pode exibir o texto completo. **Desligado por padrão**: só exibe o resumo e o link do original. Só ligue quando a fonte permitir expressamente |
+| `site_images` | Se o site pode exibir a foto de capa da fonte, com crédito automático (`Foto: Arquivo/<nome da fonte>`), servida pelo proxy assinado. **Desligado por padrão**; só ligue quando a fonte liberar as fotos com crédito (por exemplo, Agência Câmara) |
 | `syndicate_fulltext` | Se o RSS de texto completo pode levar o corpo. **Desligado por padrão**; só vale quando o site também exibe o texto completo, e só ligue quando a fonte permitir expressamente a republicação |
 
 Em vários setores da China continental, a informação de primeira mão está nas contas do WeChat. As fontes do WeChat precisam de uma chave da Dajiala, são cobradas por requisição e têm disjuntor de orçamento. (No Destaques da Hora, que cobre o Brasil, isso raramente se aplica.)

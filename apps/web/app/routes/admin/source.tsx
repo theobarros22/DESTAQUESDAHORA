@@ -20,7 +20,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export const meta: Route.MetaFunction = ({ loaderData }) => [{ title: `${loaderData?.source.name ?? "Fonte"} · painel do ${SITE.name}` }];
 
-type Draft = Pick<AdminSource, "name" | "kind" | "interval_minutes" | "tier" | "selection_class" | "participation_mode" | "uses" | "signal_group_id" | "first_party" | "owner_entity_id" | "site_fulltext" | "syndicate_fulltext"> & { tags: string; config: string };
+type Draft = Pick<AdminSource, "name" | "kind" | "interval_minutes" | "tier" | "selection_class" | "participation_mode" | "uses" | "signal_group_id" | "first_party" | "owner_entity_id" | "site_fulltext" | "site_images" | "syndicate_fulltext"> & { tags: string; config: string };
 
 function draftOf(s: AdminSource): Draft {
   return {
@@ -35,6 +35,7 @@ function draftOf(s: AdminSource): Draft {
     first_party: s.first_party,
     owner_entity_id: s.owner_entity_id,
     site_fulltext: s.site_fulltext,
+    site_images: s.site_images,
     syndicate_fulltext: s.syndicate_fulltext,
     tags: s.tags.join(", "),
     config: JSON.stringify(s.config, null, 2),
@@ -222,6 +223,7 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
               <div className="flex flex-col justify-end gap-2 text-[13px] text-ink-2">
                 {([
                   ["site_fulltext", "Mostrar texto integral no site"],
+                  ["site_images", "Mostrar a foto de capa (só com licença; crédito automático)"],
                   ["syndicate_fulltext", "Enviar texto integral por RSS e API"],
                 ] as const).map(([k, label]) => (
                   <label key={k} className="inline-flex items-center gap-2">

@@ -65,6 +65,13 @@ export interface ItemSummary {
   story: StoryRef | null;
 }
 
+/** A licensed cover image with the credit its source asks for; present only for sources allowed to show images. */
+export interface CoverView {
+  url: string;
+  srcSet?: string;
+  credit: string;
+}
+
 /** The fields rendered by a site feed card; full original text lives in the item detail. */
 export interface FeedItemSummary extends Pick<ItemSummary, "id" | "title" | "summary" | "reason" | "source" | "publishedAt" | "timelineAt" | "category" | "tags" | "score" | "selected" | "channel"> {
   x: (Pick<XPostView, "authorName" | "handle" | "avatarUrl" | "avatarSrcSet" | "media"> & {
@@ -75,6 +82,7 @@ export interface FeedItemSummary extends Pick<ItemSummary, "id" | "title" | "sum
    * so the card can say "Mesmo assunto; a seleção incluiu «…»" instead of claiming a seat of its own.
    */
   sameEvent?: { id: string; title: string } | null;
+  cover?: CoverView | null;
 }
 
 export interface GroupInfo {

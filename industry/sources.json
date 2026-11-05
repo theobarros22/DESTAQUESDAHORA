@@ -1,5 +1,5 @@
 {
-  "$comment": "Fontes iniciais do Destaques da Hora: importadas no primeiro start (scripts/seed.ts); as que já existem não são sobrescritas. Depois, gerencie em /admin/sources. Itens com $comment 'A VERIFICAR' tiveram a URL inferida e precisam de teste. Agência Brasil publica sob CC BY: texto integral liberado com crédito (site_fulltext true). Senado, TSE, Alerj e governo do RJ: adicionar pelo painel depois de confirmar a URL do feed.",
+  "$comment": "Fontes iniciais do Destaques da Hora: importadas no primeiro start (scripts/seed.ts); as que já existem não são sobrescritas. Depois, gerencie em /admin/sources. Itens com $comment 'A VERIFICAR' tiveram a URL inferida e precisam de teste. Agência Brasil publica sob CC BY: texto integral liberado com crédito (site_fulltext true); fotos só depois de confirmar a Carta de Serviços da EBC (site_images fica false até lá). Fotos liberadas: Câmara (guia da Câmara) e Senado (Política de Uso). Senado, TSE, Alerj e governo do RJ: adicionar pelo painel depois de confirmar a URL do feed.",
   "sources": [
     {
       "id": "rss-agencia-brasil",
@@ -26,7 +26,7 @@
     },
     {
       "id": "rss-agencia-camara",
-      "name": "Agência Câmara — Últimas notícias",
+      "name": "Câmara dos Deputados — Agência Câmara",
       "kind": "rss",
       "config": {
         "feedUrl": "https://www.camara.leg.br/noticias/rss/ultimas-noticias",
@@ -44,8 +44,9 @@
         "Congresso"
       ],
       "site_fulltext": false,
+      "site_images": true,
       "syndicate_fulltext": false,
-      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar. Fotos liberadas pelo guia da Câmara: uso livre com crédito Fotógrafo/Câmara dos Deputados (site_images true)."
     },
     {
       "id": "rss-stf-noticias",
