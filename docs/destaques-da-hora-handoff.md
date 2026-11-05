@@ -41,3 +41,13 @@ Segurança desligada em dev: `COLLECT_ENABLED`, `MODEL_CALLS_ENABLED`, `FEISHU_*
 
 ## Pendências do Theo
 Aprovar o layout da capa; decidir sobre o PR para a `main`; conta DigitalPlat/Cloudflare é dele (senhas e verificações só ele faz).
+
+## Atualização — 04/11/2026 (escopo ampliado e estado)
+
+- **Editorias novas** (pedido do Theo): `brasil` (país), `mundo`, `esportes`, `cinema` (Cinema e Séries). Ficam em `industry/taxonomy.ts`; tipo de conteúdo novo `general_news` (pesos 2/2/2/3/1) em `industry/prompts/selection-score.md` e `content-understanding.md`. Etiquetas novas: Cotidiano/Brasil, Mundo/Geopolítica, Esportes, Cinema/Séries.
+- **Pré-filtro e ruído** foram reescritos para não bloquear esporte/cinema/mundo; esporte e cinema de rotina têm teto `sig ≤ 3`.
+- **Fontes**: 11 feeds novos em `industry/sources.json` (Agência Brasil por editoria, ONU News, BBC Brasil, DW, CNN Brasil). Todos "A VERIFICAR": o sandbox não alcança esses sites; teste em /admin/sources.
+- **Risco aberto**: mais volume dilui a linha política/IA e aumenta o custo de modelo. Os limiares de `industry/selection.ts` precisam ser recalibrados com amostras rotuladas (`scripts/eval-selection.ts`); não mexer por intuição.
+- **Domínio**: destaquesdahora.dpdns.org registrado; falta Cloudflare (nameservers) e um VPS para o registro DNS.
+- **Backend e interface**: traduzidos. Testes standalone: 120 passam / 38 falham (ambiental, igual ao repositório original).
+- **Pendente**: README em PT, tradução de docs/*.md, capa estilo jornal no código (mockup no artifact 9e208c1c…), PR para main, verificar feeds, termos/privacidade (rascunho; o Theo precisa preencher CNPJ/responsável/contato).
