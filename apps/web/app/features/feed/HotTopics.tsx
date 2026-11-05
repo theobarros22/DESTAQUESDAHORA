@@ -10,7 +10,7 @@ function hrefOf(e: HotStripEntry): string {
   return e.storyPublicId ? `/story/${e.storyPublicId}` : e.itemId ? `/items/${e.itemId}` : "/hot";
 }
 
-/** Where the heat is heading, as a small arrow (a "新" mark for a story new to the ranking). */
+/** Where the heat is heading, as a small arrow (a "novo" mark for a story new to the ranking). */
 function TrendMark({ trend }: { trend: HotStripEntry["trend"] }) {
   if (trend === "up") return <IconTrendUp size={14} strokeWidth={2.2} className="text-hot" aria-label="Subindo" />;
   if (trend === "down") return <IconTrendDown size={14} strokeWidth={2.2} className="text-ink-4" aria-label="Caindo" />;
@@ -21,7 +21,7 @@ function TrendMark({ trend }: { trend: HotStripEntry["trend"] }) {
 
 /**
  * The top of the hot ranking on the home page, kept quiet: a live dot, coloured ranks and titles, then
- * columns of fixed width so every row lines up — who is talking (精选组 faces, from sm), "N 热度" and an arrow for
+ * columns of fixed width so every row lines up — who is talking (grupo da seleção faces, from sm), "N popularidade" and an arrow for
  * where it is heading. The whole row lights up on hover. Phones show the top three in one line each, so
  * the feed starts on the first screen.
  */

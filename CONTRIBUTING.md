@@ -1,31 +1,30 @@
-# 参与贡献
+# Como contribuir
 
-欢迎提交可复现的问题、文档修正，以及对其他行业也有用的改进。中文或英文都可以。
+Contribuições são bem-vindas: problemas reproduzíveis, correções de documentação e melhorias que também sirvam a outros setores. Pode escrever em português, inglês ou chinês.
 
-## 去哪里交流
+## Onde conversar
 
-- [Issues](https://github.com/KKKKhazix/AIHOT/issues/new/choose)：可复现的 Bug 和有明确场景的功能建议。
-- [部署与使用问答](https://github.com/KKKKhazix/AIHOT/discussions/categories/q-a)：安装、配置、部署和使用问题；问题解决后可以标记答案。
-- [想法交流](https://github.com/KKKKhazix/AIHOT/discussions/categories/ideas)：先讨论方向和使用场景。
-- [作品展示](https://github.com/KKKKhazix/AIHOT/discussions/categories/show-and-tell)：分享你搭建的行业热点站和实践经验。
-- 安全漏洞请按 [安全报告说明](SECURITY.md) 私密提交。
+- [Issues](https://github.com/theobarros22/DESTAQUESDAHORA/issues/new/choose): bugs reproduzíveis e sugestões de recursos com um cenário claro.
+- Dúvidas de instalação, configuração, implantação e uso: abra uma Issue com a descrição do problema.
+- Ideias e direção do projeto: comece por uma Issue explicando o cenário de uso.
+- Vulnerabilidades de segurança: envie em particular, conforme as [instruções de segurança](SECURITY.md).
 
-## 贡献范围
+## Escopo das contribuições
 
-优先欢迎部署体验、通用采集能力、处理流程、公开接口、可访问性、文档和可复现故障的改进。大幅调整架构或产品行为前，先在 Issue 或讨论区说明场景和方案，避免投入后才发现方向不合适。
+Damos prioridade a melhorias na experiência de implantação, na capacidade geral de coleta, no fluxo de processamento, nas interfaces públicas, na acessibilidade, na documentação e na correção de falhas reproduzíveis. Antes de mudar bastante a arquitetura ou o comportamento do produto, explique o cenário e a proposta em uma Issue, para não investir esforço e só depois descobrir que a direção não serve.
 
-只适合你所在行业的信源和精选标准，在自己的仓库里改 `industry/`；站名、品牌和页面改 `site/`；只有你的站需要的功能做成模块放进 `modules/`（见 [架构](docs/architecture.md#模块)）。步骤参考 [定制文档](docs/customize.md)。出于合规和风险考虑，完整运营信源名单暂不分享；本仓库也不持续维护微博、小红书等平台的专用采集适配，可以按 [信源文档](docs/sources.md) 接入你自行维护的外部采集结果。
+Fontes e critérios de seleção que só servem ao seu setor ficam em `industry/` no seu próprio repositório; nome do site, marca e páginas ficam em `site/`; um recurso que só o seu site precisa vira módulo em `modules/` (veja [Arquitetura](docs/architecture.md#módulos)). Os passos estão na [documentação de personalização](docs/customize.md). Por razões de conformidade e de risco, a lista completa de fontes de produção não é compartilhada; este repositório também não mantém adaptadores de coleta específicos para plataformas como Weibo e Xiaohongshu, mas você pode integrar resultados de coleta externos mantidos por você, conforme a [documentação de fontes](docs/sources.md).
 
-## 提交改动
+## Enviando alterações
 
-1. Fork 本仓库，从最新的 `main` 创建自己的分支。若只是搭建一个独立站点，可以用 [Use this template](https://github.com/KKKKhazix/AIHOT/generate)；模板生成的项目没有共享提交历史，后续贡献代码或合并上游更新更适合用 Fork。
-2. 阅读 [AGENTS.md](AGENTS.md) 和改动对应的文档。保持一次 PR 解决一个清楚的问题，不夹带无关重构，也不夹带重装依赖带来的 `package-lock.json` 改动。依赖升级、Agent 规则文件（`AGENTS.md`、`CLAUDE.md`、`.agents/`、`.claude/`）和二进制文件不接受外部 PR 修改，需要时先开 Issue，由维护者来改。
-3. 按 [部署文档](docs/deploy.md) 配置本地环境。使用独立测试库，开发时关闭采集、模型调用和外部推送；不使用生产数据库或真实付费服务做测试。
-4. 验证改动涉及的行为，在 PR 中写明运行结果；来自 Fork 的 CI 要维护者批准后才运行，不能代替本地检查。代码改动执行 `npm run typecheck`、`npm test`、网页构建与网页测试；后端测试库名必须以 `_test` 或 `_ci` 结尾（没有会自动创建并迁移），每个测试文件在它的副本上并行运行，所以测试数据库账号要有 `CREATEDB` 权限。运行中的站点可用 `node scripts/smoke.ts --base http://localhost:3000` 检查。纯文档或模板改动核对链接、语法和实际展示即可，不需要为了凑数量新增测试。
-   改数据库时，已经发布的迁移不改，修正放进新文件；新文件只放一条允许在线执行的语句，PR 会自动检查，本地可以先跑 `node scripts/check-migrations.ts --base main`。规则见 [迁移约定](docs/architecture.md#数据库迁移)。
-   备份恢复测试还需要 `tar` 和与服务端版本兼容的 `pg_dump`/`pg_restore`；测试会创建并清理独立的临时恢复库和文件目录，不访问真实对象存储。
-5. 向本仓库 `main` 提交 PR，关联相关 Issue，并勾选 “Allow edits by maintainers”：小问题维护者可以直接在你的分支上改好再合并，不用你再跑一趟。还在改就开草稿，改好再标为就绪。页面改动附截图；涉及配置或升级步骤时同步更新文档，已部署的站点升级时要做的事写进 [部署文档](docs/deploy.md) 的“更新”一节。
+1. Faça um Fork do repositório e crie sua branch a partir do `main` mais recente. Se você só quer montar um site independente, pode usar o [Use this template](https://github.com/theobarros22/DESTAQUESDAHORA/generate); o projeto gerado por modelo não compartilha o histórico de commits, então, para contribuir com código ou incorporar atualizações da origem, o Fork é mais adequado.
+2. Leia o [AGENTS.md](AGENTS.md) e a documentação correspondente à mudança. Mantenha cada PR resolvendo um único problema claro, sem refatorações alheias e sem alterações no `package-lock.json` causadas por reinstalar dependências. Atualizações de dependências, arquivos de regras de Agentes (`AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`) e arquivos binários não aceitam alterações em PRs externos; se for necessário, abra antes uma Issue e os mantenedores fazem a mudança.
+3. Configure o ambiente local pela [documentação de implantação](docs/deploy.md). Use um banco de testes separado, deixe desligadas a coleta, as chamadas a modelos e os envios externos durante o desenvolvimento, e não teste com banco de produção nem com serviços pagos reais.
+4. Verifique os comportamentos que a mudança toca e registre os resultados no PR; o CI de Forks só roda depois da aprovação de um mantenedor e não substitui as verificações locais. Para mudanças de código, rode `npm run typecheck`, `npm test`, o build do site e os testes do site; o nome do banco de testes do back-end deve terminar em `_test` ou `_ci` (se não existir, é criado e migrado automaticamente), e cada arquivo de teste roda em paralelo em uma cópia dele, por isso a conta do banco de testes precisa da permissão `CREATEDB`. Um site em execução pode ser verificado com `node scripts/smoke.ts --base http://localhost:3000`. Em mudanças só de documentação ou de modelos, basta conferir links, sintaxe e a exibição real; não é preciso criar testes só para aumentar a quantidade.
+   Ao mexer no banco de dados, não altere migrações já publicadas: a correção vai em um arquivo novo, que contém uma única instrução que pode rodar online; o PR é verificado automaticamente e, localmente, você pode rodar antes `node scripts/check-migrations.ts --base main`. As regras estão na [convenção de migrações](docs/architecture.md#migrações-do-banco-de-dados).
+   O teste de backup e restauração também exige `tar` e um `pg_dump`/`pg_restore` compatível com a versão do servidor; o teste cria e limpa um banco de restauração temporário e um diretório de arquivos independentes, sem acessar armazenamento de objetos real.
+5. Envie o PR para o `main` deste repositório, vinculando a Issue relacionada e marcando “Allow edits by maintainers”: em problemas pequenos, o mantenedor pode ajustar direto na sua branch e integrar, sem você precisar rodar tudo de novo. Se ainda está mexendo, abra como rascunho e marque como pronto quando terminar. Em mudanças de página, anexe capturas de tela; quando houver configuração ou passos de atualização, atualize a documentação junto, e o que quem já tem o site implantado precisa fazer ao atualizar vai na seção “Atualização” da [documentação de implantação](docs/deploy.md).
 
-`main` 通过 PR 合并。准备合并时，请把 PR 分支整理成一个提交，保留正确的作者署名；更新已经推送的分支用 `git push --force-with-lease`。分支要包含最新的 `main`，GitHub 的 `check` 和 `docker` 在这个提交上通过后，维护者用 rebase 方式合并，保留你的作者信息。
+O `main` recebe alterações por PR. Na hora de integrar, organize a branch do PR em um único commit, preservando a autoria correta; para atualizar uma branch já enviada, use `git push --force-with-lease`. A branch deve conter o `main` mais recente e, depois que os checks `check` e `docker` do GitHub passarem nesse commit, o mantenedor integra com rebase, preservando as suas informações de autor.
 
-请勿提交 `.env`、密钥、管理员密码、Cookie、生产数据或未获授权的素材；日志和截图也要先移除敏感信息。代码沿用 [MIT 许可证](LICENSE)，品牌和第三方素材说明见 [NOTICE](NOTICE)。
+Não envie `.env`, chaves, senhas de administrador, cookies, dados de produção nem materiais sem autorização; logs e capturas de tela também devem ter os dados sensíveis removidos. O código segue a [licença MIT](LICENSE); as informações sobre marca e materiais de terceiros estão no [NOTICE](NOTICE).

@@ -31,7 +31,7 @@ export function meta() {
 
 const NO_SOURCES: RiverSource[] = [];
 
-/** 3.6 万 from ten thousand up, digits with separators below. */
+/** "36 mil" from ten thousand up, digits with separators below. */
 function figure(n: number): { value: string; unit: string } {
   return n >= 10_000 ? { value: (n / 1_000).toFixed(1).replace(/\.0$/, "").replace(".", ","), unit: "mil" } : { value: n.toLocaleString("pt-BR"), unit: "" };
 }
@@ -176,7 +176,7 @@ function Maker({ maker, contact }: { maker: NonNullable<typeof ABOUT.maker>; con
   );
 }
 
-/** The latest 精选 under the river's paper; it moves on each time an item reaches the paper. */
+/** The latest Seleção under the river's paper; it moves on each time an item reaches the paper. */
 function Latest({ item, className = "" }: { item: SiteStats["latest"][number] | undefined; className?: string }) {
   if (!item) return null;
   return (

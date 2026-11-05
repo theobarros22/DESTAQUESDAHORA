@@ -1,104 +1,104 @@
-# 精选与校准
+# Seleção e calibração
 
-## 一条资料怎么变成精选
+## Como um material vira seleção
 
-1. **收进来**：同一网址、同一内容只留一份。普通文章只有标题或摘要时，按信源规则补取正文；视频播放页使用已提供的文字材料，不把播放器页面当正文。没有可信发布时间的资料先不公开，读到原文日期后再判断新旧（见 [信源](sources.md#规则旧文不刷屏) 的“旧文不刷屏”）。
-2. **预筛**（`prefilter.md`）：这是不是本行业的事。宽进，只拦明显无关的：`BLOCK` 的资料不出现在任何公开页面；`PASS` 和拿不准的 `UNKNOWN` 继续往下走。只有标题、没有正文、订阅摘要或帖子文字的普通文章先等待材料，不评分、不凭标题写文案，也不进入公开池；材料补齐产生新修订后再判断。可展示的空文字或纯链接原帖沿用原有评分与原样展示规则。
-3. **评分**（`selection-score.md`）：同一份评分标准独立打两次分（0–100）。**两次之和 ≥ 2 × 门槛**就够分，门槛按信源分级不同，信源类别还能把某些官方信源的门槛抬高；够分的还要过第 6 步的去重才进精选。页面上显示的分数是两次的平均（向下取整）。
-4. **结构化**（`structure.md`）：和评分同时进行。给出分类和标签（页面上显示的就是这一份）、主体公司，判断这篇是一条具体新闻、讲多件事的综合稿，还是材料不够、说不清；是具体新闻的，抽出它的事实（谁、做了什么、对什么、什么时候）和原文里的出处、前提条件。主题页、事件归组和日报都靠它。
-5. **写标题摘要**：等结构化完成再写。入选的和差一点入选的（平均分高于 `understandFloor`），按 `content-understanding.md` 写中文标题、答案先行的摘要和推荐理由；其余的按 `summarize-*.md` 写简短的标题摘要，进“全部动态”。浏览“全部动态”（网页列表，接口、给 Agent 的最新列表和 MCP 的全部模式，“全部动态”RSS）只出平均分不低于 `browseFloor` 的资料，没评上分的照常出；带搜索词时仍搜全部。X 帖子没有正文或只含链接时，保留原帖的链接、图片和引用，不调用写作或翻译模型，也不生成“请补充正文”的文案；已经取得实际正文的 X 长文照常处理。写好的文字用了 `industry/wording.ts` 里列出的词时，再让模型只改这些词一次（`mend-wording.md`）。
-6. **归组与去重**（`group-*.md`）：不同来源报道的同一件事归成一个事件，事件页有综述（`story-digest.md`），“热门”按事件排。修改综述提示词前，可用 [综述评测](story-digest-evaluation.md) 在同一批事件上把现有提示词和候选提示词并排比较。分数够了的资料要等归组完成才进精选：模型同时判断它和精选里已有的报道是不是同一条新闻，以及它有没有精选还没给过的具体信息。
-   - 同一条新闻的几篇报道都可以入选：网页上折成一个阅读组；API、RSS 和同步接口每条新闻只出一条，由代表报道出面：官方一手优先；其次是核实过的官方账号（填了 `publisherRole` 和 `owner_entity_id` 的 `T1_5` 账号，新闻的主体正是这家公司，机构先于个人）；再往后是有全文的、分数高的、发得早的。
-   - 不是同一条新闻、但没有新信息的（换个说法再介绍一遍已经披露的能力、只是上架到别的平台、只重复已选要点的汇总），不进精选，留在“全部动态”。讲多件事的综合稿不单独成事件，只挂到它提到的事件上，有精选没覆盖的重要内容才入选；材料不够、确认不了是哪条新闻的，不进精选。
-   - 显式撤回的报道保留历史归属，但不再参与之后的归组召回、候选代表、事件起点或自动事件比较；同网址及 X 回复／引用也不能借它提供身份依据。同一事实仍有有效报道时使用有效稿，全撤回则暂不召回；恢复公开后可重新参与。只展示摘要或尚未发布的记录不等于撤回，保留原有资格。已有关系和判断不删除，不批量重新归组。
-   - 确认之前资料只在“全部动态”里，等得再久也不会自动放行。模型调用失败或回答不合格式，这条资料就停在那里：等待超过 10 分钟会告警，后台“运行”页列出这些资料，可以在后台“内容诊断”里打开这条资料，点“重新归组”。所以归组用的模型要能稳定按格式回答。
-7. **日报、周报、月报**：
-   - **日报**每天 08:00 出（日报、周报、月报的出刊时间在 `site/site.ts` 的 `EDITION_TIMES`，下面按默认值写），覆盖前一天 08:00 到当天 08:00，按规则编排，不调用模型。一件事一条，取报道最多的那条新闻里最权威的一篇，同一事件当天的其他进展列在下面，讲多件事的综合稿挂到它提到的最重要那件事下面。最近 7 期报过的不再出现；报过的事件再有进展，只有当事方自己有新动作（教程、观点这类 `commentary` 类别不算）、或这条进展有 4 家以上信源报道时才进正文，其余进快讯。没有报道入选、但有官方原帖并且已有 3 个以上独立参与方的事件也会补进来（只进日报，不进精选、不推送）。按重要性排序（入选报道的最高分、当天讨论它的独立参与方、有没有官方原帖，跟进的减分），前 12 条进正文，同一信源最多 2 条，再往后最多 10 条一行快讯。第一条是头条，导语就是它自己的标题和摘要；第 2–4 条是今日看点。
-   - **周报**（每周一 10:00）和**月报**（每月 1 日 10:30）由这一周、这个月的日报汇编：同一事件跨天只算一件，按日报给它的位置（头条、看点、上了几天）、报道面和评分排序，周报取前 20 件、月报取前 30 件，按日报的分节分栏目。模型（`report-period.md`、`report-period-sections.md`）只写总述和三件以上栏目的一句导读，不增删条目；它写出了条目里没有的名字或数字（拉丁字母的名称、三位以上或带小数点、百分号的数字、词表里的公司），这段话就不用：总述换成按模板生成的一句，栏目不放导读。行业通用词（`taxonomy.ts` 的 `PLAIN_TERMS`）和站名不受这个限制。
-   - 每条精选只进一期：按它的时间算，确认入选比它晚的按确认时间；截止以后才确认的进下一期。
-   - 每半小时检查一次：到点的刊期出一次，已经出过的不重写；停机错过的、失败的，在之后的检查里补上。日报时段里有资料经过判断、但没有新事件时照常出空刊；没有任何资料经过判断仍算失败，缺期按[部署说明](deploy.md#更新)告警。周报、月报的周期内，应有日报齐全且原始正文条目全部为空时，自动跳过该期，不写空周报或月报、不调用模型，也不记为生成或失败；首个周期从全站最早日报开始检查。没有可汇总条目时，若缺失日报或原有条目后来无法公开，仍保留原有错误。跳过不写永久标记，在现有补刊范围内更正日报后可重新生成。
+1. **Entrada**: o mesmo endereço e o mesmo conteúdo ficam em uma só cópia. Quando um artigo comum só tem título ou resumo, o texto é buscado conforme as regras da fonte; páginas de reprodução de vídeo usam o material de texto já fornecido e não tratam a página do player como corpo. O material sem horário de publicação confiável não é publicado de imediato, e só se julga se é novo ou antigo depois de ler a data do original (veja “Regra: conteúdo antigo não inunda a tela” em [Fontes](sources.md#regra-conteúdo-antigo-não-inunda-a-tela)).
+2. **Pré-filtro** (`prefilter.md`): isto é assunto do setor? Entrada ampla, só barra o claramente irrelevante: o material `BLOCK` não aparece em nenhuma página pública; `PASS` e os `UNKNOWN` (sem certeza) seguem adiante. Um artigo comum que só tem título, sem texto, resumo do feed nem texto de postagem, primeiro espera material, não é pontuado, não tem texto escrito a partir do título e não entra no conjunto público; depois que o material é completado e gera uma nova revisão, é julgado de novo. Postagens originais exibíveis com texto vazio ou só link seguem as regras de pontuação e exibição como estão.
+3. **Pontuação** (`selection-score.md`): o mesmo critério de pontuação dá duas notas independentes (0–100). **Se a soma das duas ≥ 2 × limiar**, a nota é suficiente; o limiar varia pela classificação da fonte, e a classe da fonte ainda pode elevar o limiar de certas fontes oficiais; as que têm nota suficiente ainda passam pela deduplicação do passo 6 para entrar na seleção. A nota exibida nas páginas é a média das duas (arredondada para baixo).
+4. **Estruturação** (`structure.md`): acontece ao mesmo tempo que a pontuação. Dá a categoria e as tags (é isto que as páginas exibem), as empresas-sujeito, e julga se o texto é uma notícia concreta, uma matéria de síntese sobre vários assuntos, ou se o material é insuficiente para dizer; se é uma notícia concreta, extrai os fatos (quem, fez o quê, a quê, quando), a fonte no original e as condições prévias. As páginas de tópicos, o agrupamento de eventos e o resumo diário dependem dele.
+5. **Título e resumo**: só são escritos depois que a estruturação termina. Os selecionados e os que quase entraram (média acima de `understandFloor`) recebem título em português, resumo com a resposta primeiro e motivo da recomendação conforme `content-understanding.md`; os demais recebem título e resumo curtos conforme `summarize-*.md` e vão para “todas as atualizações”. Ao navegar em “todas as atualizações” (lista do site, interface, lista de últimas para Agentes, modo “todos” do MCP, RSS “todas as atualizações”), só saem materiais com média não inferior a `browseFloor`, e os ainda sem nota saem normalmente; com termo de busca, continua buscando em tudo. Quando uma postagem do X não tem texto ou só contém um link, mantém-se o link, as imagens e a citação da postagem original, sem chamar o modelo de redação ou de tradução e sem gerar um texto do tipo “complemente o texto”; artigos longos do X com texto real obtido são processados normalmente. Se o texto escrito usa palavras listadas em `industry/wording.ts`, pede-se ao modelo, uma única vez, que altere só essas palavras (`mend-wording.md`).
+6. **Agrupamento e deduplicação** (`group-*.md`): as reportagens de fontes diferentes sobre a mesma coisa viram um evento, a página do evento tem uma síntese (`story-digest.md`), e “em alta” é ordenado por evento. Antes de mudar o prompt de síntese, dá para usar a [avaliação da síntese](story-digest-evaluation.md) para comparar lado a lado, no mesmo lote de eventos, o prompt atual e um candidato. O material com nota suficiente precisa esperar o agrupamento terminar para entrar na seleção: o modelo julga ao mesmo tempo se ele é a mesma notícia de uma reportagem já na seleção e se traz alguma informação concreta que a seleção ainda não deu.
+   - Várias reportagens da mesma notícia podem todas ser selecionadas: no site elas se dobram em um grupo de leitura; a API, o RSS e a interface de sincronização dão uma entrada por notícia, apresentada pela reportagem representante: primeiro a de primeira mão oficial; depois a conta oficial verificada (conta `T1_5` com `publisherRole` e `owner_entity_id` preenchidos, em que o sujeito da notícia é essa empresa, a instituição antes da pessoa); e depois a que tem texto completo, nota alta e publicada mais cedo.
+   - O que não é a mesma notícia mas não traz informação nova (explicar de outro jeito uma capacidade já divulgada, apenas disponibilizar em outra plataforma, um resumo que só repete os pontos já selecionados) não entra na seleção e fica em “todas as atualizações”. Uma matéria de síntese sobre vários assuntos não vira evento sozinha, só se prende aos eventos que cita, e entra na seleção só se tiver conteúdo importante que a seleção não cobriu; o material insuficiente, em que não se confirma de qual notícia se trata, não entra na seleção.
+   - A reportagem expressamente retratada mantém o vínculo histórico, mas deixa de participar da recuperação de agrupamento seguinte, de candidatas a representante, do ponto de partida do evento e da comparação automática de eventos; o mesmo endereço e as respostas ou citações do X também não podem usá-la para dar base de identidade. Se o mesmo fato ainda tem reportagens válidas, usa-se a válida, e se todas foram retratadas, não se recupera por ora; depois de voltar a ser pública, pode participar de novo. Um registro que só exibe o resumo ou que ainda não foi publicado não equivale a retratado e mantém a qualificação original. As relações e julgamentos existentes não são apagados, e não se reagrupa em lote.
+   - Antes da confirmação, o material fica só em “todas as atualizações” e, por mais que espere, não é liberado sozinho. Se a chamada ao modelo falha ou a resposta sai fora do formato, o material fica parado ali: esperar mais de 10 minutos gera alerta, a página “Execução” da administração lista esses materiais, e na “diagnóstico de conteúdo” é possível abrir o material e clicar em “reagrupar”. Por isso o modelo usado no agrupamento precisa responder de forma estável no formato.
+7. **Resumo diário, semanal e mensal**:
+   - O **resumo diário** sai todo dia às 08:00 (os horários de edição dos resumos diário, semanal e mensal estão em `EDITION_TIMES` de `site/site.ts`, e abaixo vão os valores padrão), cobrindo das 08:00 do dia anterior às 08:00 do dia, montado por regras, sem chamar modelos. Um item por assunto, tomando o texto mais autorizado da notícia com mais reportagens, e os outros desdobramentos do mesmo evento no dia ficam listados abaixo; uma matéria de síntese sobre vários assuntos fica sob o assunto mais importante que cita. O que já saiu nas últimas 7 edições não aparece de novo; num evento já noticiado que tem novo desdobramento, só entra no corpo se a própria parte envolvida teve nova ação (as categorias de `commentary`, como tutoriais e opiniões, não contam) ou se esse desdobramento foi noticiado por 4 ou mais fontes, e o resto vai para as notas rápidas. Um evento sem reportagem selecionada mas com publicação original oficial e com 3 ou mais participantes independentes também é acrescentado (só entra no resumo diário, não na seleção nem nos envios). A ordenação é por importância (a maior nota da reportagem selecionada, os participantes independentes que a discutiram no dia, se há publicação original oficial, com desconto para os desdobramentos), os 12 primeiros entram no corpo, no máximo 2 da mesma fonte, e depois disso há no máximo 10 notas rápidas de uma linha. O primeiro é a manchete, e a abertura é o próprio título e resumo dele; o 2º ao 4º são os destaques do dia.
+   - O **resumo semanal** (toda segunda às 10:00) e o **resumo mensal** (todo dia 1º às 10:30) são compilados dos resumos diários da semana e do mês: o mesmo evento em vários dias conta uma vez, ordenado pela posição que o resumo diário lhe deu (manchete, destaque, quantos dias esteve), pela abrangência da cobertura e pela nota, com os 20 primeiros no semanal e os 30 primeiros no mensal, divididos em seções pelas seções do diário. O modelo (`report-period.md`, `report-period-sections.md`) só escreve a visão geral e uma frase de apresentação para as seções com três ou mais itens, sem acrescentar nem tirar itens; se ele escreve um nome ou número que não está nos itens (nomes em letras latinas, números de três ou mais dígitos ou com ponto decimal ou sinal de percentual, empresas da lista de termos), esse trecho não é usado: a visão geral vira uma frase gerada por modelo de texto, e as seções ficam sem apresentação. Os termos gerais do setor (`PLAIN_TERMS` de `taxonomy.ts`) e o nome do site não estão sujeitos a essa restrição.
+   - Cada item da seleção entra em uma única edição: conta pelo horário dele e, para os que foram confirmados na seleção depois dele, pelo horário da confirmação; o que foi confirmado depois do corte entra na edição seguinte.
+   - Verifica-se a cada meia hora: a edição que chegou na hora é gerada uma vez, e as que já saíram não são reescritas; as perdidas por parada e as que falharam são completadas nas verificações seguintes. Quando há materiais julgados no período do resumo diário mas nenhum evento novo, sai normalmente uma edição vazia; se nenhum material foi julgado, continua contando como falha, e a edição ausente alerta conforme a [documentação de implantação](deploy.md#atualização). Nos períodos dos resumos semanal e mensal, quando os resumos diários estão completos e todos os itens de texto original estão vazios, o período é ignorado automaticamente, sem escrever resumo semanal ou mensal vazio, sem chamar modelos e sem registrar como gerado ou falha; o primeiro período é verificado a partir do resumo diário mais antigo do site. Quando não há itens para reunir, se faltarem resumos diários ou se os itens existentes já não puderem ser publicados depois, o erro original é mantido. O ato de ignorar não grava marca permanente, e depois de corrigir o resumo diário dentro do alcance de reedição existente é possível gerar de novo.
 
-每一步的提示词都在 `industry/prompts/`，改提示词不用改代码。提示词的版本就是它内容的哈希：改了提示词，之后的新资料按新版判断，已经判过的不会重算。
+O prompt de cada etapa está em `industry/prompts/`, e mudar prompts não exige mudar código. A versão do prompt é o hash do conteúdo dele: se você alterou um prompt, os materiais novos seguintes são julgados pela nova versão, e os já julgados não são recalculados.
 
-## 门槛：`industry/selection.ts`
+## Limiares: `industry/selection.ts`
 
 ```ts
 export const SELECTION = {
-  thresholds: { T1: 60, T1_5: 65, T2: 76 },   // 两次评分的平均至少要到这个数
-  classes: {                                  // 信源类别：这类信源的门槛不低于这里的数
-    ecosystem: { label: "生态与基础设施", threshold: 70 },
-    leaderboard: { label: "评测榜单", threshold: 76 },
+  thresholds: { T1: 60, T1_5: 65, T2: 76 },   // a média das duas pontuações precisa chegar pelo menos a este número
+  classes: {                                  // classe da fonte: o limiar das fontes desta classe não fica abaixo do número daqui
+    ecosystem: { label: "Ecossistema e infraestrutura", threshold: 70 },
+    leaderboard: { label: "Rankings de avaliação", threshold: 76 },
   },
-  understandFloor: 50,                        // 平均分高于它的未入选资料，也按入选的写法写
-  browseFloor: 40,                            // 浏览“全部动态”只出平均分不低于它的资料，搜索不受限
+  understandFloor: 50,                        // materiais não selecionados com média acima disto também são escritos como os selecionados
+  browseFloor: 40,                            // navegar em “todas as atualizações” só mostra materiais com média não inferior a isto; a busca não tem restrição
 };
 ```
 
-官方一手信源（T1）门槛低一些，媒体和个人（T2）门槛高一些：同样一件事，官方原文更值得先看。没有门槛的分级（`EXCLUDE_MP`）不参与精选。
+As fontes oficiais de primeira mão (T1) têm limiar mais baixo, e mídia e pessoas (T2) mais alto: para o mesmo fato, o texto oficial original merece ser visto primeiro. As classificações sem limiar (`EXCLUDE_MP`) não participam da seleção.
 
-分级只说明来源是不是官方、一手。有些官方信源的日常内容主要写给开发者或业内（芯片与云服务、开发框架与工具链、评测榜单……），读者要看的只是其中的大事：在后台“信源”页给它选一个类别，门槛抬到不低于类别的数。只抬不降，分级门槛本来就更高的不受影响；不选类别就只按分级。类别的键存在信源上，上线后不要改名，改了的类别会悄悄失效；评测样本不带类别，按分级门槛算。
+A classificação só diz se a origem é oficial e de primeira mão. O conteúdo do dia a dia de algumas fontes oficiais é escrito principalmente para desenvolvedores ou para o setor (chips e serviços de nuvem, frameworks e ferramentas, rankings de avaliação…), e o leitor só quer ver as grandes novidades: na página “Fontes” da administração, escolha para elas uma classe, e o limiar sobe a pelo menos o número da classe. Só sobe, nunca desce, e quem já tem um limiar de classificação mais alto não é afetado; sem escolher classe, vale só a classificação. A chave da classe fica guardada na fonte e não deve ser renomeada depois de no ar, e uma classe renomeada perde o efeito sem aviso; as amostras de avaliação não trazem classe e usam o limiar da classificação.
 
-`browseFloor` 设成 `0` 就和以前一样，“全部动态”列出全部公开资料。
+Com `browseFloor` em `0`, fica como antes, e “todas as atualizações” lista todos os materiais públicos.
 
-这组数是 AIHOT 在 AI 领域一直在用的门槛，偏严：宁可少选几条，也不让噪声进精选。换了行业、改了评分标准，一定要按下面的办法重新校准。
+Esses números são os limiares que o AIHOT sempre usou na área de IA, mais rígidos: prefere-se selecionar menos a deixar o ruído entrar na seleção. Se mudou de setor ou alterou o critério de pontuação, recalibre sem falta pelo método abaixo.
 
-## 校准
+## Calibração
 
-### 1. 准备样本集
+### 1. Prepare o conjunto de amostras
 
-从你自己的信源里挑 100–200 条资料，一条一条标“该选 / 不该选”，存成 `.data/gold.jsonl`（`.data/` 不进 Git）。每行一条：
+Escolha de 100 a 200 materiais das suas próprias fontes, marque um a um “deve selecionar / não deve” e guarde em `.data/gold.jsonl` (`.data/` não vai para o Git). Uma por linha:
 
 ```json
-{"caseId":"law-001","material":{"title":"原文标题","originalTitle":null,"publishedAt":"2026-10-01T09:00:00+08:00","sourceName":"信源名称","bodyZh":null,"bodyOriginal":"正文……"},"sourceFacts":{"sourceKind":"rss","sourceTier":"T1","firstParty":true,"language":"zh"},"samplingContext":{"benchmarkSplit":"development","samplingStratum":"regulation"},"gold":{"decision":"select"}}
+{"caseId":"law-001","material":{"title":"Título do original","originalTitle":null,"publishedAt":"2026-10-01T09:00:00+08:00","sourceName":"Nome da fonte","bodyZh":null,"bodyOriginal":"Texto…"},"sourceFacts":{"sourceKind":"rss","sourceTier":"T1","firstParty":true,"language":"pt"},"samplingContext":{"benchmarkSplit":"development","samplingStratum":"regulation"},"gold":{"decision":"select"}}
 ```
 
-| 字段 | 说明 |
+| Campo | Explicação |
 |---|---|
-| `caseId` | 唯一编号 |
-| `material` | 标题、原标题、发布时间、信源名、正文（中文正文放 `bodyZh`，原文放 `bodyOriginal`，有一个就行） |
-| `sourceFacts` | 信源类型、分级、是否一手（线上只有 `T1` 算一手，标注时保持一致）、语言。分级决定用哪个门槛 |
-| `samplingContext` | 可选。`benchmarkSplit` 分开发集和留出集，`samplingStratum` 是你自己的分组（比如“新规”“判决”“营销”），看错在哪一类 |
-| `gold.decision` | `select` 该选，`reject` 不该选，`either` 两可（不计入准确率） |
+| `caseId` | Número único |
+| `material` | Título, título original, horário de publicação, nome da fonte, texto (o texto em português vai em `bodyZh`, e o original em `bodyOriginal`; basta um) |
+| `sourceFacts` | Tipo da fonte, classificação, se é de primeira mão (no ar, só `T1` conta como primeira mão; mantenha igual ao marcar) e idioma. A classificação decide qual limiar usar |
+| `samplingContext` | Opcional. `benchmarkSplit` separa o conjunto de desenvolvimento do conjunto reservado, e `samplingStratum` é o seu próprio agrupamento (por exemplo “nova norma”, “decisão judicial”, “marketing”), para ver em que classe erra |
+| `gold.decision` | `select` deve selecionar, `reject` não deve, `either` tanto faz (não conta na acurácia) |
 
-`industry/gold.example.jsonl` 有两条示例。
+O `industry/gold.example.jsonl` traz dois exemplos.
 
-几条建议：
+Algumas sugestões:
 
-- 多放**难例**：差一点就该选、差一点就不该选的。一眼就能判断的放太多，准确率会虚高。
-- 分出一部分做**留出集**（`benchmarkSplit: "holdout"`），调提示词只看开发集，最后再用留出集检查一遍，免得把提示词调成只会做这几道题。
-- 标注的人最好就是以后读这个站的人，或者和他们口味一致的人。
-- 评测只跑预筛和两次评分，不含第 6 步的去重：按这条资料本身该不该选来标，不要因为同一件事已经选过另一篇就标“不该选”。
+- Coloque muitos **casos difíceis**: os que quase deveriam ser selecionados e os que quase não deveriam. Se houver demais os que se decidem à primeira vista, a acurácia fica inflada.
+- Separe uma parte como **conjunto reservado** (`benchmarkSplit: "holdout"`); ao ajustar prompts, olhe só o conjunto de desenvolvimento, e só no fim confira com o reservado, para não ajustar o prompt a ponto de só saber resolver estas questões.
+- Quem marca deve ser, de preferência, quem vai ler este site depois, ou alguém com gosto parecido.
+- A avaliação só roda o pré-filtro e as duas pontuações, sem a deduplicação do passo 6: marque pelo critério de o material em si dever ou não ser selecionado, sem marcar “não deve” só porque o mesmo fato já teve outro texto selecionado.
 
-### 2. 跑评测
+### 2. Rode a avaliação
 
 ```bash
-node --env-file=.env scripts/eval-selection.ts --gold .data/gold.jsonl --split development --label "第一版评分标准"
+node --env-file=.env scripts/eval-selection.ts --gold .data/gold.jsonl --split development --label "primeira versão do critério"
 ```
 
-对每条样本跑一遍预筛和两次评分，输出：
+Para cada amostra, roda o pré-filtro e as duas pontuações, e dá:
 
-- **有效输出准确率、查准率、查全率和 F1**：只看成功得到入选决定的非 `either` 样本，用来判断模型答出来以后有多准；
-- **覆盖率**：成功得到入选决定的样本占全部非 `either` 金标样本的比例；**完整准确率**则用全部非 `either` 金标样本作分母，把模型失败或回答不合格式也算作没有正确完成；
-- `either` 始终不进入上述质量指标的分母；报告另外记录决定样本失败数与 `either` 失败数。`goldSelectRate` 按全部非 `either` 金标计算，因此同一批样本在不同模型间应保持一致；
-- 门槛从 40 到 90 每隔 2 分（范围可以在下面说的 `DEPLOYMENT.selectionGold` 里改），各自会得到什么结果；门槛扫描同样同时报告有效输出准确率、覆盖率和完整准确率；
-- 判错的条目，完整报告写到 `.data/eval/`，同时导入后台 SelectBench（加 `--no-import` 不导入）。
+- **Acurácia de saída válida, precisão, recall e F1**: olha só as amostras não `either` em que se obteve com sucesso a decisão de seleção, para julgar quão preciso é o modelo depois que ele responde;
+- **Cobertura**: a proporção das amostras com decisão de seleção obtida com sucesso entre todas as amostras de referência não `either`; a **acurácia completa** usa como denominador todas as amostras de referência não `either`, contando como não concluídos corretamente também os casos em que o modelo falha ou responde fora do formato;
+- `either` nunca entra no denominador das métricas de qualidade acima; o relatório registra à parte o número de falhas de amostras com decisão e o de falhas de `either`. `goldSelectRate` é calculado sobre todas as referências não `either`, por isso deve se manter igual para o mesmo lote de amostras entre modelos;
+- Limiares de 40 a 90 a cada 2 pontos (o intervalo pode ser alterado em `DEPLOYMENT.selectionGold`, descrito abaixo), com o resultado que cada um daria; a varredura de limiares também relata ao mesmo tempo a acurácia de saída válida, a cobertura e a acurácia completa;
+- Os itens que errou: o relatório completo é escrito em `.data/eval/` e também importado para o SelectBench da administração (com `--no-import`, não importa).
 
-不传 `--models` 时，评测用“精选评分”这一步线上正在用的模型：后台“模型与评测”页切换过的优先，其次是环境变量 `SCORE_MODEL`，再其次是 `site/models.ts` 的 `DEFAULTS.score`，都没有就用默认模型（`.env` 里的 `LLM_*`）。`--models default,deepseek-flash` 可以在同一批样本上比较几个模型。其他常用参数：`--n 200` 最多抽多少条，`--split holdout` 只跑留出集，`--no-import` 不导入 SelectBench。在 `site/site.ts` 的 `DEPLOYMENT.selectionGold` 里写好样本文件、抽样条数、只抽哪一份和门槛扫描范围，以后不带参数运行就用这一套。
+Sem passar `--models`, a avaliação usa o modelo que está sendo usado no ar na etapa “pontuação da seleção”: primeiro o trocado na página “Modelos e avaliação” da administração, depois a variável de ambiente `SCORE_MODEL`, depois o `DEFAULTS.score` de `site/models.ts`, e se não houver nenhum, o modelo padrão (`LLM_*` no `.env`). `--models default,deepseek-flash` permite comparar vários modelos no mesmo lote de amostras. Outros parâmetros comuns: `--n 200` quantos itens no máximo sortear, `--split holdout` roda só o conjunto reservado, `--no-import` não importa para o SelectBench. Se escrever em `DEPLOYMENT.selectionGold` de `site/site.ts` o arquivo de amostras, o número sorteado, qual parte sortear e o intervalo da varredura de limiares, depois, sem parâmetros, usa-se esse conjunto.
 
-同一次评测里，不同样本渲染出完全相同的评分输入时，只共享模型的评分结果，各样本仍按自己的预筛结果、信源分级门槛和标注独立计分；失败的结果也在这次运行里共享，这样第一次跑和用已有结果重跑覆盖的样本一样。重复运行会复用已有回执。报告里的 token 用量和平均耗时，按相关回执的全部请求尝试汇总，解析失败后的重试也算在内；用已有结果重跑时，显示的是这些回执累计的用量，不代表这次新增的费用。
+Numa mesma avaliação, quando amostras diferentes renderizam exatamente a mesma entrada de pontuação, só o resultado de pontuação do modelo é compartilhado, e cada amostra continua sendo contada de forma independente por seu próprio resultado de pré-filtro, limiar da classificação da fonte e marcação; os resultados com falha também são compartilhados nessa execução, de modo que a primeira execução e a repetição com resultados existentes cubram as mesmas amostras. Execuções repetidas reaproveitam os recibos existentes. O uso de tokens e o tempo médio no relatório são somados de todas as tentativas de requisição dos recibos relacionados, incluindo as repetições depois de falha de interpretação; ao repetir com resultados existentes, o que aparece é o uso acumulado desses recibos, e não representa o custo adicional desta vez.
 
-### 3. 看错例，改标准，再跑
+### 3. Veja os erros, mude o critério, rode de novo
 
-在后台 SelectBench 里逐条看判错的资料和模型给的理由：
+No SelectBench da administração, veja um a um os materiais julgados errado e as razões dadas pelo modelo:
 
-上传多模型报告时，同一 `caseId` 在各模型下须使用相同的 `gold` 标注，模型的 `decision` 可以不同。标注冲突的报告会在写入前被拒绝，避免同一条资料在并排比较时出现不同的人工答案；不提供逐例 `cases` 的报告仍可导入。
+Ao enviar relatórios de vários modelos, o mesmo `caseId` deve ter a mesma marcação `gold` em todos os modelos, e o `decision` do modelo pode ser diferente. Relatórios com marcações em conflito são recusados antes da gravação, para que, na comparação lado a lado, o mesmo material não apareça com respostas humanas diferentes; relatórios sem `cases` por exemplo ainda podem ser importados.
 
-- 该选没选上，多半是评分标准里没说清它为什么重要：在 `selection-score.md` 里把这类价值写进“必须正常评价”的部分，给出例子。
-- 不该选却选上了，多半是噪声没压住：写进“必须压住”的部分。
-- 整体偏松或偏紧，而判错的条目分数都贴着门槛，再调 `industry/selection.ts` 的门槛。
+- Se um que devia ser selecionado não foi, provavelmente o critério de pontuação não deixou claro por que ele é importante: em `selection-score.md`, escreva esse tipo de valor na parte “deve ser avaliado normalmente”, com exemplos.
+- Se um que não devia ser selecionado foi, provavelmente o ruído não foi contido: escreva na parte “deve ser contido”.
+- Se no conjunto está solto ou apertado demais, e as notas dos itens errados ficam coladas ao limiar, então ajuste os limiares em `industry/selection.ts`.
 
-先改标准，再动门槛：门槛只能整体移动，解决不了“哪一类判错了”。每改一次跑一遍，SelectBench 里能看到每一版的对比。比较模型时不要只看有效输出 F1：如果覆盖率明显不同，还要一起看完整准确率；高分但经常无法完成结构化判断的模型，不应被失败样本从分母里“隐藏”掉。
+Mude primeiro o critério, depois os limiares: o limiar só se move por inteiro, e não resolve “em que classe errou”. A cada mudança, rode de novo, e o SelectBench mostra a comparação de cada versão. Ao comparar modelos, não olhe só o F1 de saída válida: se a cobertura for bem diferente, olhe junto a acurácia completa; um modelo de nota alta que muitas vezes não consegue concluir o julgamento estruturado não deve ser “escondido” do denominador pelas amostras que falham.
 
-## 换模型
+## Trocar de modelo
 
-后台“模型与评测”页能看到每一步当前用哪个模型、近期的成功率、耗时和 token 用量，也能直接切换（只影响之后的新任务）。换评分模型之前，先用 `--models` 在同一批样本上比一比。
+A página “Modelos e avaliação” da administração mostra qual modelo cada etapa usa hoje, a taxa de sucesso recente, o tempo e o uso de tokens, e também permite trocar direto (só afeta as tarefas novas depois disso). Antes de trocar o modelo de pontuação, compare primeiro com `--models` no mesmo lote de amostras.

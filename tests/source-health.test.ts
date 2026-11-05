@@ -94,7 +94,7 @@ test("hot-signal activity does not hide editorial collection stopping", async ()
   assert.equal((await collectFindings(now)).find(f => f.key === "content.collect"), undefined);
 });
 
-// 10-19..11-01: 21 "反复抓取失败" follow-ups were timeouts, dropped TLS and the origin's 404/406/502,
+// 19/10..01/11: 21 acompanhamentos de "falha repetida na coleta" eram timeouts, TLS interrompido e 404/406/502 da origem,
 // healing by the next run, all closed as accepted; the ones worth fixing were our parsing coming back empty.
 async function runs(sourceId: string, ok: number, failed: number, error: string) {
   await sql`INSERT INTO fetch_runs(source_id,started_at,finished_at,status,error)

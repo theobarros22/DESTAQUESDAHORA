@@ -174,7 +174,7 @@ function periodOverview(content: Record<string, any>, kind: "weekly" | "monthly"
   return `${kind === "weekly" ? "Esta semana" : "Este mês"}: ${shown.length} ${REPORTS.entry.measure}${REPORTS.entry.noun}; os que mais chamaram atenção foram: ${shown.slice(0, 3).map((e) => e.title).join("; ")}.`;
 }
 
-/** A weekly or monthly's own headline; the composer's "<site name> 周报 · 2026-W38" names the issue, not its news. */
+/** A weekly or monthly's own headline; the composer's "<site name> resumo semanal · 2026-W38" names the issue, not its news. */
 function periodicHeadline(content: Record<string, any>): string | null {
   const text = String(content.headline ?? content.title ?? "");
   const issueName = text.startsWith(`${SITE.name} `) && /^(?:· )?(?:Resumo semanal|Balanço mensal) · /.test(text.slice(SITE.name.length + 1));

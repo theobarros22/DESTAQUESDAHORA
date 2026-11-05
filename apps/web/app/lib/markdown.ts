@@ -95,7 +95,7 @@ export interface CopyDocument {
 
 /**
  * Splits a page copy file (site/pages/) into its page parts: the first heading (title), the meta table,
- * the page-top statement (页首说明) and the verbatim body starting at the first "## " section.
+ * the page-top statement (declaração do topo da página) and the verbatim body starting at the first "## " section.
  */
 export function parseCopyFile(md: string, firstSection = /^## /m): CopyDocument {
   const title = (/^#\s+(.+)$/m.exec(md)?.[1] ?? "").replace(/\s*\((versão vigente|em vigor)\)/gi, "").trim();

@@ -299,7 +299,7 @@ export function buildLongTweetPrompt(input: TranslateInput): string {
   return promptText("summarize-long-post", { sourceName: sourceName(input.sourceName), identity: identityPrompt(input), post }) + quotedBlock(input, "summarize-long-post-quoted");
 }
 
-/** Prompt lines a model sometimes repeats after its answer (来源：…, 【已核验身份上下文】…, 原始标题：…). */
+/** Prompt lines a model sometimes repeats after its answer (Fonte: …, [contexto de identidade verificado] …, Título original: …). */
 const ECHO_LINE = /^(Fonte[:：]|【Contexto de identidade verificado】|Estes fatos servem só|Título original[:：]|【Âncora de tempo】)/;
 
 /** The answer without prompt lines repeated at its end. */

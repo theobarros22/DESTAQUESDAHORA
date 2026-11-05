@@ -51,7 +51,7 @@ export interface CandidateView {
   /** Recall similarity with the query (cosine of the two embeddings, or the lexical fallback's overlap). */
   score: number;
   report: ReportView;
-  /** Only a report already visible in 精选 counts as coverage the reader has seen. */
+  /** Only a report already visible in Seleção counts as coverage the reader has seen. */
   selected?: boolean;
   selectedReport?: ReportView | null;
 }

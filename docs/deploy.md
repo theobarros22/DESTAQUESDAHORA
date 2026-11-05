@@ -1,90 +1,91 @@
-# 部署
+# Implantação
 
-## 用 Docker（推荐）
+## Com Docker (recomendado)
 
-需要一台装了 Docker（带 Compose）的机器。云服务器建议至少 2 核、4 GB 内存，构建镜像时要用到。
+Você precisa de uma máquina com Docker (com Compose). Em servidor na nuvem, recomendamos pelo menos 2 núcleos e 4 GB de memória, necessários na construção da imagem.
 
 ```bash
-git clone https://github.com/KKKKhazix/AIHOT.git myhot
-cd myhot
-node scripts/init-env.ts --llm-key <你的模型 API Key>
+git clone https://github.com/theobarros22/DESTAQUESDAHORA.git destaques
+cd destaques
+git checkout destaques-da-hora
+node scripts/init-env.ts --llm-key <sua chave de API do modelo>
 ```
 
-`init-env.ts` 会生成 `.env`，填好随机密钥和管理员密码，并把密码打印一次。机器上没有 Node 的话，把 `.env.example` 复制成 `.env`，自己填 `ADMIN_PASSWORD`（至少 12 位）、`SESSION_SECRET`、`IMG_PROXY_SIGN_SECRET`、`POSTGRES_PASSWORD`（各用 `openssl rand -hex 32` 生成）和 `LLM_API_KEY`。
+O `init-env.ts` gera o `.env`, preenche chaves aleatórias e a senha do administrador, e mostra a senha uma única vez. Se a máquina não tem Node, copie `.env.example` para `.env` e preencha você mesmo `ADMIN_PASSWORD` (pelo menos 12 caracteres), `SESSION_SECRET`, `IMG_PROXY_SIGN_SECRET`, `POSTGRES_PASSWORD` (cada uma gerada com `openssl rand -hex 32`) e `LLM_API_KEY`.
 
-启动前检查 `.env` 的 `SITE_URL`：本机试用保留 `http://localhost:3000`；部署到服务器时改成读者实际访问的地址。例如通过服务器 IP 访问时（把示例 IP 换成自己的）：
+Antes de iniciar, confira o `SITE_URL` do `.env`: para testar na própria máquina, deixe `http://localhost:3000`; ao implantar num servidor, troque pelo endereço que o leitor realmente acessa. Por exemplo, acessando pelo IP do servidor (troque o IP de exemplo pelo seu):
 
 ```dotenv
 SITE_URL=http://192.0.2.10:3000
 ```
 
-RSS、分享链接、站点地图和 Agent Markdown 中的绝对链接都使用这个值，不会随浏览器访问的地址自动改变。使用域名和 HTTPS 时按下方「配域名和 HTTPS」设置。
+Os links absolutos do RSS, dos links de compartilhamento, do sitemap e do Markdown para Agentes usam este valor e não mudam sozinhos conforme o endereço usado no navegador. Para usar domínio e HTTPS, configure conforme “Domínio e HTTPS” abaixo.
 
-配置完成后启动：
+Com a configuração pronta, inicie:
 
 ```bash
 docker compose up -d --build
 ```
 
-启动后打开 `http://服务器地址:3000`，后台在 `/admin`，用管理员密码登录。第一次启动会导入示范信源，一两分钟后开始出现内容；第一次导入的一百多条资料大约半小时处理完（每条都要预筛、评分、结构化、写标题摘要，再归组）。
+Depois de iniciar, abra `http://endereço-do-servidor:3000`; a administração fica em `/admin`, e o login usa a senha de administrador. Na primeira inicialização são importadas as fontes de exemplo, e o conteúdo começa a aparecer em um ou dois minutos; os cerca de cem materiais da primeira importação levam cerca de meia hora para ser processados (cada um passa por pré-filtro, pontuação, estruturação, título e resumo, e depois agrupamento).
 
-`docker compose` 会起五个容器：`db`（PostgreSQL 17）、`setup`（每次启动先跑数据库迁移和种子数据，然后退出）、`api`、`worker`（抓取、模型处理、定时任务）、`web`（网页）。`web` 只接收网站地址、API 地址等网页配置，通过 HTTP 读取 API；数据库、模型和管理员密钥，以及数据卷，只交给后端容器。
+O `docker compose` sobe cinco contêineres: `db` (PostgreSQL 17), `setup` (a cada inicialização roda primeiro as migrações do banco e os dados iniciais e depois encerra), `api`, `worker` (coleta, processamento por modelos, tarefas agendadas) e `web` (as páginas). O `web` recebe apenas a configuração das páginas, como o endereço do site e o da API, e lê a API por HTTP; o banco, os modelos, as chaves do administrador e os volumes de dados são entregues somente aos contêineres do back-end.
 
-### 在中国大陆的服务器上
+### Em servidores na China continental
 
-- 构建时 npm 走国内镜像：`docker compose build --build-arg NPM_REGISTRY=https://registry.npmmirror.com`，然后 `docker compose up -d`。
-- 拉取 Docker 镜像慢，先给 Docker 配置镜像加速。
-- 海外信源抓不到时，在 `.env` 里设置 `EGRESS_PROXY_URL`：抓信源和图片时走这个代理，调用模型接口不走。
-- 对外提供网站服务需要先完成 ICP 备案，备案号填在 `site/site.ts` 的 `icp`。
+- Na construção, o npm usa um espelho local: `docker compose build --build-arg NPM_REGISTRY=https://registry.npmmirror.com`, e depois `docker compose up -d`.
+- Se baixar imagens Docker é lento, configure primeiro um acelerador de imagens no Docker.
+- Quando fontes do exterior não podem ser coletadas, defina `EGRESS_PROXY_URL` no `.env`: a coleta de fontes e imagens passa por esse proxy, e as chamadas às interfaces de modelos não.
+- Para oferecer o site ao público na China continental, é preciso antes concluir o registro ICP, cujo número vai em `icp` de `site/site.ts`.
 
-### 配域名和 HTTPS
+### Domínio e HTTPS
 
-先把域名解析到服务器，然后在 `.env` 里设置：
+Primeiro aponte o domínio para o servidor e depois defina no `.env`:
 
 ```bash
 SITE_URL=https://example.com
 SITE_DOMAIN=example.com
-PORT=127.0.0.1:3000        # 3000 端口只给本机的 Caddy 用，不直接对外
-TRUST_PROXY=true           # 访客地址从 Caddy 转来的请求头里读
+PORT=127.0.0.1:3000        # a porta 3000 serve só ao Caddy da própria máquina, sem exposição direta
+TRUST_PROXY=true           # o endereço do visitante é lido do cabeçalho enviado pelo Caddy
 ```
 
-再用带 HTTPS 的方式启动，Caddy 会自动申请和续期证书：
+Depois inicie no modo com HTTPS; o Caddy pede e renova o certificado automaticamente:
 
 ```bash
 docker compose --profile https up -d --build
 ```
 
-已经有 Nginx 的话，不用 Caddy，把站点反向代理到 `http://127.0.0.1:3000`，带上 `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;` 和 `proxy_set_header X-Forwarded-Proto $scheme;`（后台登录按它判断访问是不是 HTTPS，少了它登录 cookie 会丢掉 Secure），并在 `.env` 里设 `TRUST_PROXY=true`。`SITE_URL` 一定要写成读者实际访问的地址：生成的链接、RSS、分享图和 MCP 都用它。
+Se você já tem Nginx, não use o Caddy: faça o proxy reverso do site para `http://127.0.0.1:3000`, enviando `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;` e `proxy_set_header X-Forwarded-Proto $scheme;` (o login da administração usa isso para saber se o acesso é HTTPS, e sem ele o cookie de login perde o Secure), e defina `TRUST_PROXY=true` no `.env`. O `SITE_URL` precisa ser exatamente o endereço que o leitor acessa: os links gerados, o RSS, as imagens de compartilhamento e o MCP usam esse valor.
 
-MCP 默认接受 `SITE_URL` 的主机以及 `localhost`、`127.0.0.1`、`[::1]`。额外主机用 `MCP_ALLOWED_HOSTS` 配置，以逗号分隔，例如 `extra.example:8443,[2001:db8::1]`。主机名不区分大小写，IPv6 必须加方括号；可带 0–65535 的十进制端口，匹配时忽略端口。包含路径、用户信息或非法端口的配置不会生效。`127.1` 等别名需要明确列入；此配置只影响 Host 校验，不扩大浏览器 Origin 许可。
+Por padrão, o MCP aceita o host de `SITE_URL` e também `localhost`, `127.0.0.1` e `[::1]`. Hosts extras são configurados em `MCP_ALLOWED_HOSTS`, separados por vírgula, por exemplo `extra.example:8443,[2001:db8::1]`. Os nomes de host não diferenciam maiúsculas de minúsculas, o IPv6 precisa de colchetes, e pode haver uma porta decimal de 0 a 65535, que é ignorada na comparação. Configurações com caminho, informações de usuário ou porta inválida não têm efeito. Apelidos como `127.1` precisam ser listados explicitamente; esta configuração só afeta a verificação do Host e não amplia a permissão de Origin do navegador.
 
-前面有 Nginx、CDN 这类缓存时，要遵循应用返回的缓存期限（`Cache-Control`）：公开网页、导航数据、API、RSS、条目 Markdown、报告分享图、站点地图，以及接入说明 `/api/v1/agent` 和 `/openapi-v1.json`（五分钟到期后也要重新验证），都不要另加更长的缓存期，不要在到期后离线返回旧内容，也不要在转发旧响应时重新起算它的寿命；不要让代理和 CDN 叠加缓存动态内容。框架不代管自建站的 CDN，也不替它清缓存。
+Se há um cache à frente, como Nginx ou CDN, ele deve respeitar o prazo de cache que o aplicativo devolve (`Cache-Control`): páginas públicas, dados de navegação, API, RSS, Markdown dos itens, imagens de compartilhamento de relatórios, sitemap, além da página de integração `/api/v1/agent` e de `/openapi-v1.json` (que também precisam ser revalidados depois dos cinco minutos), não devem receber um prazo de cache maior, não devem devolver conteúdo antigo offline depois de vencer, nem reiniciar a vida de uma resposta antiga ao reencaminhá-la; não deixe proxy e CDN acumularem cache de conteúdo dinâmico. O framework não gerencia o CDN de um site próprio nem limpa o cache dele.
 
-### 更新
+### Atualização
 
-**2026 年 10 月 31 日的引擎同步**有三个数据库迁移（`0090`–`0092`），照下面的命令更新时 setup 会跑它们：信源多一列可选的类别 `selection_class`，反馈多了 `kind`（类型）和 `idea`（归入的建议）两列，都可以为空，旧数据不用改。没有必填的新环境变量。要注意的变化：
+**A sincronização do motor de 31 de outubro de 2026** traz três migrações do banco (`0090`–`0092`), que o setup executa ao atualizar com os comandos abaixo: as fontes ganham uma coluna opcional de classe `selection_class`, e o feedback ganha as colunas `kind` (tipo) e `idea` (sugestão agrupada), ambas podendo ficar vazias, sem precisar mudar dados antigos. Não há novas variáveis de ambiente obrigatórias. Mudanças a observar:
 
-- **`industry/selection.ts` 多了 `classes` 和 `browseFloor`**，见 [精选与校准](selection.md#门槛industryselectionts)；自己改过这个文件的，合并时补上这两项，不补通不过类型检查。
-  - `classes`：信源类别和它的门槛下限。后台“信源”页可以给官方信源选一个类别，门槛抬到不低于类别的数，只抬不降；不选类别的信源和原来一样。
-  - `browseFloor`（默认 40）：浏览“全部动态”（网页列表，`/api/v1/items` 和 `/api/v1/agent/latest` 的 `mode=all`，MCP 最新列表的 `all`，“全部动态”RSS）只出平均分不低于它的资料，没评上分的照常出；带搜索词时仍搜全部。想和原来一样全部列出，设成 `0`。
-- **告警**：
-  - 新增“大量信源抓取失败”：开着采集时，最近一次抓取失败的信源不少于 50 个、且占最近抓取过的信源 15% 以上，按“读者受影响”一级告警，多半是服务器连外网的线路或代理断了。
-  - 选填的 `WEBHOOK_HUB_URL`、`WEBHOOK_HUB_KEY`（协议见 `.env.example`）：配好后（还要 `FEISHU_INTERNAL_ENABLED=true`），“读者受影响”和“今天要处理”两级的告警先交给你自己的自动处理服务，交出去 1 小时（读者受影响）或 3 小时（今天要处理）后还没恢复，或者同一个问题一天里第三次交出去，才发给你；只有你能处理的（比如模型服务拒绝调用、要核对账号或额度）照常立刻发。09:00 的系统日报被它收下就不再发给你。发给你本人的消息也先交给它的 `/tell`，没收下再走飞书。超过 30 分钟送不出去，会告警“自动处理暂时接不到任务”，这期间告警直接发给你。不配置就和原来一样。以前代码里读过、没写进文档的 `AGENT_WEBHOOK_URL`、`AGENT_WEBHOOK_KEY` 不再读取，请求格式也换了，用过的照 `.env.example` 改。
-  - 告警群机器人（`FEISHU_ALERT_WEBHOOK_URL`）一次只发一条，等上一条有答复或失败后再隔 600 毫秒发下一条，不会超过飞书自定义机器人的频率限制。
-- **模型服务拒绝调用后的暂停**：拒绝之前已经发出的请求后来成功了，不再解除暂停（它可能用掉了最后的额度），只有拒绝之后发出的请求成功才解除。拒绝时也不再顺手删掉其他模型一天前已经过期的暂停记录：两个模型同时被拒会互相等对方的行锁，死锁后丢掉那次拒绝；过期的暂停本就不再生效，留在 `settings` 里，等那个模型下一次调用成功时删掉。
-- **图片**：网页上的图片先给 AVIF（`<picture>`，不支持的浏览器照旧用原来的格式）。AVIF 版本由 worker 在后台按需生成，比原来的格式小一成以上才保留，生成好之前先返回原来的格式；图片缓存会多占一些空间。源站拒绝或已删除（401、403、404、410）的图片，失败结果缓存 6 小时，不再每分钟回源。
-- **备份**：每个文件只上传一次，放在一个前缀下（见下方 [备份](#备份)）；原来每天都传一份到 `daily/`、周日和每月 1 日再各多传一份。按前缀设过过期规则的，核对一下。没有附件时只传 `.dump`，不再生成空的文件包。
-- **反馈后台**：反馈可以标类型（BUG、建议、提问、其他）；建议可以归入一个建议名，同一个需求用同一个名字，“建议池”按提出人数排序。
+- **`industry/selection.ts` ganhou `classes` e `browseFloor`**, veja [Seleção e calibração](selection.md#limiares-industryselectionts); quem alterou esse arquivo deve acrescentar os dois itens ao incorporar, senão a verificação de tipos não passa.
+  - `classes`: a classe da fonte e o piso do limiar dela. Na página “Fontes” da administração dá para escolher uma classe para uma fonte oficial, elevando o limiar a pelo menos o número da classe, só para cima, nunca para baixo; fontes sem classe ficam como antes.
+  - `browseFloor` (padrão 40): ao navegar em “todas as atualizações” (lista do site, `mode=all` de `/api/v1/items` e `/api/v1/agent/latest`, `all` na lista de últimas do MCP e o RSS “todas as atualizações”), só saem materiais com média não inferior a ele; os que ainda não foram pontuados saem normalmente; com termo de busca, continua buscando em tudo. Para listar tudo como antes, defina `0`.
+- **Alertas**:
+  - Novo “muitas fontes com falha de coleta”: com a coleta ligada, quando as fontes cuja última coleta falhou são pelo menos 50 e correspondem a 15% ou mais das fontes coletadas recentemente, dispara alerta do nível “leitor afetado”; geralmente é a rota do servidor para a internet ou o proxy que caiu.
+  - `WEBHOOK_HUB_URL` e `WEBHOOK_HUB_KEY` opcionais (protocolo em `.env.example`): configurados (e com `FEISHU_INTERNAL_ENABLED=true`), os alertas dos níveis “leitor afetado” e “resolver hoje” são entregues primeiro ao seu próprio serviço de tratamento automático, e só chegam a você se, 1 hora (leitor afetado) ou 3 horas (resolver hoje) depois da entrega, ainda não houver recuperação, ou na terceira entrega do mesmo problema em um dia; o que só você pode tratar (por exemplo, o serviço de modelo recusando chamadas, ou conferir conta ou cota) continua sendo enviado imediatamente. O resumo diário do sistema das 09:00, se aceito por ele, não é mais enviado a você. As mensagens destinadas a você também vão antes ao `/tell` dele e, se não forem aceitas, seguem pelo Feishu. Se ficar mais de 30 minutos sem conseguir entregar, dispara o alerta “o tratamento automático não consegue receber tarefas por ora”, e nesse período os alertas vão direto para você. Sem configurar, tudo fica como antes. As variáveis `AGENT_WEBHOOK_URL` e `AGENT_WEBHOOK_KEY`, que o código lia sem estar documentadas, deixam de ser lidas e o formato da requisição também mudou; quem as usava deve ajustar conforme o `.env.example`.
+  - O robô de grupo de alertas (`FEISHU_ALERT_WEBHOOK_URL`) envia uma mensagem por vez e só envia a próxima 600 milissegundos depois que a anterior tem resposta ou falha, sem passar do limite de frequência do robô personalizado do Feishu.
+- **Pausa depois que o serviço de modelo recusa chamadas**: uma requisição enviada antes da recusa que depois teve sucesso já não encerra a pausa (ela pode ter usado a última cota); só o sucesso de uma requisição enviada depois da recusa encerra a pausa. Ao recusar, também deixa de apagar de passagem os registros de pausa já vencidos há mais de um dia de outros modelos: se dois modelos fossem recusados ao mesmo tempo, esperariam o bloqueio de linha um do outro e, no deadlock, a recusa seria perdida; uma pausa vencida já não tem efeito, fica em `settings` e é apagada quando aquele modelo tiver a próxima chamada bem-sucedida.
+- **Imagens**: as imagens das páginas passam a ser servidas primeiro em AVIF (`<picture>`, e navegadores sem suporte continuam usando o formato original). A versão AVIF é gerada pelo worker em segundo plano, sob demanda, e só é mantida se for pelo menos um décimo menor que o formato original; enquanto não estiver pronta, devolve-se o formato original; o cache de imagens ocupa um pouco mais de espaço. Imagens recusadas ou apagadas pelo site de origem (401, 403, 404, 410) têm o resultado de falha guardado em cache por 6 horas, sem voltar à origem a cada minuto.
+- **Backup**: cada arquivo é enviado uma só vez, sob um prefixo (veja [Backup](#backup) abaixo); antes, enviava-se uma cópia por dia para `daily/` e mais uma aos domingos e no dia 1º de cada mês. Quem definiu regras de expiração por prefixo deve conferi-las. Sem anexos, só o `.dump` é enviado, sem gerar um pacote de arquivos vazio.
+- **Administração do feedback**: o feedback pode receber um tipo (BUG, sugestão, pergunta, outro); uma sugestão pode ser agrupada sob um nome de sugestão, usando o mesmo nome para a mesma necessidade, e o “banco de sugestões” é ordenado por número de pessoas que a propuseram.
 
-新增选填的 `PRIVATE_FEED_HOSTS`：信源订阅或列表地址用自建在内网的服务（比如 RSSHub）时，把它的主机名写进去，不必再打开整站的 `ALLOW_PRIVATE_NETWORK_FETCH`，用法见 [信源](sources.md)。不设置时行为不变；无需数据库迁移。
+Nova variável opcional `PRIVATE_FEED_HOSTS`: quando o feed ou a lista de uma fonte vem de um serviço próprio na rede interna (por exemplo, um RSSHub), escreva o nome de host dele ali, sem precisar ligar o `ALLOW_PRIVATE_NETWORK_FETCH` do site todo; o uso está em [Fontes](sources.md). Sem definir, o comportamento não muda; não há migração de banco.
 
-周报、月报的周期内，应有日报齐全且原始正文条目全部为空时，自动跳过该期，避免每半小时重复报错；归档里不会新增空周报或月报。首个周期从全站最早日报开始检查；没有可汇总条目时，若缺失日报、原有条目后来无法公开或正在人工更正，仍保留原有错误。无需数据库迁移或配置修改，升级后下次定时检查生效。
+Nos períodos dos resumos semanal e mensal, quando os resumos diários estão completos e todos os itens de texto original estão vazios, o período é ignorado automaticamente, evitando repetir o erro a cada meia hora; o arquivo não ganha resumos semanais ou mensais vazios. O primeiro período é verificado a partir do resumo diário mais antigo do site; quando não há itens para reunir, se faltarem resumos diários, se os itens existentes já não puderem ser publicados depois ou se estiverem em correção manual, o erro original é mantido. Não há migração de banco nem mudança de configuração, e passa a valer na próxima verificação agendada depois da atualização.
 
-正文原生视频修复会为已有可用视频补播放控件，并去掉空播放器，不写回文章、不调用模型。旧版清洗时已经丢弃的媒体地址无法从存档恢复；升级不批量重新抽取，已有成功正文会跳过抽取，内容哈希相同时重新抽取也可能保留原 HTML。后续新正文按[信源说明](sources.md)保留原生视频，文件继续由浏览器直连原站，签名地址可能过期。
+A correção de vídeos nativos no texto acrescenta controles de reprodução aos vídeos utilizáveis já existentes e remove players vazios, sem regravar o artigo nem chamar modelos. Endereços de mídia que a limpeza da versão antiga já descartou não podem ser recuperados do arquivo; a atualização não reextrai em lote, o texto bem-sucedido existente é ignorado na extração, e a reextração com o mesmo hash de conteúdo também pode manter o HTML original. Os novos textos passam a manter os vídeos nativos conforme a [documentação de fontes](sources.md), com o arquivo continuando a ser buscado direto do site de origem pelo navegador, e endereços assinados podem expirar.
 
-正文插图里的内嵌 SVG 图改为保留原站写的文字说明（见[信源说明](sources.md)），只作用于之后抽取的正文；已存的正文不变，升级不批量重新抽取。
+Os gráficos SVG embutidos nas ilustrações do texto passam a manter a descrição escrita pelo site de origem (veja a [documentação de fontes](sources.md)), valendo só para textos extraídos depois; os textos já guardados não mudam, e a atualização não reextrai em lote.
 
-先按下方 [备份](#备份) 一节备份。构建完成后停止旧服务，再运行迁移和新版服务：
+Primeiro faça backup conforme a seção [Backup](#backup) abaixo. Depois da construção, pare os serviços antigos e então execute as migrações e os serviços novos:
 
 ```bash
 git pull
@@ -93,213 +94,213 @@ docker compose stop api worker web
 docker compose run --rm setup && docker compose up -d
 ```
 
-迁移成功后再启动服务；迁移失败时先查看错误，不要继续启动。使用 HTTPS 配置的站点继续保留 `--profile https`。旧的 API 和 worker 要在迁移前停下：迁移可能删表删列，旧代码还在跑会出错；正常关闭 worker 会等进行中的付费调用收尾（最长三分多钟）。非 Docker 部署也按“备份、构建、停止 API/worker/web、迁移（`scripts/migrate.ts`）、种子数据（`scripts/seed.ts`）、启动”的顺序更新。
+Só inicie os serviços depois que a migração terminar com sucesso; se falhar, veja o erro antes e não continue iniciando. Sites com a configuração de HTTPS continuam usando `--profile https`. A api e o worker antigos precisam parar antes da migração: a migração pode apagar tabelas e colunas, e o código antigo ainda rodando daria erro; o encerramento normal do worker espera terminar as chamadas pagas em andamento (até pouco mais de três minutos). Em implantações sem Docker, atualize também na ordem “backup, construção, parar API/worker/web, migração (`scripts/migrate.ts`), dados iniciais (`scripts/seed.ts`), iniciar”.
 
-新迁移遇到长期占锁会报出文件名和等待超时，先处理占锁事务，再重跑 setup，不要跳过迁移或改写迁移账本。并发索引创建中断可能留下无效索引：核实报错中的对象后，用 `DROP INDEX CONCURRENTLY <索引名>` 清理该失败索引再重跑；有效但定义不同的同名索引须先核对差异。这些保护不改变上述 Docker 更新顺序，跨旧版本升级仍可能执行历史上的破坏性迁移。
+Se uma migração nova ficar muito tempo esperando um bloqueio, será informado o nome do arquivo e o tempo limite de espera; trate primeiro a transação que segura o bloqueio e então rode o setup de novo, sem pular a migração nem reescrever o registro de migrações. A criação concorrente de índice interrompida pode deixar um índice inválido: depois de conferir o objeto citado no erro, use `DROP INDEX CONCURRENTLY <nome do índice>` para limpar esse índice que falhou e rode de novo; um índice válido de mesmo nome mas definição diferente exige conferir primeiro a diferença. Essas proteções não mudam a ordem de atualização do Docker acima, e atualizar a partir de versões muito antigas ainda pode executar migrações destrutivas do passado.
 
-下面按时间从新到旧列出每次更新要注意的事。
+A seguir, da mais nova à mais antiga, o que observar em cada atualização.
 
-日报缺期告警按北京时间的具体日期跟踪，跨午夜不会自动恢复；只有对应日报存在才发恢复通知。新缺期检查最近 7 个日历日（含今天），不早于最早的日报或 reports.compose 运行记录；没有历史记录时只检查今天。已告警的日期在这 7 天里一直跟踪，关闭采集/模型或 worker 启动宽限期也不会把缺期当成恢复；超出 7 天仍没有日报的，发一条“没能补出、停止提醒”后不再提醒。旧的 report.daily 状态自动按首次告警时间迁移，保留提醒间隔。出刊后两小时告警、每小时提醒及飞书开关保持不变；无需数据库迁移。自定义 responder 若按旧 `report.daily` 精确匹配，需改为识别 `report.daily:YYYY-MM-DD` 日期键。
+O alerta de resumo diário ausente é acompanhado pela data concreta no horário do site e não se recupera sozinho ao passar da meia-noite; só se envia o aviso de recuperação se o resumo diário correspondente existir. A verificação de novas ausências cobre os últimos 7 dias do calendário (incluindo hoje), não antes do resumo diário mais antigo ou do registro de execução de reports.compose; sem registros históricos, só verifica hoje. As datas já alertadas continuam sendo acompanhadas durante esses 7 dias, e desligar a coleta ou os modelos, ou o período de tolerância na partida do worker, não faz a ausência ser tratada como recuperada; as que passam de 7 dias ainda sem resumo diário recebem uma mensagem “não foi possível completar, parando os lembretes” e deixam de ser lembradas. O estado antigo de report.daily é migrado automaticamente pelo horário do primeiro alerta, mantendo o intervalo de lembretes. O alerta de duas horas depois da edição, o lembrete de hora em hora e a chave do Feishu continuam como antes; não há migração de banco. Um responder próprio que compare exatamente com o antigo `report.daily` precisa passar a reconhecer a chave de data `report.daily:YYYY-MM-DD`.
 
-#### 读者文字的改用词（2026 年 10 月 9 日）
+#### Troca de palavras no texto do leitor (9 de outubro de 2026)
 
-没有迁移，没有必填的新环境变量。行业包多了 `industry/wording.ts`（读者文字里不用的词，模板里是空的）和提示词 `mend-wording.md`；合并时这两个文件随更新带进来，自己的行业包没有冲突。词表空着就不查、不多调用模型；写了词以后，用了这些词的标题、摘要、推荐理由会多一次模型调用（模型步骤“改用词”，可用选填的 `WORDING_MODEL` 单独选模型）。说明见 [把它改成你的行业](customize.md)。
+Sem migração e sem nova variável de ambiente obrigatória. O pacote do setor ganhou `industry/wording.ts` (palavras que o texto do leitor não usa; no modelo, está vazio) e o prompt `mend-wording.md`; ao incorporar, esses dois arquivos chegam com a atualização e não conflitam com o seu pacote do setor. Com a lista vazia, não se confere nem se faz chamada extra ao modelo; depois de escrever palavras, os títulos, resumos e motivos de recomendação que as usam ganham uma chamada extra ao modelo (etapa “troca de palavras”, e a variável opcional `WORDING_MODEL` permite escolher um modelo só para ela). Explicação em [Adapte para o seu setor](customize.md).
 
-#### 导航里可以不放某些入口
+#### Nem todas as entradas precisam estar na navegação
 
-没有迁移，没有新环境变量。`site/site.ts` 多了 `NAV.hidden`（目前只支持热点榜 `"/hot"` 和主题 `"/topics"`，见 [把它改成你的行业](customize.md)）；框架从 `@aihot/site` 读它，**自己维护 `site/site.ts` 的站，合并时照模板加上 `NAV`**，不加通不过类型检查。模板里是空的，导航和原来一样；隐藏入口不会关闭页面或公开接口。
+Sem migração e sem nova variável de ambiente. O `site/site.ts` ganhou `NAV.hidden` (por ora só aceita o ranking de destaques `"/hot"` e os tópicos `"/topics"`, veja [Adapte para o seu setor](customize.md)); o framework o lê de `@aihot/site`, e **sites que mantêm o próprio `site/site.ts` devem acrescentar `NAV` conforme o modelo ao incorporar**, senão a verificação de tipos não passa. No modelo está vazio, e a navegação fica como antes; ocultar uma entrada não desativa a página nem a interface pública.
 
-#### 原帖展示与引擎同步（2026 年 10 月 6 日）
+#### Exibição de postagens originais e sincronização do motor (6 de outubro de 2026)
 
-没有新增必填环境变量或数据库迁移。自己维护 `site/site.ts` 的站点需补上 `REPORTS.quiet`，可对照示范配置：日报时段内有资料经过评判、但没有新大事时照常出刊，用这两句做标题与导语；导语的 `{start}`、`{end}` 是时段起止。没有任何资料经过评判仍算采集或判断失败，不伪装成平静的一天。
+Sem novas variáveis de ambiente obrigatórias nem migração de banco. Sites que mantêm o próprio `site/site.ts` precisam acrescentar `REPORTS.quiet`, que pode ser comparado com a configuração de exemplo: quando há materiais julgados no período do resumo diário mas nenhuma grande novidade, a edição sai normalmente, usando estas duas frases como título e abertura; `{start}` e `{end}` na abertura são o início e o fim do período. Se nenhum material foi julgado, continua contando como falha de coleta ou de julgamento, sem fingir um dia tranquilo.
 
-空正文、纯链接的 X 帖子保留原来的链接、图片和引用，不调用写作或翻译模型；来源允许展示全文时，纯图片帖子也可以显示，现有展示与再分发许可继续生效。已取得实际正文的 X 长文照常处理。旧译文也不会再出现在这些原帖的公开页面里。已生成过错误标题摘要的帖子，可在更新后用 `packages/backend/src/publication/publish.ts` 的 `publishArticle(id)` 重建公开内容，不需要重新调用模型。
+Postagens do X com texto vazio e só um link mantêm o link, as imagens e a citação originais, sem chamar o modelo de redação ou de tradução; quando a fonte permite exibir o texto completo, postagens só de imagem também podem ser exibidas, e as permissões de exibição e redistribuição atuais continuam valendo. Artigos longos do X com texto real obtido são processados normalmente. Traduções antigas também deixam de aparecer nas páginas públicas dessas postagens originais. Postagens que já tinham gerado título e resumo errados podem, depois da atualização, ter o conteúdo público reconstruído com `publishArticle(id)` de `packages/backend/src/publication/publish.ts`, sem nova chamada ao modelo.
 
-MCP 的 `subscriptions/listen` 现在立即返回 HTTP 404 和 JSON-RPC `-32601 Method not found`。服务从不推送变更，普通工具调用照常使用；客户端收到这个回答后不应重试建立常驻订阅。
+O `subscriptions/listen` do MCP agora responde de imediato HTTP 404 e JSON-RPC `-32601 Method not found`. O serviço nunca envia mudanças ativamente, e as chamadas de ferramentas comuns funcionam normalmente; o cliente que receber essa resposta não deve tentar criar uma assinatura permanente.
 
-无需数据库的测试改为 `*.standalone.test.ts`；`npm test` 仍运行全部后端测试，只给需要数据库的文件建副本。可用 `npm run test:standalone` 单独运行这些测试。
+Os testes que não precisam de banco passaram a ser `*.standalone.test.ts`; o `npm test` continua rodando todos os testes do back-end, criando cópias do banco só para os arquivos que precisam dele. É possível rodar só esses testes com `npm run test:standalone`.
 
-#### 社区修复、时间规则与读取优化（2026 年 10 月 4 日）
+#### Correções da comunidade, regras de horário e otimizações de leitura (4 de outubro de 2026)
 
-公开接口版本仍是 4.0.0。没有必填的新环境变量；新增一个选填的 `LLM_REASONING_TOKENS`，见下面 `site/models.ts` 一条。
+A versão da interface pública continua 4.0.0. Sem novas variáveis de ambiente obrigatórias; há uma opcional nova, `LLM_REASONING_TOKENS`, veja o item `site/models.ts` abaixo.
 
-**开关只认 `true`**：`.env` 里所有 `*_ENABLED` 开关（`COLLECT_ENABLED`、`MODEL_CALLS_ENABLED`、`FEISHU_*_ENABLED`、`INDEXNOW_SUBMIT_ENABLED` 等）只有写成小写的 `true` 才打开。以前写 `1` 或 `TRUE` 也算打开，现在都当作关闭；升级前检查 `.env`，改成 `true`。
+**As chaves só aceitam `true`**: todas as chaves `*_ENABLED` do `.env` (`COLLECT_ENABLED`, `MODEL_CALLS_ENABLED`, `FEISHU_*_ENABLED`, `INDEXNOW_SUBMIT_ENABLED` etc.) só ligam quando escritas como `true` minúsculo. Antes, `1` ou `TRUE` também contavam como ligado; agora todos contam como desligado; antes de atualizar, confira o `.env` e troque por `true`.
 
-**迁移**：新增七个迁移，按上面的步骤等 setup 跑完即可。它们都不删数据，不重写文章或已有向量，也不调用模型；迁移按完整文件名记账，编号相同的不同文件各自执行。
+**Migrações**: sete migrações novas; basta esperar o setup terminar, seguindo os passos acima. Nenhuma apaga dados, reescreve artigos ou vetores existentes, nem chama modelos; as migrações são registradas pelo nome completo do arquivo, e arquivos de mesmo número com nomes diferentes são executados cada um.
 
-- `0055_publication_selected_published_idx.sql`、`0056_analyses_composite_id_idx.sql`、`0056_publications_pool_category_timeline_idx.sql`、`0057_publications_pool_channel_timeline_idx.sql`：并发建立查询索引，不阻塞正常读写。
-- `0056_publication_release_selection_stats.sql`、`0057_analyze_publication_release_selection.sql`：为公开列表创建并收集查询统计。
-- `0083_publications_selected_source_idx.sql`：并发建立按信源统计精选的覆盖索引，减少后台统计时的读取。
+- `0055_publication_selected_published_idx.sql`, `0056_analyses_composite_id_idx.sql`, `0056_publications_pool_category_timeline_idx.sql`, `0057_publications_pool_channel_timeline_idx.sql`: criam índices de consulta de forma concorrente, sem bloquear leituras e escritas normais.
+- `0056_publication_release_selection_stats.sql`, `0057_analyze_publication_release_selection.sql`: criam e coletam estatísticas de consulta das listas públicas.
+- `0083_publications_selected_source_idx.sql`: cria de forma concorrente o índice de cobertura que conta a seleção por fonte, reduzindo as leituras nas estatísticas da administração.
 
-这次连同这些索引一起减少了公开读取与事件召回的数据库开销，接口内容、搜索权重和事件候选范围不变。
+Junto com esses índices, esta versão reduziu o custo no banco da leitura pública e da recuperação de eventos, sem mudar o conteúdo das interfaces, o peso da busca nem o alcance dos candidatos a evento.
 
-**自己改过这些文件的站，合并时对照新文件**：
+**Sites que alteraram estes arquivos devem compará-los com os novos ao incorporar**:
 
-- `site/site.ts` 多了几项：
-  - `EDITION_TIMES`、`EDITION_WHEN`：日报、周报、月报的出刊时间，原来写死在代码里；排程、日报的时间窗口、缺期告警和提到时间的文案都读它。`public/` 里的文件用占位 `{{dailyTime}}`、`{{weeklyTime}}`、`{{monthlyTime}}`。
-  - `ITEM_COPY`：推荐理由叫什么，网页和分享图上显示不显示评分。
-  - `REPORTS.descriptions`、`entry`、`metricUnits`、`shareUnit`：报告页面的描述和版面上的说法。
-  - `ABOUT`、`CARDS` 里提到出刊时间和推荐理由的文案改成引用上面几项。
-  - `DEPLOYMENT.directImageHosts` 改名为 `directFetchHosts`，采集和图片共用这份直连名单。
-  - `SITE.feedbackLead`、`SITE.feedbackEmailHint`：反馈页标题下的一句话和邮箱框提示，原来写死在代码里。
-  - `SITE.psb`：可选的公安备案号，未办理或不适用时填 `null`。
-  - `ABOUT.lead` 里 `{sources}` 两边不再写空格，页面会自动加。
-- `site/models.ts`：评分调用参数现在由具名预设的 `scoreCall` 配置；保留 `glm-5.3-flash-selection` 时同步示例中的温度、输出额度和超时。已有自定义模型没写这一项时沿用引擎默认值。
-- `site/models.ts` 的 `ModelPreset` 和 `site/site.ts` 的 `Founder` 类型统一从 `@aihot/contracts/site-config` 导入，原有站点配置值保留；自定义过这两个文件时同步类型导入，避免漏掉引擎新增的可选字段。
-- 数据库迁移遇到正在导出的 `pg_dump` 会先等待，最长与 worker 排空时间相同；超时后在执行这条迁移前退出，等导出结束后重跑更新命令。其他占锁仍快速报错。
-- 迁移会删除已停用的 `translation_attempts.request_tag` 列；翻译正文、尝试记录和付费回执保留。来源发布时间的原始精度另行保存，旧资料无法确定的精度保持未知，不把零点自动当作来源只写了日期。
-- `site/models.ts`：推理模型的额度改成明确配置。默认模型设 `LLM_REASONING_TOKENS`，具名模型写 `reasoningTokens`。原来只有名字以 `-think` 结尾的具名模型会多给 4000，这个做法去掉了；自己加过这类模型的，补上 `reasoningTokens: 4000` 才保持原来的额度。推理模型把额度用光时，报错会写明 `finish_reason=length` 和该改哪一项。
-- `industry/prompts/story-digest.md`：事件概览换了写法，第一句讲清核心变化和目前的结论，再补必要背景，分成短段，不按日期复述下方的时间线，不评论报道本身，也不再写死行业。已有综述不会被批量重写，随新报道逐步换成新写法；想让某几个事件立即重写，见 [综述评测](story-digest-evaluation.md) 的最后一节（`rewriteStoryDigest`，每个事件一次模型调用）。
-- 自己维护的 Compose 文件可以删去 `LOCAL_ROUTER_URL`：分享图预热现在直接复用后端渲染器，不再请求固定的本机端口，没有代码再读这一项，自带的 `docker-compose.yml` 已经去掉。分享图地址、格式和缓存约定不变。
+- `site/site.ts` ganhou alguns itens:
+  - `EDITION_TIMES`, `EDITION_WHEN`: horários de edição dos resumos diário, semanal e mensal, que antes estavam fixos no código; o agendamento, a janela de horário do resumo diário, o alerta de edição ausente e os textos que citam horário os leem. Os arquivos em `public/` usam os marcadores `{{dailyTime}}`, `{{weeklyTime}}`, `{{monthlyTime}}`.
+  - `ITEM_COPY`: como se chama o motivo da recomendação e se a nota aparece nas páginas e nas imagens de compartilhamento.
+  - `REPORTS.descriptions`, `entry`, `metricUnits`, `shareUnit`: a descrição das páginas de relatório e as expressões usadas na diagramação.
+  - Os textos de `ABOUT` e `CARDS` que citam o horário de edição e o motivo da recomendação passam a referenciar os itens acima.
+  - `DEPLOYMENT.directImageHosts` foi renomeado para `directFetchHosts`, e a coleta e as imagens compartilham essa lista de conexão direta.
+  - `SITE.feedbackLead`, `SITE.feedbackEmailHint`: a frase sob o título da página de feedback e a dica do campo de e-mail, que antes estavam fixas no código.
+  - `SITE.psb`: número opcional de registro de segurança pública; se não foi feito ou não se aplica, use `null`.
+  - Em `ABOUT.lead`, não se escreve mais espaço dos dois lados de `{sources}`; a página o acrescenta automaticamente.
+- `site/models.ts`: os parâmetros da chamada de pontuação agora são configurados pelo `scoreCall` de cada predefinição nomeada; se você mantém `glm-5.3-flash-selection`, sincronize a temperatura, a cota de saída e o tempo limite do exemplo. Modelos personalizados que não definem este item usam os valores padrão do motor.
+- O `ModelPreset` de `site/models.ts` e o `Founder` de `site/site.ts` passam a ser importados de `@aihot/contracts/site-config`, com os valores de configuração do site mantidos; quem personalizou esses dois arquivos deve sincronizar as importações de tipo, para não perder os campos opcionais novos do motor.
+- Se uma migração de banco encontrar um `pg_dump` em exportação, ela espera primeiro, por no máximo o mesmo tempo do esvaziamento do worker; passado o limite, sai antes de executar essa migração, e deve-se rodar de novo o comando de atualização depois que a exportação terminar. Outros bloqueios continuam dando erro rápido.
+- A migração apaga a coluna `translation_attempts.request_tag`, já desativada; o texto traduzido, os registros de tentativas e os recibos pagos são mantidos. A precisão original do horário de publicação da fonte é guardada à parte, e a precisão que não puder ser determinada nos materiais antigos fica desconhecida, sem tratar automaticamente a meia-noite como se a fonte só tivesse escrito a data.
+- `site/models.ts`: a cota de modelos de raciocínio passou a ser configurada explicitamente. Defina `LLM_REASONING_TOKENS` no modelo padrão e `reasoningTokens` nos modelos nomeados. Antes, só os modelos nomeados cujo nome terminava em `-think` ganhavam 4000 a mais; isso foi removido, e quem adicionou modelos desse tipo deve acrescentar `reasoningTokens: 4000` para manter a cota original. Quando um modelo de raciocínio esgota a cota, o erro informa `finish_reason=length` e qual item ajustar.
+- `industry/prompts/story-digest.md`: a visão geral do evento mudou de forma de escrever: a primeira frase explica a mudança central e a conclusão atual, depois acrescenta o contexto necessário, em parágrafos curtos, sem recontar por data a linha do tempo abaixo, sem comentar a própria reportagem e sem fixar o setor no texto. As sínteses existentes não são reescritas em lote e vão passando ao novo estilo com as novas reportagens; para reescrever alguns eventos de imediato, veja a última seção da [avaliação da síntese](story-digest-evaluation.md) (`rewriteStoryDigest`, uma chamada de modelo por evento).
+- Quem mantém um arquivo Compose próprio pode remover `LOCAL_ROUTER_URL`: o pré-aquecimento das imagens de compartilhamento agora reutiliza diretamente o renderizador do back-end, sem requisitar uma porta local fixa, nenhum código lê mais este item, e o `docker-compose.yml` incluído já o removeu. O endereço, o formato e as convenções de cache das imagens de compartilhamento não mudam.
 
-**采集与发布时间**：
+**Coleta e horário de publicação**:
 
-- **首次导入之后不再收信源的存档**：以前新信源首次导入后，第二次抓取会把订阅里剩下的旧条目全部当历史内容收进来，逐条付费分析（示范源一次就有上千条）。现在之后的抓取只收发布时间在信源第一次导入前 48 小时以内或之后的条目；没有日期的照收，X 账号不受影响，见 [信源](sources.md#规则旧文不刷屏) 的“旧文不刷屏”。升级前已经收进来的旧条目按原文时间归档，不进“今天”和日报，分析也早已跑完，不用处理。
-- **没有可信发布时间的新资料先不公开**：先不进公开列表、精选、报告、热点和推送，从原信源或原文页读到日期后再判断新旧。日期未知时，文章页、结构化数据和 Agent Markdown 标“收录时间”，RSS 不写 `pubDate`；OpenAPI 注明事件时间线和日报快讯的 `publishedAt` 这时是收录时间。
-- **JSON 接口里不带时区的时间**（如 `2026-09-30 17:43:58`）按信源的 `publishedAtUtcOffset` 读，默认 `+08:00`。以前按服务器时区读，Docker 里是 UTC，所以已有这类信源的新条目时间会提前 8 小时，变成正确值。
-- **文章页日期使用同一来源时区**：详情页补日期与正文提取先用 `detail.publishedAtUtcOffset`，未设则继承信源的 `publishedAtUtcOffset`，再默认 `+08:00`。只作用于之后的采集和补日期，不批量重写已有发布时间。
-- **详情补全**：失败或超出本轮次数限制的日期、标题、摘要会在后续采集中补齐，已确认的正文保持原样；信源请求成功却漏掉日期、标题或正文时也会补全，并记进信源健康。Jina 详情规则要与实际返回格式匹配；固定采集起点、Intercom 日期章节及视频描述的配置见 [信源](sources.md)。
-- **视频播放页不当正文**：对所有信源生效，YouTube、Vimeo 播放页不再作为文章正文抓取，YouTube 视频页也不再被当成图片。RSS 的视频描述只作摘要，订阅直接提供的真实文字保留。升级不会批量删除或重新分析已有正文；旧视频记录混入播放器导航的，先逐条核实，可在后台“内容诊断”的详情页设为仅摘要，停止展示错误正文。
-- **RSS**：确认摘要就是全文的文字订阅可以设 `summaryIsBody`（Atom 的 `summary` 也算）。没有网页的播客单集，原文链接改为音频或视频文件，不再去抓网页。
-- **预览和正式采集用同一组过滤**：后台“预览抓取”也套用地址前缀、分类、噪声词、地址改写和 `publishedAfter`，预览里看到的条目就是正式采集会存下的。
-- **关掉采集后不再取信源图标**：`COLLECT_ENABLED` 不是 `true` 时，每天 04:40 取信源图标的任务也停下，不再访问信源网站。
-- **已核实的历史日期可以纠正**：运维脚本先调用 `admin/content.ts` 的 `previewPublicationDateCorrection`，再按预览给出的版本和校验值调用 `correctPublicationDate`，并记录操作者与理由。只接受新旧日期都早于七天窗口的明确更正；保留材料修订、选稿与归组，不重跑模型。材料或日期已变化，或这次纠正会改变其他公开决定时，会拒绝操作并要求重新核对；没有批量回填，也没有新增公开接口。
-- **公开评分可以人工更正或撤销**：后台内容详情支持“按模型”“撤销评分”“人工评分”。人工评分接受 0–100，撤销评分使公开值为 `null`；清除评分覆盖后恢复已保存的模型分数。更正要填写理由并核对版本，保留原始分析和审计记录，同步更新网页、API、RSS、Agent Markdown 与 MCP，不重跑模型。既有文章不会因升级而批量改分或重新入选。
+- **Depois da primeira importação, o acervo da fonte não é mais coletado**: antes, depois da primeira importação de uma fonte nova, a segunda coleta trazia todos os itens antigos restantes do feed como conteúdo histórico, com análise paga item a item (só a fonte de exemplo chegava a mais de mil de uma vez). Agora as coletas seguintes só trazem itens com horário de publicação até 48 horas antes da primeira importação da fonte, ou depois; os sem data são coletados normalmente, e contas do X não são afetadas; veja “Regra: conteúdo antigo não inunda a tela” em [Fontes](sources.md#regra-conteúdo-antigo-não-inunda-a-tela). Itens antigos que já tinham entrado antes da atualização são arquivados pela data original, sem entrar em “hoje” nem no resumo diário, e a análise deles já terminou há tempo, sem nada a tratar.
+- **Material novo sem horário de publicação confiável não é publicado de imediato**: fica fora das listas públicas, da seleção, dos relatórios, dos destaques e dos envios, e só se julga se é novo ou antigo depois de ler a data na fonte original ou na página do texto. Enquanto a data é desconhecida, a página do artigo, os dados estruturados e o Markdown para Agentes mostram “hora de inclusão”, o RSS não escreve `pubDate`, e o OpenAPI informa que o `publishedAt` da linha do tempo do evento e das notas do resumo diário é, nesse caso, a hora de inclusão.
+- **Horários sem fuso nas interfaces JSON** (como `2026-09-30 17:43:58`) são lidos pelo `publishedAtUtcOffset` da fonte, padrão `+08:00`. Antes eram lidos pelo fuso do servidor, que no Docker é UTC, então os novos itens das fontes desse tipo já existentes apareciam 8 horas adiantados, e passam a ter o valor correto.
+- **A data da página do artigo usa o fuso da mesma origem**: o preenchimento de data da página de detalhe e a extração de texto usam primeiro `detail.publishedAtUtcOffset` e, se não definido, herdam o `publishedAtUtcOffset` da fonte, e por fim o padrão `+08:00`. Vale só para coletas e preenchimentos de data posteriores, sem reescrever em lote os horários de publicação existentes.
+- **Complemento dos detalhes**: datas, títulos e resumos que falharam ou passaram do limite de tentativas da rodada são completados nas coletas seguintes, e o texto já confirmado fica como está; quando a requisição à fonte tem sucesso mas deixa de trazer data, título ou texto, também são completados e registrados na saúde da fonte. As regras de detalhe do Jina precisam combinar com o formato realmente devolvido; a configuração de ponto de partida fixo da coleta, de seções de data do Intercom e de descrição de vídeo está em [Fontes](sources.md).
+- **Páginas de reprodução de vídeo não valem como texto**: vale para todas as fontes; as páginas de reprodução do YouTube e do Vimeo deixam de ser coletadas como texto de artigo, e as páginas de vídeo do YouTube deixam de ser tratadas como imagem. A descrição de vídeo do RSS só serve de resumo, e o texto real fornecido diretamente pelo feed é mantido. A atualização não apaga nem reanalisa em lote os textos existentes; registros antigos de vídeo misturados com a navegação do player devem ser conferidos um a um, e na página de detalhe do “diagnóstico de conteúdo” da administração podem ser marcados como só resumo, parando de exibir o texto errado.
+- **RSS**: em feeds de texto cujo resumo é, confirmadamente, o texto completo, é possível definir `summaryIsBody` (o `summary` do Atom também conta). Em episódios de podcast sem página, o link do original passa a ser o arquivo de áudio ou de vídeo, sem tentar coletar uma página.
+- **A pré-visualização e a coleta oficial usam o mesmo conjunto de filtros**: a “pré-visualização da coleta” da administração também aplica prefixo de endereço, categoria, palavras de ruído, reescrita de endereço e `publishedAfter`, e os itens vistos na pré-visualização são os que a coleta oficial vai guardar.
+- **Com a coleta desligada, os ícones das fontes não são mais buscados**: quando `COLLECT_ENABLED` não é `true`, a tarefa das 04:40 que busca os ícones das fontes também para, sem acessar os sites das fontes.
+- **Datas históricas já verificadas podem ser corrigidas**: o script de operação primeiro chama `previewPublicationDateCorrection` de `admin/content.ts` e depois chama `correctPublicationDate` com a versão e o valor de verificação dados pela pré-visualização, registrando quem operou e o motivo. Só aceita correções explícitas em que a data antiga e a nova ficam antes da janela de sete dias; revisões do material, seleção e agrupamento são mantidos, sem refazer modelos. Se o material ou a data já mudou, ou se esta correção alteraria outras decisões públicas, a operação é recusada e exige nova conferência; não há preenchimento em lote nem nova interface pública.
+- **A nota pública pode ser corrigida ou revogada manualmente**: o detalhe do conteúdo na administração oferece “pelo modelo”, “revogar nota” e “nota manual”. A nota manual aceita 0–100, revogar a nota deixa o valor público como `null`, e limpar a substituição restaura a nota do modelo já guardada. A correção exige motivo e conferência de versão, preserva a análise original e o registro de auditoria, e atualiza juntos o site, a API, o RSS, o Markdown para Agentes e o MCP, sem refazer modelos. Artigos existentes não têm a nota alterada nem são selecionados de novo em lote por causa da atualização.
 
-**公开出口**：
+**Saídas públicas**:
 
-- **按类别筛选按 `PUBLIC_CATEGORIES` 走**：API、RSS 和 MCP 的 `category` 取所有在公开接口里算作这一类的类别。不合并分类的站（默认就是），按 `tip` 查不再带出观点；没有 `tip` 类别的行业也能通过类型检查。
-- **往期报告仍需重新验证**：日期、周和月份确定的是哪一期，不代表内容永久不变。报告保留出刊时写下的标题和摘要，来源名和引用时间跟随当前公开资料；已撤回的引用及依赖它的导读、封面不再分发。保留报告副本的客户端在 `Cache-Control` 到期后带 `If-None-Match` 重新请求。
-- **自行配置过 Nginx 或 CDN 缓存的站点要检查规则**：按 [配域名和 HTTPS](#配域名和-https) 末尾的要求核对，并在更新时清理这些路径已有的代理和 CDN 缓存，包括接入说明 `/api/v1/agent` 和 `/openapi-v1.json`。
-- **站点地图重建失败时不再无限沿用旧文件**：进程、磁盘副本和 HTTP 响应共用原来的五分钟期限，过期且无法重建时返回 `503` 和 `Retry-After`。MCP 继续使用 `no-store`；API 和 Agent 内容到期后重新验证。
+- **O filtro por categoria segue `PUBLIC_CATEGORIES`**: o `category` da API, do RSS e do MCP considera todas as categorias que contam como essa classe nas interfaces públicas. Em sites que não fundem categorias (o padrão), consultar por `tip` já não traz opiniões; setores sem categoria `tip` também passam na verificação de tipos.
+- **Relatórios antigos continuam precisando de revalidação**: data, semana e mês determinam qual edição é, mas não significam que o conteúdo é permanentemente imutável. O relatório mantém o título e o resumo escritos na edição, enquanto o nome da fonte e a hora da citação acompanham os dados públicos atuais; citações retratadas e a apresentação e a capa que dependem delas deixam de ser distribuídas. Clientes que guardam cópias de relatórios pedem de novo com `If-None-Match` quando o `Cache-Control` vence.
+- **Sites com cache de Nginx ou CDN configurado por conta própria devem conferir as regras**: confira segundo o final de [Domínio e HTTPS](#domínio-e-https) e, ao atualizar, limpe o cache existente de proxy e CDN desses caminhos, incluindo a página de integração `/api/v1/agent` e `/openapi-v1.json`.
+- **Se a reconstrução do sitemap falhar, o arquivo antigo não é mais usado indefinidamente**: o processo, a cópia em disco e a resposta HTTP compartilham o prazo original de cinco minutos, e, vencido e sem conseguir reconstruir, devolve `503` e `Retry-After`. O MCP continua usando `no-store`; o conteúdo da API e dos Agentes é revalidado ao vencer.
 
-**工具与修复**：
+**Ferramentas e correções**:
 
-- **综述评测**：`scripts/eval-story-digests.ts` 从库里导出真实事件，在同一批事件上把现有提示词和候选提示词并排跑，见 [综述评测](story-digest-evaluation.md)。三个评测脚本共用 `scripts/eval-tools.ts`；`eval-selection.ts` 的 `--n`、`--concurrency` 和模型名写错时直接报错。
-- **迁移不阻塞读写**：新迁移每个文件只放一条允许在线执行的语句，不整表回填或重写，建索引用 `CREATE INDEX CONCURRENTLY IF NOT EXISTS`；CI 用 `scripts/check-migrations.ts` 检查。统计维护只针对明确的表和列，规则见 [架构](architecture.md#数据库迁移)。
-- MCP 请求有大小上限，错误日志去掉凭据。
-- 桌面侧栏放大后显示细滚动条。
-- 测试按每一步实际的提示词认请求、从 `industry/selection.ts` 读门槛，换行业改写提示词和门槛后不再误报；架构测试不再受路径分隔符影响。
+- **Avaliação da síntese**: `scripts/eval-story-digests.ts` exporta eventos reais do banco e roda lado a lado, no mesmo lote de eventos, o prompt atual e um prompt candidato, veja [Avaliação da síntese](story-digest-evaluation.md). Os três scripts de avaliação compartilham `scripts/eval-tools.ts`; `--n`, `--concurrency` e nomes de modelo errados em `eval-selection.ts` dão erro diretamente.
+- **Migrações não bloqueiam leitura e escrita**: cada arquivo de migração nova contém uma única instrução que pode rodar online, sem preencher ou reescrever a tabela inteira, e os índices usam `CREATE INDEX CONCURRENTLY IF NOT EXISTS`; o CI verifica com `scripts/check-migrations.ts`. A manutenção de estatísticas só atinge tabelas e colunas explícitas, e as regras estão em [Arquitetura](architecture.md#migrações-do-banco-de-dados).
+- As requisições MCP têm limite de tamanho, e o log de erros remove credenciais.
+- A barra lateral do desktop mostra uma barra de rolagem fina quando ampliada.
+- Os testes reconhecem a requisição pelo prompt realmente usado em cada etapa e leem os limiares de `industry/selection.ts`, de modo que, ao mudar de setor e reescrever prompts e limiares, deixam de dar falso alarme; os testes de arquitetura deixam de ser afetados pelo separador de caminho.
 
-#### 站点文件搬进 `site/`（2026 年 10 月 4 日）
+#### Arquivos do site vão para `site/` (4 de outubro de 2026)
 
-公开接口没有变化，版本仍是 4.0.0。
+A interface pública não mudou, e a versão continua 4.0.0.
 
-- **站点自己的文件从 `industry/` 搬到了 `site/`**：`site.ts`、`models.ts`、`brand/`、`pages/`、`public/`、`changelog.json`。`industry/` 只留行业知识：`taxonomy.ts`、`topics.json`、`sources.json`、`prompts/`、`selection.ts`。自己改过这些文件的，合并时把改动挪到 `site/` 下的同名文件。
-- **`site.ts` 多了几项**，都可以不填：`SITE.github`、`SITE.llmsIntro`、`SITE.rootIcons`，`POLICY.terms.license`、`POLICY.terms.headers`，`ABOUT.termsAnchor`（二维码卡片可以写 `alias`），以及 `ACCESS`、`ADMIN`、`DEPLOYMENT`、`FEED_COPY`、`PUBLIC_CATEGORIES`，说明见 [把它改成你的行业](customize.md)。`PUBLIC_CATEGORIES` 取代了 4.0.0 时的 `publicAs`：原来在类别上写 `publicAs: "tip"` 的，改在 `PUBLIC_CATEGORIES.merge` 里写（键是这个类别的 key，值是 `"tip"`）。
-- **`DEPLOYMENT.requiredSecrets`** 是生产 API 启动时额外检查的凭据清单，默认空；基本会话、图片签名和管理员登录校验仍然生效。只有你的部署要求某个可选集成必须配置时才填写。
-- **只属于你这个站的功能可以做成模块**：放进 `modules/<名字>/`，在 `site/modules/` 的清单里启用，见 [架构](architecture.md) 的“模块”。框架本身不带模块。
-- **Agent 接入页默认打开 MCP**，页面列出 MCP、RSS 和 API 三种接入方式。Agent Markdown 接口仍在 `/api/v1/agent`，可从页面下方“Agent 使用说明”进入。
-- **图片代理可以设流量上限**：`IMGPROXY_UPSTREAM_MB_PER_MINUTE`、`IMGPROXY_UPSTREAM_GB_PER_DAY`（或 `site.ts` 的 `DEPLOYMENT.imageUpstreamBudget`），默认不设。
-- **修复**：同样的数据每次给出同样的字节（排序遇到并列时补上唯一的次序，API 和 RSS 的 ETag 不再无故变化）；网页转给 api 的请求不再带上逐跳头，`Connection: close` 不再让下一个 POST 失败；`llms.txt` 的接入方式按实际数，不再写成四种。
+- **Os arquivos do próprio site saíram de `industry/` e foram para `site/`**: `site.ts`, `models.ts`, `brand/`, `pages/`, `public/`, `changelog.json`. `industry/` ficou só com o conhecimento do setor: `taxonomy.ts`, `topics.json`, `sources.json`, `prompts/`, `selection.ts`. Quem alterou esses arquivos deve mover as alterações para os arquivos de mesmo nome em `site/` ao incorporar.
+- **`site.ts` ganhou alguns itens**, todos opcionais: `SITE.github`, `SITE.llmsIntro`, `SITE.rootIcons`, `POLICY.terms.license`, `POLICY.terms.headers`, `ABOUT.termsAnchor` (os cartões de QR code podem ter `alias`), além de `ACCESS`, `ADMIN`, `DEPLOYMENT`, `FEED_COPY`, `PUBLIC_CATEGORIES`, com explicação em [Adapte para o seu setor](customize.md). `PUBLIC_CATEGORIES` substitui o `publicAs` da versão 4.0.0: quem escrevia `publicAs: "tip"` na categoria deve escrever em `PUBLIC_CATEGORIES.merge` (a chave é a key dessa categoria, e o valor é `"tip"`).
+- **`DEPLOYMENT.requiredSecrets`** é a lista de credenciais verificadas adicionalmente na partida da API em produção, vazia por padrão; a sessão básica, a assinatura de imagens e a verificação do login do administrador continuam valendo. Só preencha quando a sua implantação exigir que uma integração opcional esteja configurada.
+- **Um recurso que pertence só ao seu site pode virar módulo**: coloque em `modules/<nome>/`, ative na lista de `site/modules/`, veja “Módulos” em [Arquitetura](architecture.md). O framework em si não traz módulos.
+- **A página de integração de Agentes abre o MCP por padrão**, e lista três formas de integração: MCP, RSS e API. A interface Markdown para Agentes continua em `/api/v1/agent`, acessível pelo “Guia de uso para Agentes” no pé da página.
+- **O proxy de imagens pode ter limite de tráfego**: `IMGPROXY_UPSTREAM_MB_PER_MINUTE`, `IMGPROXY_UPSTREAM_GB_PER_DAY` (ou `DEPLOYMENT.imageUpstreamBudget` em `site.ts`), sem definir por padrão.
+- **Correções**: os mesmos dados dão sempre os mesmos bytes (em empates na ordenação acrescenta-se uma ordem única, e o ETag da API e do RSS deixa de mudar sem motivo); as requisições que o site repassa à api deixam de levar cabeçalhos salto a salto, e `Connection: close` não faz mais o POST seguinte falhar; as formas de integração no `llms.txt` seguem o número real, sem escrever quatro.
 
-#### 升级到公开接口 4.0.0（2026 年 10 月 3 日）
+#### Atualização para a interface pública 4.0.0 (3 de outubro de 2026)
 
-- **模型榜、Codex 重置监控和主题页的大事记不再是框架的一部分**，只留在 AIHOT 上。页面（`/leaderboard`、`/codex-reset`）、接口（`/api/v1/codex-resets`、`/api/v1/codex-resets/recent`、`/api/v1/agent/codex-resets`）和 MCP 工具 `<前缀>_get_codex_resets` 都去掉了，MCP 和 `/openapi-v1.json` 的版本号升到 4.0.0。迁移 `0053` 删掉它们的表（`lb_*`、`monitor_*`、`fx_rates`）和设置，定时任务及其执行队列在 worker 启动时自动撤掉，后台运行记录继续保留；要留这些数据的，升级前先备份。公司主题页的标志改成公司名的首字母。
-- **行业包有几处变化**，自己改过 `industry/` 的站，合并时对照新文件补上：
-  - `site.ts` 多了 `topicsTitle`、`feedbackExample`、`keywords`、`since`、`interfaceVersion`、`POLICY`（使用规则和隐私说明两页的名字与简介、X 帖子算不算全文）、`ABOUT.description`、`ABOUT.sourcesFallback`、`AGENT`、`REPORTS`、`ALERTS`、`SOURCE_DEFAULTS`、`COMMUNITY_FEEDS`、`CARDS`；作者块的两张二维码卡片加了 `kind`，`ABOUT.copyright` 改成反馈页链接前后的两段。
-  - 新增 `models.ts`：具名的模型和每一步默认用哪个，原来写在代码里。
-  - 网页左上角的标志从 `apps/web/app/components/Logo.tsx` 搬到 `industry/brand/Logo.tsx`（后来搬到 `site/` 下，见上方）。
-  - 新增 `public/`：`robots.txt`、`manifest.webmanifest` 原来在代码里生成，OpenAPI 说明原来在 `reference/`，现在都是这里的文件。原来填了 `contactEmail` 就会生成的 `/.well-known/security.txt`，现在要自己放一份 `public/.well-known/security.txt`（后来搬到 `site/` 下，见上方）。
-  - 删掉了 `features.ts`、`chronicle.ts` 和 `chronicles/`；`topics.json` 里的 `orgNames`、`leaderboardProvider`、`chronicleTerms` 不再使用，可以删掉。
-  - `taxonomy.ts` 的类别可以写 `feedLabel`（分类 RSS 标题里的名字，示例站用“AI 模型”这样的说法）；`ENTITIES` 加了几家公司。当时类别上还可以写 `publicAs`，让它在公开接口里并进另一类；这个字段后来删掉了，改成 `site/site.ts` 的 `PUBLIC_CATEGORIES.merge`（见上方），再写 `publicAs` 通不过类型检查。
-- **推送接口的限流可以设置**：`/api/ingest/items` 每个客户端每分钟最多推几次由 `INGEST_RATE_LIMIT` 决定，`docker compose` 默认 10，和以前一样；不用 Docker 时默认不限，前面没有代理限流的话在 `.env` 里设上。
-- **不再使用的环境变量**：`ARTIFICIAL_ANALYSIS_API_KEY`、`MONITOR_MODEL`，可以从 `.env` 删掉。
+- **O ranking de modelos, o monitor de reinício do Codex e a cronologia das páginas de tópicos deixam de fazer parte do framework**, ficando só no AIHOT. As páginas (`/leaderboard`, `/codex-reset`), as interfaces (`/api/v1/codex-resets`, `/api/v1/codex-resets/recent`, `/api/v1/agent/codex-resets`) e a ferramenta MCP `<prefixo>_get_codex_resets` foram removidas, e a versão do MCP e de `/openapi-v1.json` sobe para 4.0.0. A migração `0053` apaga as tabelas deles (`lb_*`, `monitor_*`, `fx_rates`) e as configurações; as tarefas agendadas e as filas de execução delas são retiradas automaticamente quando o worker inicia, e os registros de execução da administração são mantidos; quem quer guardar esses dados deve fazer backup antes de atualizar. O logotipo da página de tópicos de uma empresa passa a ser a inicial do nome da empresa.
+- **O pacote do setor teve algumas mudanças**; sites que alteraram `industry/` devem acrescentar, comparando com os novos arquivos, ao incorporar:
+  - `site.ts` ganhou `topicsTitle`, `feedbackExample`, `keywords`, `since`, `interfaceVersion`, `POLICY` (nome e apresentação das duas páginas de regras de uso e aviso de privacidade, e se as postagens do X contam como texto completo), `ABOUT.description`, `ABOUT.sourcesFallback`, `AGENT`, `REPORTS`, `ALERTS`, `SOURCE_DEFAULTS`, `COMMUNITY_FEEDS`, `CARDS`; os dois cartões de QR code do bloco do autor ganharam `kind`, e `ABOUT.copyright` virou dois trechos, antes e depois do link da página de feedback.
+  - Novo `models.ts`: os modelos nomeados e qual é o padrão de cada etapa, que antes estavam no código.
+  - O logotipo no canto superior esquerdo das páginas saiu de `apps/web/app/components/Logo.tsx` para `industry/brand/Logo.tsx` (depois foi para `site/`, veja acima).
+  - Novo `public/`: `robots.txt` e `manifest.webmanifest`, que antes eram gerados no código, e a descrição OpenAPI, que antes estava em `reference/`, agora são arquivos daqui. O `/.well-known/security.txt`, que era gerado quando se preenchia `contactEmail`, agora exige que você ponha o seu `public/.well-known/security.txt` (depois foi para `site/`, veja acima).
+  - Removidos `features.ts`, `chronicle.ts` e `chronicles/`; `orgNames`, `leaderboardProvider` e `chronicleTerms` em `topics.json` deixam de ser usados e podem ser apagados.
+  - As categorias de `taxonomy.ts` podem ter `feedLabel` (o nome no título do RSS por categoria; o site de exemplo usa expressões como “Modelos de IA”); `ENTITIES` ganhou algumas empresas. Na época, a categoria ainda podia ter `publicAs`, para fundir-se a outra nas interfaces públicas; esse campo foi removido depois e virou `PUBLIC_CATEGORIES.merge` de `site/site.ts` (veja acima), e escrever `publicAs` de novo não passa na verificação de tipos.
+- **O limite de requisições da interface de envio pode ser configurado**: quantas vezes por minuto cada cliente pode enviar em `/api/ingest/items` é decidido por `INGEST_RATE_LIMIT`, padrão 10 no `docker compose`, como antes; sem Docker, o padrão é sem limite, e se não houver proxy limitando à frente, defina no `.env`.
+- **Variáveis de ambiente que deixam de ser usadas**: `ARTIFICIAL_ANALYSIS_API_KEY` e `MONITOR_MODEL`, que podem ser apagadas do `.env`.
 
-#### 升级到公开接口 3.0.0（2026 年 10 月 3 日）
+#### Atualização para a interface pública 3.0.0 (3 de outubro de 2026)
 
-- **安全阀默认关**：`COLLECT_ENABLED`、`MODEL_CALLS_ENABLED` 只有写成 `true` 才打开，没写就是关。用 `scripts/init-env.ts` 生成的 `.env` 已经有这两行；自己写的 `.env` 没有的话要补上，否则升级后不再采集、不再调用模型。
-- **周报月报接口换了形状**：`/api/v1/weeklies`、`/api/v1/monthlies` 的列表和每一期都带 `periodStart`、`periodEnd`，正文改成 `sections[]`（每栏 `label`、`summary`、`items`），不再有 `title`、`themes`，列表的 `limit` 最多 60。读这两个接口的程序要跟着改；MCP 和 `/openapi-v1.json` 的版本号随之升到 3.0.0。
-- **精选的机器出口每条新闻一条**：API 的 `mode=selected`、同步接口和精选 RSS 里，同一条新闻只留代表报道，其他报道以 `remove` 出现在同步的变更里（`mode=all` 里还在）。升级前已经入选的旧报道不会被重新整理，等这条新闻再有报道发布时才归并。
-- **精选要等去重确认**：分数够了的资料，要等归组确认它不是精选里已有新闻的重复、带来了新信息，才进精选；确认之前只在“全部动态”。归组用的模型回答不合格式时会停在那里，后台“运行”页能看到。
-- **一手只看分级**：`T1` 就是一手，`first_party` 不再单独设置；以前单独标成一手的 `T1_5`、`T2` 信源不再算一手，要算就改成 `T1`。
-- **行业包多了几项**：`taxonomy.ts` 新增 `RELEASE`、`PLAIN_TERMS`，评论类的类别标 `commentary: true`，`ENTITIES` 可以写 `otherNames`，`CATEGORY_BY_ITEM_TYPE` 不再使用。已经换成别的行业的站，合并时对照 [把它改成你的行业](customize.md) 补上。
-- **主题只读 `industry/topics.json`**：迁移会删掉数据库里的 `topics` 表。只改过数据库、没改文件的主题，升级前先写进文件。公司主题只看 `entityId`，`related` 不再使用。
-- **日报不再调用模型**：日报按规则编排，周报月报从日报汇编，模型只写总述和栏目导读；已经出过的各期不重写。
-- **提示词有改动**：`industry/prompts/` 里的 `structure.md`、`group-*.md`、`story-digest.md`、`report-period.md` 换成了新的写法，`report-daily-lead.md` 删掉了，新加了 `report-period-sections.md`。改过这些提示词的，对照着把自己的改动搬过去。
-- **删掉的脚本**：`scripts/delete-sources.ts`、`scripts/regroup-events.ts`、`scripts/enqueue-analysis.ts`。不要的信源在后台暂停；单篇的重新评估、重新归组在后台“内容诊断”里打开这一篇操作。
-- **管理员会话绑定登录方式**（迁移 `0041`）：从还没有会话绑定的版本升级后，未绑定的旧会话需要重新登录。此前已试用会话绑定迁移的数据库可直接升级，已有列和绑定会被保留，无需手动修改迁移记录。之后的规则见下方“管理员会话与配置变更”。
-- **3.x 的 `/agent` 默认打开 Agent Markdown**，MCP 的接入说明在 `/agent?tab=mcp`；当前接入页见上方“站点文件搬进 `site/`”。
-- **飞书内容群只推 `T1`、`T1_5` 信源的精选。**
+- **As válvulas de segurança vêm desligadas por padrão**: `COLLECT_ENABLED` e `MODEL_CALLS_ENABLED` só ligam quando escritas como `true`, e o que não estiver escrito conta como desligado. O `.env` gerado por `scripts/init-env.ts` já tem essas duas linhas; quem escreveu o próprio `.env` sem elas deve acrescentá-las, senão depois da atualização a coleta e as chamadas a modelos deixam de acontecer.
+- **As interfaces dos resumos semanal e mensal mudaram de forma**: a lista e cada edição de `/api/v1/weeklies` e `/api/v1/monthlies` trazem `periodStart` e `periodEnd`, o corpo virou `sections[]` (cada seção com `label`, `summary`, `items`), não há mais `title` e `themes`, e o `limit` da lista é no máximo 60. Programas que leem essas duas interfaces precisam acompanhar; a versão do MCP e de `/openapi-v1.json` sobe junto para 3.0.0.
+- **Na saída para máquinas da seleção, uma notícia vale uma entrada**: no `mode=selected` da API, na interface de sincronização e no RSS da seleção, de uma mesma notícia só fica a reportagem representante, e as demais aparecem como `remove` nas mudanças da sincronização (em `mode=all` continuam). Reportagens que já estavam selecionadas antes da atualização não são reorganizadas; só se fundem quando essa notícia ganhar outra reportagem publicada.
+- **A seleção espera a confirmação de deduplicação**: o material com nota suficiente só entra na seleção depois que o agrupamento confirma que não é duplicata de uma notícia já na seleção e que traz informação nova; até a confirmação, fica só em “todas as atualizações”. Quando o modelo usado no agrupamento responde fora do formato, o material fica parado ali, e dá para ver na página “Execução” da administração.
+- **Primeira mão só pela classificação**: `T1` já é primeira mão, e `first_party` deixa de ser definido à parte; fontes `T1_5` e `T2` que antes eram marcadas à parte como primeira mão deixam de contar como primeira mão, e quem quiser que contem deve passá-las para `T1`.
+- **O pacote do setor ganhou alguns itens**: `taxonomy.ts` ganhou `RELEASE` e `PLAIN_TERMS`, as categorias de comentário levam `commentary: true`, `ENTITIES` pode ter `otherNames`, e `CATEGORY_BY_ITEM_TYPE` deixa de ser usado. Sites já trocados para outro setor devem, ao incorporar, acrescentar conforme [Adapte para o seu setor](customize.md).
+- **Os tópicos só leem `industry/topics.json`**: a migração apaga a tabela `topics` do banco. Tópicos que só foram alterados no banco e não no arquivo devem ser escritos no arquivo antes de atualizar. Os tópicos de empresa só consideram `entityId`, e `related` deixa de ser usado.
+- **O resumo diário deixa de chamar modelos**: o resumo diário é montado por regras, os resumos semanal e mensal são compilados a partir dos diários, e o modelo só escreve a visão geral e a apresentação das seções; as edições já publicadas não são reescritas.
+- **Os prompts mudaram**: em `industry/prompts/`, `structure.md`, `group-*.md`, `story-digest.md` e `report-period.md` ganharam uma redação nova, `report-daily-lead.md` foi removido e `report-period-sections.md` foi acrescentado. Quem alterou esses prompts deve passar as próprias alterações comparando com os novos.
+- **Scripts removidos**: `scripts/delete-sources.ts`, `scripts/regroup-events.ts`, `scripts/enqueue-analysis.ts`. Pause na administração as fontes que não quer; a reavaliação e o reagrupamento de um artigo são feitos abrindo esse artigo em “diagnóstico de conteúdo” da administração.
+- **A sessão do administrador fica vinculada à forma de login** (migração `0041`): ao atualizar de uma versão que ainda não tinha vínculo de sessão, as sessões antigas sem vínculo precisam fazer login de novo. Bancos que já tinham experimentado a migração de vínculo de sessão podem atualizar direto, com as colunas e os vínculos existentes preservados, sem precisar alterar manualmente o registro de migrações. As regras seguintes estão em “Sessões do administrador e mudanças de configuração” abaixo.
+- **O `/agent` das versões 3.x abre o Markdown para Agentes por padrão**, e a explicação de integração do MCP fica em `/agent?tab=mcp`; a página de integração atual está em “Arquivos do site vão para `site/`” acima.
+- **O grupo de conteúdo do Feishu só recebe a seleção das fontes `T1` e `T1_5`.**
 
-### 备份
+### Backup
 
-在 `.env` 里配置 `DB_BACKUP_STORE_*`（任何 S3 兼容的对象存储），每天 04:10 自动备份到那里。`DB_BACKUP_STORE_SECRET_ID`、`DB_BACKUP_STORE_SECRET_KEY`、`DB_BACKUP_STORE_BUCKET`、`DB_BACKUP_STORE_REGION` 四项都要填；不填 `DB_BACKUP_STORE_DOMAIN` 时按腾讯云 COS 拼地址（`<桶名>.cos.<地域>.myqcloud.com`），用其他 S3 兼容存储时，把这个存储桶的访问域名（含桶名，例如 AWS S3 的 `<桶名>.s3.<地域>.amazonaws.com`）填进 `DB_BACKUP_STORE_DOMAIN`。
+Configure `DB_BACKUP_STORE_*` no `.env` (qualquer armazenamento de objetos compatível com S3), e todo dia às 04:10 é feito backup automático para lá. Os quatro itens `DB_BACKUP_STORE_SECRET_ID`, `DB_BACKUP_STORE_SECRET_KEY`, `DB_BACKUP_STORE_BUCKET` e `DB_BACKUP_STORE_REGION` precisam ser preenchidos; sem `DB_BACKUP_STORE_DOMAIN`, o endereço é montado no formato do Tencent COS (`<nome do bucket>.cos.<região>.myqcloud.com`); com outro armazenamento compatível com S3, preencha `DB_BACKUP_STORE_DOMAIN` com o domínio de acesso do bucket (com o nome do bucket, por exemplo `<nome do bucket>.s3.<região>.amazonaws.com` no AWS S3).
 
-一次完整备份包含同一时间戳的数据库 `.dump` 和文件包 `.tar.gz`，文件名取自数据库名：Docker 里数据库叫 `aihot`，所以是 `aihot-<时间>.dump` 和 `aihot-files-<时间>.tar.gz`。文件包保留 `uploads/` 以及仍存本地的 `feedback-screenshots/`，不包含图片缓存或本地备份目录；这些目录里没有文件时只有 `.dump`。已经转发到飞书的图片只保留数据库中的外部引用，文件包不保存飞书上的图片。
+Um backup completo contém o `.dump` do banco e o pacote de arquivos `.tar.gz` com o mesmo carimbo de tempo, e o nome do arquivo vem do nome do banco: no Docker o banco se chama `aihot`, então são `aihot-<horário>.dump` e `aihot-files-<horário>.tar.gz`. O pacote de arquivos guarda `uploads/` e os `feedback-screenshots/` que ainda estão locais, sem incluir o cache de imagens nem o diretório de backups locais; quando esses diretórios não têm arquivos, só há o `.dump`. As imagens já encaminhadas ao Feishu só mantêm no banco a referência externa, e o pacote não guarda as imagens que estão no Feishu.
 
-每个文件只上传一次，放在一个前缀下：每月 1 日放 `monthly/`，周日放 `weekly/`，其他日子放 `daily/`。可以在对象存储里按前缀设不同的过期时间。
+Cada arquivo é enviado uma só vez, sob um prefixo: no dia 1º de cada mês vai para `monthly/`, aos domingos para `weekly/` e nos outros dias para `daily/`. É possível definir prazos de expiração diferentes por prefixo no armazenamento de objetos.
 
-恢复时同时取回这一对文件（只有 `.dump` 的就只恢复数据库）：使用与数据库版本兼容的 `pg_restore` 将 `.dump` 恢复到空数据库，再把文件包解压到数据目录根目录（Docker 中为 `/data`，非 Docker 使用 `AIHOT_DATA_DIR`，默认 `.data`），保留包内的子目录结构，并确保运行进程可读取这些文件。只恢复数据库不能找回仍由 `local:` 引用的反馈截图；旧备份中没有包含的文件也无法凭数据库引用恢复。
+Para restaurar, recupere os dois arquivos do par (se só houver o `.dump`, restaura-se só o banco): use um `pg_restore` compatível com a versão do banco para restaurar o `.dump` em um banco vazio e depois extraia o pacote de arquivos na raiz do diretório de dados (`/data` no Docker; sem Docker, `AIHOT_DATA_DIR`, padrão `.data`), mantendo a estrutura de subdiretórios do pacote e garantindo que o processo em execução consiga ler esses arquivos. Restaurar só o banco não recupera as capturas de tela de feedback ainda referenciadas por `local:`; arquivos que um backup antigo não incluía também não podem ser recuperados pela referência do banco.
 
-下面的手动导出只包含数据库，不包含上述附件目录：
+A exportação manual abaixo contém só o banco, sem os diretórios de anexos acima:
 
 ```bash
-docker compose exec -T db pg_dump -U aihot aihot | gzip > myhot-$(date +%F).sql.gz
+docker compose exec -T db pg_dump -U aihot aihot | gzip > destaques-$(date +%F).sql.gz
 ```
 
-数据都在三个 Docker 卷里：`db`（数据库）、`data`（上传的图片、图片缓存、本地备份）、`caddy`（证书）。`docker compose down` 不会删除它们；`docker compose down -v` 会。
+Todos os dados ficam em três volumes do Docker: `db` (banco), `data` (imagens enviadas, cache de imagens, backups locais) e `caddy` (certificados). O `docker compose down` não os apaga; o `docker compose down -v` apaga.
 
-### 看日志
+### Ver os logs
 
 ```bash
 docker compose logs -f --tail 100 api worker web
 ```
 
-后台的“运行”页能看到每个定时任务最近的结果，“信源”页能看到每个信源的抓取状况。
+A página “Execução” da administração mostra o resultado mais recente de cada tarefa agendada, e a página “Fontes” mostra a situação de coleta de cada fonte.
 
-### 管理员会话与配置变更
+### Sessões do administrador e mudanças de configuração
 
-会话绑定登录方式、登录时的管理员凭据或飞书身份。修改管理员密码、飞书管理员名单或会话密钥后，应重启所有 API 进程，使它们加载相同的新配置；只编辑配置文件不代表正在运行的进程已生效，混用旧代码或旧配置的进程不能提供统一撤权。
+A sessão fica vinculada à forma de login, às credenciais do administrador no momento do login ou à identidade do Feishu. Depois de mudar a senha do administrador, a lista de administradores do Feishu ou o segredo da sessão, reinicie todos os processos da API para que carreguem a mesma configuração nova; só editar o arquivo de configuração não significa que os processos em execução já a aplicam, e processos com código ou configuração antigos misturados não conseguem dar uma revogação de permissão uniforme.
 
-有效配置改变后，密码会话不再接受旧密码的授权，飞书会话按登录时实际取得的 union ID 或邮箱检查当前名单（两者任一仍获授权即可）。停用飞书登录应用或更换应用 ID 会使飞书会话失效；只轮换同一应用的 secret 不会使仍获授权的飞书会话退出。轮换或移除 `SESSION_SECRET` 会使两种会话都失效。
+Quando a configuração efetiva muda, a sessão por senha deixa de aceitar a autorização da senha antiga, e a sessão do Feishu confere a lista atual pelo union ID ou e-mail realmente obtido no login (basta que um dos dois continue autorizado). Desativar o aplicativo de login do Feishu ou trocar o ID do aplicativo invalida as sessões do Feishu; só rodar o secret do mesmo aplicativo não derruba as sessões do Feishu que continuam autorizadas. Rodar ou remover `SESSION_SECRET` invalida os dois tipos de sessão.
 
-鉴权时确认失效的会话会被删除，恢复旧配置也不会让它复活。系统不记录全局凭据变更历史：某次配置变化若从未被进程加载，或在恢复前从未被会话检查观察到，不能据此追溯撤销会话。
+Uma sessão cuja invalidez é confirmada na autenticação é apagada, e restaurar a configuração antiga não a ressuscita. O sistema não registra o histórico global de mudanças de credenciais: se uma mudança de configuração nunca foi carregada por um processo, ou nunca foi observada por uma verificação de sessão antes de ser restaurada, não é possível, a partir dela, revogar sessões retroativamente.
 
-## 花多少钱
+## Quanto custa
 
-- **模型**：每条新资料先预筛一次；过了预筛的再评两次分、做一次结构化、写一次标题摘要，然后归组（有相近的报道时才调用），另外还有事件综述、周报月报的总述和精选的全文翻译。空正文、纯链接的 X 帖子不调用写作或翻译模型。日报按规则编排，不调用模型。我们用示范信源在本地试跑，第一次导入的 152 条资料一共用了大约 930 次模型调用。之后每天用多少，取决于你的信源每天更新多少条。后台“模型与评测”页能看到每一步的调用次数和输入输出 token 数。
-- **付费采集**（X、公众号、Jina）：按请求计费，默认不启用，填了 key 才会用。
-- 所有付费服务都有每分钟、每小时、每天的调用上限（后台“设置 → 付费请求上限”），超过就暂停，不会一夜之间刷爆账单。填 0 表示立即停用这个服务。
+- **Modelos**: cada material novo passa antes por um pré-filtro; os que passam recebem duas pontuações, uma estruturação e um título e resumo, e depois o agrupamento (só chama o modelo quando há reportagens parecidas), além da síntese de eventos, da visão geral dos resumos semanal e mensal e da tradução do texto completo da seleção. Postagens do X com texto vazio e só um link não chamam o modelo de redação nem de tradução. O resumo diário é montado por regras, sem chamar modelos. Numa execução local de teste com as fontes de exemplo, os 152 materiais da primeira importação usaram cerca de 930 chamadas de modelo. Depois, quanto se usa por dia depende de quantos itens as suas fontes atualizam por dia. A página “Modelos e avaliação” da administração mostra o número de chamadas e de tokens de entrada e saída de cada etapa.
+- **Coleta paga** (X, WeChat, Jina): cobrada por requisição, desativada por padrão, e só é usada se você preencher a chave.
+- Todos os serviços pagos têm limites de chamadas por minuto, por hora e por dia (administração, “Configurações → Limites de requisições pagas”), e ao passar o serviço pausa, sem estourar a conta da noite para o dia. Colocar 0 desativa o serviço imediatamente.
 
-想省钱，按这个顺序来：
+Para economizar, siga esta ordem:
 
-1. 先看后台“模型与评测”页，每一步的调用次数和输入输出 token 都在那里，找出大头再动手。
-2. 确认关了思考模式：思考过程按输出 token 计费，`.env.example` 里的 `LLM_EXTRA_JSON` 写了怎么关。
-3. 量大的步骤换便宜的模型：`.env` 里可以每一步单独选（`PREFILTER_MODEL`、`SCORE_MODEL`、`STRUCTURE_MODEL`……），也能在“模型与评测”页改。换评分模型之前，用 `scripts/eval-selection.ts` 在同一批样本上比一比，别省了钱却选不准。
-4. 少放进无关的资料：花费基本跟每天进来的条数成正比。综合新闻站尽量只订和你方向相关的栏目，在“信源”页调低更新频率，暂停量大却很少入选的信源。
+1. Veja primeiro a página “Modelos e avaliação” da administração, onde estão o número de chamadas e os tokens de entrada e saída de cada etapa, e encontre o maior item antes de mexer.
+2. Confirme que o modo de raciocínio está desligado: o processo de raciocínio é cobrado como token de saída, e o `LLM_EXTRA_JSON` do `.env.example` explica como desligar.
+3. Troque por modelos mais baratos as etapas de maior volume: no `.env` dá para escolher etapa por etapa (`PREFILTER_MODEL`, `SCORE_MODEL`, `STRUCTURE_MODEL`…), e também pela página “Modelos e avaliação”. Antes de trocar o modelo de pontuação, compare no mesmo lote de amostras com `scripts/eval-selection.ts`, para não economizar e passar a selecionar mal.
+4. Deixe entrar menos material irrelevante: o gasto é basicamente proporcional ao número de itens que chegam por dia. Em sites de notícias gerais, assine só as seções relacionadas à sua área, reduza a frequência de atualização na página “Fontes” e pause as fontes de grande volume que raramente entram na seleção.
 
-## 不用 Docker
+## Sem Docker
 
-需要 Node.js 24.11 以上和 PostgreSQL 16 或 17，系统用 Linux 或 macOS；Windows 上请在 WSL2 里运行，或者用上面的 Docker 方式。
+Você precisa de Node.js 24.11 ou superior e PostgreSQL 16 ou 17, em Linux ou macOS; no Windows, rode dentro do WSL2 ou use o método Docker acima.
 
 ```bash
 npm ci
-node scripts/init-env.ts --llm-key <你的模型 API Key>
-createdb myhot
+node scripts/init-env.ts --llm-key <sua chave de API do modelo>
+createdb destaques
 ```
 
-在 `.env` 里加上：
+Acrescente ao `.env`:
 
 ```bash
-DATABASE_URL=postgres://你的用户名@127.0.0.1:5432/myhot
+DATABASE_URL=postgres://seu-usuario@127.0.0.1:5432/destaques
 API_BASE_URL=http://127.0.0.1:3001
 ```
 
-然后：
+Depois:
 
 ```bash
 node --env-file=.env scripts/migrate.ts
 node --env-file=.env scripts/seed.ts
 npm run build -w @aihot/web
 
-NODE_ENV=production node --env-file=.env apps/api/src/main.ts          # 接口，3001 端口
-NODE_ENV=production node --env-file=.env apps/worker/src/main.ts       # 后台任务
-cd apps/web && NODE_ENV=production node --env-file=../../.env server.ts   # 网页，3000 端口
+NODE_ENV=production node --env-file=.env apps/api/src/main.ts          # interface (API), porta 3001
+NODE_ENV=production node --env-file=.env apps/worker/src/main.ts       # tarefas em segundo plano
+cd apps/web && NODE_ENV=production node --env-file=../../.env server.ts   # páginas, porta 3000
 ```
 
-三个进程都要带 `NODE_ENV=production`。api 和 worker 不带它就按开发环境运行：启动时不检查生产密钥和管理员密码，`DEV_AUTH_ROLE` 免登录也会生效。
+Os três processos precisam de `NODE_ENV=production`. A api e o worker sem ele rodam como em desenvolvimento: na partida não verificam as chaves de produção nem a senha do administrador, e o acesso sem login por `DEV_AUTH_ROLE` também vale.
 
-三个进程要一直运行，生产环境用 systemd 或 pm2 守护（守护配置里同样设 `NODE_ENV=production`）。停止 worker 时给它 515 秒（systemd 的 `TimeoutStopSec=515`、pm2 的 `kill_timeout: 515000` 和 `treekill: false`），覆盖队列的 470 秒排空和数据库清理；systemd 还需设 `KillMode=mixed`，只先通知主进程停止接任务，让正在备份的 `pg_dump`、`tar` 自然完成。被提前杀掉的调用结果不明，要等至少半小时自动放行后才会重试。
+Os três processos precisam ficar sempre em execução; em produção, use systemd ou pm2 para mantê-los (na configuração do supervisor também defina `NODE_ENV=production`). Ao parar o worker, dê a ele 515 segundos (`TimeoutStopSec=515` no systemd, `kill_timeout: 515000` e `treekill: false` no pm2), cobrindo os 470 segundos de esvaziamento da fila e a limpeza do banco; no systemd, defina também `KillMode=mixed`, avisando só o processo principal para parar de aceitar tarefas e deixando o `pg_dump` e o `tar` de um backup em andamento terminarem naturalmente. O resultado de uma chamada morta antes da hora fica incerto, e só é repetido depois de ser liberado automaticamente, pelo menos meia hora depois.
 
-开发时用带热更新的方式：`npm run dev:api`、`npm run dev:worker`、`npm run dev:web`。开发时想免登录进后台，在 `.env` 里设 `DEV_AUTH_ROLE=admin`（生产环境会拒绝启动）。
+Em desenvolvimento, use o modo com atualização a quente: `npm run dev:api`, `npm run dev:worker`, `npm run dev:web`. Para entrar na administração sem login em desenvolvimento, defina `DEV_AUTH_ROLE=admin` no `.env` (em produção, a inicialização é recusada).

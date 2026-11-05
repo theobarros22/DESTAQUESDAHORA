@@ -77,7 +77,7 @@ test("ordinary feed pages remain indexable and normalize ignored parameters", as
   }
 });
 
-// Chinese readers search issues by the date as they write it ("10月4日 AI 新闻"), not by the key.
+// Leitores buscam edições pela data como a escrevem ("4 de outubro, IA novidades"), não pela chave.
 for (const [kind, label, date] of [["daily", "日报", "10月4日"], ["weekly", "周报", "9月28日—10月4日"], ["monthly", "月报", "2026年10月"]] as const) {
   test(`${kind} issue metadata describes its visible lead while the permanent entry keeps its title`, async () => {
     const r = report(kind);

@@ -1,8 +1,8 @@
 import { beijingDate, beijingTime, beijingWeekday, monthDay as engineMonthDay } from "@aihot/contracts/time";
 
 /**
- * "9月28日" of a calendar date (YYYY-MM-DD). A day of another year than `now` (Beijing) carries its year, so an
- * archived item is not read as this year's: "2019年2月19日". The engine's monthDay does this only when given today.
+ * "28 set" of a calendar date (YYYY-MM-DD). A day of another year than `now` (Beijing) carries its year, so an
+ * archived item is not read as this year's: "19 fev 2019". The engine's monthDay does this only when given today.
  */
 export function monthDay(date: string, now: number = Date.now()): string {
   return engineMonthDay(date, beijingDate(now));
@@ -20,7 +20,7 @@ export function byBeijingDay<T>(list: readonly T[], at: (entry: T) => string): A
   return days;
 }
 
-/** "周六" of a calendar date (YYYY-MM-DD). */
+/** "sáb" of a calendar date (YYYY-MM-DD). */
 export function weekdayShort(date: string): string {
   return beijingWeekday(date).replace("-feira", "").replace(/^./, (c) => c.toUpperCase()).slice(0, 3) + ".";
 }
@@ -42,7 +42,7 @@ export function fullDateTime(iso: string): string {
   return `${beijingDate(iso)} ${beijingTime(iso)}`;
 }
 
-/** "9月24日 10:51" (Beijing), for lists that span days. */
+/** "24 set 10:51" (Beijing), for lists that span days. */
 export function monthDayTime(iso: string): string {
   return `${monthDay(beijingDate(iso))} ${beijingTime(iso)}`;
 }

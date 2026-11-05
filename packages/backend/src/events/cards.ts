@@ -3,7 +3,7 @@
 // moment a report is about to open a new card, it is compared directly with the cards around it, as a
 // reader sees them. When both models see the same occurrence the report does not open one: it joins
 // the fact of that card, or, having no fact to join (history, a composite) or facing a card with none,
-// stays readable in 全部动态. On a month of real cards the pair prompt that already decides merges
+// stays readable in Todas as atualizações. On a month of real cards the pair prompt that already decides merges
 // found such repeats at precision 0.93 and recall 0.88 from this similarity up; most of them were
 // history and composites, which no other step ever compared with a card.
 import { modelRoute } from "../editorial/models.ts";
@@ -52,7 +52,7 @@ export async function readerOf(articleId: string): Promise<Reader | null> {
   };
 }
 
-/** Why a report stays out of 精选: the title is what the reader has already seen. */
+/** Why a report stays out of Seleção: the title is what the reader has already seen. */
 export const alreadyOnCard = (title: string) => `O leitor já viu este mesmo fato na seleção: ${title}`;
 
 /** The review model reads the pair the other way round. */
@@ -111,7 +111,7 @@ export async function echoesOnCard(reader: Reader): Promise<CardRow[]> {
   return echoes;
 }
 
-/** A card gives way to the one telling its news: it stays readable in 全部动态. */
+/** A card gives way to the one telling its news: it stays readable in Todas as atualizações. */
 export async function retireCardTx(tx: Tx, articleId: string, title: string): Promise<void> {
   await tx`UPDATE articles SET selection_adds_value = false, selection_value_reason = ${alreadyOnCard(title)} WHERE id = ${articleId}`;
   await republishTx(tx, articleId);

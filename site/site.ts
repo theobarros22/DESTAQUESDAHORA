@@ -207,7 +207,7 @@ export const PUBLIC_CATEGORIES = {
 } as const;
 
 /**
- * Em chinês o framework cola o termo do nicho no substantivo ("AI 日报"). Em português isso não funciona,
+ * Em chinês o framework cola o termo do nicho no substantivo ("AI resumo diário"). Em português isso não funciona,
  * então as duas funções só montam a frase: withSubject devolve o substantivo; subjectAfter junta texto e substantivo.
  */
 export function withSubject(noun: string): string {

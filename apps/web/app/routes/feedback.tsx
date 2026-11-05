@@ -100,7 +100,7 @@ export default function FeedbackPage() {
 
   useEffect(() => {
     const saved = readDraft();
-    // The page the reader was on before coming here (tracked across in-site navigation, "更多" skipped);
+    // The page the reader was on before coming here (tracked across in-site navigation, "Mais" skipped);
     // a document the browser opened fresh falls back to its referrer.
     const before = params.get("from") ? null : (lastPage() ?? (document.referrer.startsWith(location.origin) ? document.referrer : null));
     const from = before ? new URL(before, location.origin).href : null;

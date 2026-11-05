@@ -1,4 +1,4 @@
-// The 精选 home's day-grouped feed: a time rail with cards on desktop, rows under grey day bars on phones.
+// The Seleção home's day-grouped feed: a time rail with cards on desktop, rows under grey day bars on phones.
 // Keeps its place across back navigation and loads further pages. There is no "new items" prompt:
 // readers refresh for the latest head — on phones also by tapping the tab again. The paged lists
 // (DayList) share its day header and slot.
@@ -270,7 +270,7 @@ export function Timeline({ initial, filters }: { initial: TimelineResponse; filt
   }, [state.nextCursor, state.batches, loadMore]);
 
   const today = beijingDate(Date.now());
-  // 只看未读 hides cards read in this browser: an ordinary card by its own id, a reading group by any
+  // Só não lidos hides cards read in this browser: an ordinary card by its own id, a reading group by any
   // of its selected reports, so a read representative does not hide the unread reports behind it.
   // A group kept that way is not drawn as read; its expansion marks which reports are unread.
   const unreadVisible = useCallback(
@@ -350,7 +350,7 @@ export function Timeline({ initial, filters }: { initial: TimelineResponse; filt
   );
 }
 
-/** The foot of a paged list: loading, retry, "加载更多" after a few automatic pages, or the end. */
+/** The foot of a paged list: loading, retry, "Carregar mais" after a few automatic pages, or the end. */
 function FeedEnd({ loading, error, hasMore, manual, empty, onMore }: { loading: boolean; error: boolean; hasMore: boolean; manual: boolean; empty: boolean; onMore: () => void }) {
   return (
     <div className="flex justify-center py-6">

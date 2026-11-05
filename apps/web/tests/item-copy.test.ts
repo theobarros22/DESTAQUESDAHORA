@@ -1,4 +1,4 @@
-// Failure mode: WeChat's in-app browser cannot save downloads, so the article offers "复制 Markdown" there
+// Modo de falha: o navegador interno do WeChat não salva downloads, então o artigo oferece "Copiar Markdown" ali
 // instead; it copied with the async clipboard, which that browser does not have, and always failed.
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";

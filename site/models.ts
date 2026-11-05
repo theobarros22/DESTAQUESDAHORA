@@ -1,11 +1,11 @@
-// 这个站用哪些模型。框架自带一个 `default`：环境变量 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL 指定的模型。
-// 这里再列出具名的模型（每个用自己的地址和密钥环境变量），以及每一步默认用哪个；没写的步骤用 default。
-// 部署时还可以用环境变量（PREFILTER_MODEL、SCORE_MODEL……）或后台的“模型与评测”页逐步改选。
+// Quais modelos este site usa. O framework traz um `default`: o modelo definido pelas variáveis de ambiente LLM_BASE_URL / LLM_API_KEY / LLM_MODEL.
+// Aqui se listam também modelos nomeados (cada um com seu próprio endereço e variável de chave) e qual deles cada etapa usa por padrão; etapas não listadas usam o default.
+// Na implantação também dá para trocar etapa por etapa com variáveis de ambiente (PREFILTER_MODEL, SCORE_MODEL…) ou pela página “Modelos e avaliação” da área administrativa.
 
 import type { ModelPreset } from "@aihot/contracts/site-config";
 export type { ModelPreset } from "@aihot/contracts/site-config";
 
-/** 具名的模型示例（每个要配自己的密钥）。用不上可以删掉。 */
+/** Exemplos de modelos nomeados (cada um precisa da sua própria chave). Apague os que não usar. */
 export const PRESETS: Record<string, ModelPreset> = {
   // GLM 5.3 Flash always reasons; the lowest effort keeps short structured tasks fast.
   "glm-5.3-flash": {
@@ -46,7 +46,7 @@ export const PRESETS: Record<string, ModelPreset> = {
 };
 
 /**
- * 每一步默认用的模型（步骤见后台“模型与评测”页），值是上面的名字或 default。没写的步骤用 default。
- * 例：{ score: "glm-5.3-flash-selection", groupReview: "mimo-v2.6-flash" }
+ * Modelo padrão de cada etapa (as etapas estão na página “Modelos e avaliação” da área administrativa); o valor é um dos nomes acima ou default. Etapas não listadas usam o default.
+ * Exemplo: { score: "glm-5.3-flash-selection", groupReview: "mimo-v2.6-flash" }
  */
 export const DEFAULTS: Record<string, string> = {};

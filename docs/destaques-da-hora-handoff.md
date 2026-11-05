@@ -67,3 +67,9 @@ Aprovar o layout da capa; decidir sobre o PR para a `main`; conta DigitalPlat/Cl
 - **Alternativa sem custo**: PC + Cloudflare Tunnel (adicionar o domínio ao Cloudflare e trocar os nameservers no DigitalPlat; o token do túnel não vai para chat nem repositório).
 - **Segredos**: o `ADMIN_PASSWORD` e os demais ficam só em `~/app/.env` na VM. Nada disso entra no repositório.
 - **Pendente**: conferir o estado do build na VM, DNS, capa estilo jornal, README em PT, tradução de `docs/*.md`, verificar feeds, calibrar a seleção, termos/privacidade, e domínio `.com.br` para o lançamento.
+
+## Tradução do repositório (05/11/2026)
+
+- Traduzidos para o português: README, documentação (`docs/`), `.github/`, comentários do código (apps, packages, scripts, testes), `industry/selection.ts`, `site/models.ts`, `site/README.md`, `industry/README.md`, `assets/`, exemplos `.jsonl` e mensagens dos scripts.
+- Mantido em chinês de propósito: analisadores de data, RSS, limpeza de texto e regex que tratam texto chinês (`sources/dates.ts`, `rss.ts`, `web-list.ts`, `content/sanitize.ts`, `lib/text.ts`, `editorial/writing.ts`), dados de teste que exercitam esse comportamento, direitos autorais do projeto original (`LICENSE`, `NOTICE`) e migrações já publicadas (imutáveis).
+- Verificação: `npm run typecheck` passa; testes standalone com a mesma linha de base (120 passam / 38 falham).

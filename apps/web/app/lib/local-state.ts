@@ -376,7 +376,7 @@ export function clearRecentSearches() {
 const LAST_PAGE_KEY = "aihot:last-page";
 const NOT_A_PLACE = /^\/(feedback|more)(\/|$)|^\/admin(\/|$)/;
 
-/** Called on every in-site navigation: remembers the latest real page, never feedback, "更多" or the admin. */
+/** Called on every in-site navigation: remembers the latest real page, never feedback, "Mais" or the admin. */
 export function rememberPage(path: string) {
   if (!NOT_A_PLACE.test(path)) writeRaw(LAST_PAGE_KEY, path, "session");
 }

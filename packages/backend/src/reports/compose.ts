@@ -74,7 +74,7 @@ async function saveReport(kind: ReportKind, key: string, start: Date, end: Date,
   });
 }
 
-/** "10 月 4 日 08:00": one end of a quiet issue's window, as its lead paragraph names it. */
+/** "4 de outubro, 08:00": one end of a quiet issue's window, as its lead paragraph names it. */
 function windowPoint(at: Date): string {
   const day = beijingDate(at);
   return `${Number(day.slice(8, 10))}/${day.slice(5, 7)} às ${beijingTime(at)}`;
@@ -160,7 +160,7 @@ const PLAIN = new Set([...PLAIN_TERMS, SITE.name.toLowerCase()]);
  * Whether written text names only what the listed items name: every capitalised or numbered Latin token
  * (Acme, Nova-2.5, X1), every figure of three or more digits or with a decimal point or percent (845,
  * 129.3, 40%) and every company of the vocabulary appears in the items' own words; a company may be named
- * in either language (谷歌 for Google).
+ * in either language (the Chinese name for Google).
  */
 export function grounded(text: string, corpus: string): boolean {
   const known = corpus.toLowerCase();

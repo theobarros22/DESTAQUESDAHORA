@@ -1,5 +1,5 @@
 // The judging and writing steps (editorial/analyze.ts): the prefilter decides relevance, two scores
-// against the source's threshold (its tier's, raised by its class) decide 精选, selected and near-selected items are written by the content
+// against the source's threshold (its tier's, raised by its class) decide Seleção, selected and near-selected items are written by the content
 // understanding and the rest by the title/summary translation, a structure step gives the category,
 // subjects and fact. Material with only a feed summary has its page fetched first.
 import { pointModels, Reply, stub, tag } from "./setup.ts";
@@ -194,7 +194,7 @@ test("the prefilter's BLOCK stops everything; UNKNOWN with material goes on like
   const off = await analyzeArticle(await article("OFFTOPIC"));
   assert.deepEqual([off!.output!.relevance, off!.output!.selected], ["block", false]);
   assert.deepEqual(calls("OFFTOPIC"), ["prefilter"]);
-  // An UNKNOWN with material is judged and written like a PASS, up to 精选 (T1 + T1 + 2 ≥ 2 × T1).
+  // An UNKNOWN with material is judged and written like a PASS, up to Seleção (T1 + T1 + 2 ≥ 2 × T1).
   const vagueId = await article("VAGUE");
   const vague = await analyzeArticle(vagueId);
   assert.deepEqual([vague!.output!.relevance, vague!.output!.selected, vague!.output!.titleZh], ["pass", true, "理解标题 VAGUE"]);
@@ -246,7 +246,7 @@ test("guards: a company the input does not name is not written in; long summarie
   assert.equal(enforceIdentity(alibaba, { titleZh: "阿里巴巴发布编程模型", summaryZh: "阿里巴巴发布了编程模型并公布价格。" }).identityGuard.outcome, "pass");
   const long = "第一句交代了谁做了什么以及关键结果，这一句本身已经足够说明核心事件的来龙去脉。".repeat(3) + "第二句补充数字。".repeat(20);
   assert.ok(compactAnswerFirstSummary(long).length <= 190);
-  // A short first sentence and a long second one: the card once ended "…可连接 Google Ads 和 Meta 账号在 Google。".
+  // Uma primeira frase curta e uma segunda longa: o cartão chegou a terminar com um trecho cortado sobre contas do Google Ads e da Meta.
   const lovable = "Lovable 推出增长工具，在原有建应用聊天窗口中提供增长计划、广告投放和 SEO 能力。用户设定目标后，Lovable 依据应用上下文生成可执行计划；可连接 Google Ads 和 Meta 账号在 Google、YouTube、Facebook、Instagram 投放广告，广告上线前需用户审批，计费直接走 Google Ads 和 Meta 账号，Lovable 不加收服务费；SEO 方面覆盖索引基础、内置 Semrush 关键词机会分析和站外社区推广建议。功能现已在 Free、Pro 和 Business 计划可用。";
   assert.equal(compactAnswerFirstSummary(lovable), "Lovable 推出增长工具，在原有建应用聊天窗口中提供增长计划、广告投放和 SEO 能力。", "whole sentences, never half of one");
   // Only a first sentence longer than the limit is cut, at a clause, never inside an enumeration.

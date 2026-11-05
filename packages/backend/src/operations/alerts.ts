@@ -432,7 +432,7 @@ async function savedHolds(): Promise<Record<string, HeldAlert>> {
 
 /**
  * The agent looked at an incident it was handed and judged it not a fault (10-25: a quiet Saturday morning
- * escalated as "停止收录"): the owner is not told of that incident before `until`, a day at most. Past it, or
+ * escalated as "parou de coletar"): the owner is not told of that incident before `until`, a day at most. Past it, or
  * for a later incident, the handoff runs as before. Audited.
  */
 export async function holdAlert(key: string, reason: string, until: Date, actor: string, now = Date.now()): Promise<HeldAlert> {
