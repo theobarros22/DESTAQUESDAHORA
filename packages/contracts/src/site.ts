@@ -65,16 +65,24 @@ export interface ItemSummary {
   story: StoryRef | null;
 }
 
+/** A licensed cover image with the credit its source asks for; present only for sources allowed to show images. */
+export interface CoverView {
+  url: string;
+  srcSet?: string;
+  credit: string;
+}
+
 /** The fields rendered by a site feed card; full original text lives in the item detail. */
 export interface FeedItemSummary extends Pick<ItemSummary, "id" | "title" | "summary" | "reason" | "source" | "publishedAt" | "timelineAt" | "category" | "tags" | "score" | "selected" | "channel"> {
   x: (Pick<XPostView, "authorName" | "handle" | "avatarUrl" | "avatarSrcSet" | "media"> & {
     quoted: Omit<NonNullable<XPostView["quoted"]>, "url"> | null;
   }) | null;
   /**
-   * A selected report whose fact is represented by another report (全部动态 and search): that report,
-   * so the card can say "同一件事，精选收录的是《…》" instead of claiming a seat of its own.
+   * A selected report whose fact is represented by another report (Todas as atualizações and search): that report,
+   * so the card can say "Mesmo assunto; a seleção incluiu «…»" instead of claiming a seat of its own.
    */
   sameEvent?: { id: string; title: string } | null;
+  cover?: CoverView | null;
 }
 
 export interface GroupInfo {
@@ -145,7 +153,7 @@ export interface OutlineEntry {
 export interface SiteItemDetail extends ItemSummary {
   /** The post with all its media; its text is the body. */
   x: Omit<XPostView, "text" | "translation"> | null;
-  /** Selected, but its fact's seat is held by this report: marked 同事件, without a reason of its own. */
+  /** Selected, but its fact's seat is held by this report: marked mesmo evento, without a reason of its own. */
   sameEvent?: { id: string; title: string } | null;
   readingMode: "full" | "summary-only";
   author: string | null;
@@ -162,7 +170,7 @@ export interface SiteItemDetail extends ItemSummary {
   bodyLanguage: "zh" | "original";
 }
 
-/** A fact's public reports under the list's filters: what "另外 N 家也报道了" opens. */
+/** A fact's public reports under the list's filters: what "Outras N fontes também noticiaram" opens. */
 export interface GroupReport {
   id: string;
   title: string;
@@ -278,14 +286,14 @@ export interface StoryDetail {
 export type ReportKind = "daily" | "weekly" | "monthly";
 
 /** What each kind of report is called. */
-export const REPORT_NAMES: Record<ReportKind, string> = { daily: "日报", weekly: "周报", monthly: "月报" };
+export const REPORT_NAMES: Record<ReportKind, string> = { daily: "Boletim", weekly: "Resumo semanal", monthly: "Balanço mensal" };
 
-/** An issue's date as Chinese readers write and search it: "10月17日", "10月12日—18日" (or "9月28日—10月4日"), "2026年10月". */
+/** Data de uma edição como o leitor escreve e pesquisa: "17 de out.", "12 a 18 de out." (ou "28 de set. a 4 de out."), "outubro de 2026". */
 export function reportDateLabel(kind: ReportKind, key: string): string {
   if (kind === "daily") return monthDay(key);
-  if (kind === "monthly") return `${key.slice(0, 4)}年${Number(key.slice(5, 7))}月`;
+  if (kind === "monthly") return `${["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"][Number(key.slice(5, 7)) - 1]} de ${key.slice(0, 4)}`;
   const { start, end } = isoWeekRange(key)!;
-  return `${monthDay(start)}—${start.slice(5, 7) === end.slice(5, 7) ? `${Number(end.slice(8, 10))}日` : monthDay(end)}`;
+  return start.slice(5, 7) === end.slice(5, 7) ? `${Number(start.slice(8, 10))} a ${monthDay(end)}` : `${monthDay(start)} a ${monthDay(end)}`;
 }
 
 export interface ReportCitation {
@@ -314,7 +322,7 @@ export interface ReportCitation {
 export interface ReportDetail {
   kind: ReportKind;
   key: string;
-  /** The issue's place among the existing issues of its kind, oldest first ("第 N 期"). */
+  /** The issue's place among the existing issues of its kind, oldest first ("Edição N"). */
   issueNumber: number;
   title: string;
   generatedAt: string;
@@ -369,7 +377,7 @@ export interface SiteMeta {
 export interface ChangelogRelease {
   date: string;
   time: string;
-  kind: "更新" | "优化" | "公告" | "下线";
+  kind: "Novidade" | "Melhoria" | "Aviso" | "Removido";
   title: string;
   body: string[];
   /** A notice readers must act on: drawn in the warning red so it cannot be skimmed past. */
@@ -403,11 +411,11 @@ export interface SiteStats {
   items: number;
   selected: number;
   dailies: number;
-  /** The last 24 hours: items found (heat-only sources included), and items that made 精选 (by their place on the timeline). */
+  /** The last 24 hours: items found (heat-only sources included), and items that made Seleção (by their place on the timeline). */
   day: { collected: number; selected: number };
   /** Enabled sources in a daily shuffle, for the about page's river: one line per source. */
   sampleSources: Array<{ name: string; kind: string; heatOnly: boolean }>;
-  /** The latest 精选, newest first. */
+  /** The latest Seleção, newest first. */
   latest: Array<{ id: string; title: string; source: string }>;
 }
 
@@ -431,7 +439,7 @@ export interface ReportNavigationEntry { key: string; issueNumber: number; title
 
 // Topics
 
-export type TopicGroupKey = "company" | "field" | "genre";
+export type TopicGroupKey = "regiao" | "company" | "field" | "genre";
 
 export interface TopicGroup {
   key: TopicGroupKey;

@@ -1,35 +1,35 @@
-# 事件归组与关系评测
+# Agrupamento de eventos e avaliação de relações
 
-站点先用标题和摘要召回最近两周的候选事实（配了向量服务时比向量，没配时比文字重合度），再让模型判断报道之间的关系，同时判断这篇报道相对精选里已有的内容有没有新信息（分数够了的报道要靠这一条才进精选，见 [精选与校准](selection.md)）。关系定义和站点实际使用的提示词在 `industry/prompts/group-*.md`，代码入口在 `packages/backend/src/events/relate.ts` 和 `group.ts`。
+O site primeiro recupera, pelo título e pelo resumo, os fatos candidatos das duas últimas semanas (com serviço de vetores configurado, compara por vetores; sem ele, pela sobreposição de texto) e depois pede ao modelo que julgue a relação entre as reportagens e, ao mesmo tempo, se esta reportagem traz informação nova em relação ao que já está na seleção (a reportagem com nota suficiente depende deste julgamento para entrar na seleção, veja [Seleção e calibração](selection.md)). A definição das relações e os prompts que o site realmente usa estão em `industry/prompts/group-*.md`, e os pontos de entrada no código são `packages/backend/src/events/relate.ts` e `group.ts`.
 
-四种关系是：
+As quatro relações são:
 
-- `SAME_OCCURRENCE`：同一次真实发生，例如同一发布的官方原文和媒体报道。
-- `SAME_STORY`：不是同一次发生，但属于同一具体事件的直接进展，例如发布后的上架、评测或回应。
-- `UNRELATED`：不同的事，即使主体、产品或话题相同。
-- `ROUNDUP`：其中一方是包含多个话题的汇总。
+- `SAME_OCCURRENCE`: a mesma ocorrência real, por exemplo o texto oficial original e a reportagem da mídia sobre o mesmo lançamento.
+- `SAME_STORY`: não é a mesma ocorrência, mas é um desdobramento direto do mesmo evento concreto, por exemplo a disponibilização, a avaliação ou a resposta depois de um lançamento.
+- `UNRELATED`: assuntos diferentes, mesmo que o sujeito, o produto ou o tema sejam os mesmos.
+- `ROUNDUP`: um dos lados é um resumo que contém vários temas.
 
-## 用自己的标注样本评测两两关系判断
+## Avalie o julgamento de relação par a par com as suas próprias amostras marcadas
 
-`scripts/eval-relations.ts` 只评测模型对两篇报道之间关系的判断。它直接复用站点归组时用的 `PAIR_SYSTEM`、`pairUser()`、`PairSchema` 和提示词版本，因此提示词变了，评测也跟着变。它不重新跑候选召回，也不把结果写回事件归组。
+O `scripts/eval-relations.ts` avalia somente o julgamento do modelo sobre a relação entre duas reportagens. Ele reutiliza diretamente o `PAIR_SYSTEM`, o `pairUser()`, o `PairSchema` e a versão do prompt que o site usa no agrupamento, de modo que, se o prompt mudar, a avaliação muda junto. Ele não refaz a recuperação de candidatos nem grava o resultado de volta no agrupamento de eventos.
 
-把自己的标注数据放在 `.data/` 下（该目录不会提交到 Git）。`industry/relation-gold.example.jsonl` 给了四条虚构示例。每行一条：
+Coloque os seus dados marcados em `.data/` (esse diretório não é enviado ao Git). O `industry/relation-gold.example.jsonl` traz quatro exemplos fictícios. Uma por linha:
 
 ```json
 {"caseId":"release-001","a":{"title":"...","source":"...","firstParty":true,"publishedAt":"2026-09-01T09:00:00+08:00","summary":"..."},"b":{"title":"...","source":"...","firstParty":false,"publishedAt":"2026-09-01T09:20:00+08:00","summary":"..."},"samplingContext":{"benchmarkSplit":"development","samplingStratum":"same-release"},"gold":{"relation":"SAME_OCCURRENCE"}}
 ```
 
-`a`、`b` 也可以带和站点内部 `ReportView` 一致的可选 `frame`：
+`a` e `b` também podem trazer um `frame` opcional, igual ao `ReportView` interno do site:
 
 ```json
-{"subject":"Acme","action":"发布","object":"Acme-2","occurredAt":"2026-09-01"}
+{"subject":"Acme","action":"lançou","object":"Acme-2","occurredAt":"2026-09-01"}
 ```
 
-建议把容易混淆的边界样本放进开发集，再留一部分 `benchmarkSplit: "holdout"` 最后检查。`samplingStratum` 是可选的分组标签，用来看错在哪一类，不影响模型输入。
+Recomenda-se colocar no conjunto de desenvolvimento as amostras de fronteira fáceis de confundir e reservar uma parte com `benchmarkSplit: "holdout"` para a conferência final. `samplingStratum` é um rótulo de grupo opcional, usado para ver em que classe se erra, e não afeta a entrada do modelo.
 
-### 运行
+### Execução
 
-先按正常部署方式配置数据库和模型，再运行：
+Primeiro configure o banco e os modelos do jeito normal de implantação e depois rode:
 
 ```bash
 node --env-file=.env scripts/eval-relations.ts \
@@ -37,7 +37,7 @@ node --env-file=.env scripts/eval-relations.ts \
   --split development
 ```
 
-默认使用“归组复核”这一步当前的模型：后台“模型与评测”页切换过的优先，其次是环境变量 `GROUP_REVIEW_MODEL`，再其次是 `site/models.ts` 的 `DEFAULTS.groupReview`，都没有就用默认模型。也可以显式比较多个已配置的模型：
+Por padrão usa o modelo atual da etapa “revisão do agrupamento”: primeiro o trocado na página “Modelos e avaliação” da administração, depois a variável de ambiente `GROUP_REVIEW_MODEL`, depois o `DEFAULTS.groupReview` de `site/models.ts`, e se não houver nenhum, o modelo padrão. Também é possível comparar explicitamente vários modelos configurados:
 
 ```bash
 node --env-file=.env scripts/eval-relations.ts \
@@ -49,30 +49,30 @@ node --env-file=.env scripts/eval-relations.ts \
   --thresholds 0.75,0.8
 ```
 
-可用参数：
+Parâmetros disponíveis:
 
-| 参数 | 默认值 | 说明 |
+| Parâmetro | Padrão | Explicação |
 |---|---:|---|
-| `--gold` | `.data/relation-gold.jsonl` | 标注样本文件（JSONL） |
-| `--models` | “归组复核”当前的模型 | 逗号分隔的模型名 |
-| `--split` | `all` | `development`、`holdout` 或自己定的分组 |
-| `--n` | `200` | 最多评测多少条 |
-| `--seed` | `7` | 抽样用的随机种子，种子相同，每次抽到的样本相同 |
-| `--concurrency` | `6` | 同时发出的模型请求数 |
-| `--thresholds` | production 的 `STORY_REVIEW_MIN_CONFIDENCE,TIE_MIN_CONFIDENCE` | 判断两篇报道“连进同一事件”时用的置信度门槛；显式传参会覆盖默认值 |
+| `--gold` | `.data/relation-gold.jsonl` | Arquivo de amostras marcadas (JSONL) |
+| `--models` | o modelo atual de “revisão do agrupamento” | Nomes de modelos separados por vírgula |
+| `--split` | `all` | `development`, `holdout` ou um grupo definido por você |
+| `--n` | `200` | Máximo de amostras avaliadas |
+| `--seed` | `7` | Semente aleatória do sorteio; com a mesma semente, saem sempre as mesmas amostras |
+| `--concurrency` | `6` | Número de requisições de modelo enviadas ao mesmo tempo |
+| `--thresholds` | `STORY_REVIEW_MIN_CONFIDENCE,TIE_MIN_CONFIDENCE` de produção | Limiares de confiança usados ao julgar que duas reportagens “se ligam ao mesmo evento”; passar explicitamente sobrescreve o padrão |
 
-完整报告写到 `.data/eval/relations-*.json`。每个模型会得到：
+O relatório completo é escrito em `.data/eval/relations-*.json`. Cada modelo recebe:
 
-- 4 × 4 的对照表：每种标注关系被模型判成了哪种关系；
-- 每种关系的查准率、查全率、F1 和样本数（只统计成功得到结构化判断的样本）；
-- `coverage`：成功得到结构化判断的样本占全部金标样本的比例；
-- `accuracy` 与四类 macro-F1：只衡量成功得到结构化判断后的判断质量；`completeAccuracy` 则用全部金标样本作分母，把调用失败或回答不合格式也算作没有正确完成；
-- 把 `SAME_OCCURRENCE`、`SAME_STORY` 都算作“连进同一事件”时，各个置信度门槛下的查准率、查全率和 F1，同时给出同一批样本的 `coverage` 与 `completeAccuracy`；
-- 调用出错的条数、token 用量、每次请求的平均耗时和整次评测的总耗时；
-- 每条样本的判断、置信度、模型写的差别说明（`difference`）和回执编号。
+- Uma tabela de comparação 4 × 4: para cada relação marcada, qual relação o modelo julgou;
+- Precisão, recall, F1 e número de amostras de cada relação (só contando as amostras com julgamento estruturado obtido com sucesso);
+- `coverage`: a proporção das amostras com julgamento estruturado obtido com sucesso entre todas as amostras de referência;
+- `accuracy` e o macro-F1 das quatro classes: medem apenas a qualidade do julgamento depois de obtido com sucesso o julgamento estruturado; já `completeAccuracy` usa todas as amostras de referência como denominador, contando como não concluídos corretamente também os casos de falha na chamada ou de resposta fora do formato;
+- Contando `SAME_OCCURRENCE` e `SAME_STORY` como “se ligam ao mesmo evento”, a precisão, o recall e o F1 em cada limiar de confiança, junto com o `coverage` e o `completeAccuracy` do mesmo lote de amostras;
+- O número de chamadas com erro, o uso de tokens, o tempo médio de cada requisição e o tempo total da avaliação inteira;
+- O julgamento de cada amostra, a confiança, a nota de diferença escrita pelo modelo (`difference`) e o número do recibo.
 
-模型调用照常经过回执和预算熔断。相同模型、提示词和输入的重复评测会复用已有回执；同一次运行中输入相同的样本共享一次请求结果，各自按自己的标注计分，失败也共享，不在这次运行里重复请求。报告里的 `reused` 包括共享的成功或失败结果，以及复用的已有成功回执。评测的回执用单独的用途 `eval_relation_pair`，不计入站点归组那几步在后台的统计。
+As chamadas ao modelo passam como de costume pelo recibo e pelo disjuntor de orçamento. Avaliações repetidas com o mesmo modelo, prompt e entrada reaproveitam os recibos existentes; amostras com entrada idêntica na mesma execução compartilham o resultado de uma requisição, cada uma pontuando pela própria marcação, e as falhas também são compartilhadas, sem repetir a requisição nesta execução. O `reused` do relatório inclui os resultados compartilhados, de sucesso ou de falha, e os recibos de sucesso já existentes que foram reaproveitados. Os recibos da avaliação usam a finalidade própria `eval_relation_pair` e não entram nas estatísticas da administração das etapas de agrupamento do site.
 
-token 用量和平均耗时按报告引用的回执对应的全部请求尝试汇总，包括之前解析失败的响应；同一张回执不会因为多条样本重复计算。用已有结果重跑时仍显示这些历史用量，不代表这次新增的费用。
+O uso de tokens e o tempo médio são somados de todas as tentativas de requisição dos recibos citados pelo relatório, incluindo respostas anteriores que falharam na interpretação; um mesmo recibo não é contado duas vezes por várias amostras. Ao repetir com resultados existentes, esse uso histórico continua sendo exibido e não representa o custo adicional desta vez.
 
-CI 检查 JSONL 解析、固定种子的抽样、各项指标，以及本地假模型服务下的并发复用和重试用量统计，不访问外部模型服务。
+O CI verifica a interpretação do JSONL, o sorteio com semente fixa, cada métrica, e a reutilização concorrente e a contagem do uso em repetições com um servidor de modelo falso local, sem acessar nenhum serviço de modelo externo.

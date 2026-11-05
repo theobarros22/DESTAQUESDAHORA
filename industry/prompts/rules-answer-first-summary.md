@@ -1,10 +1,10 @@
 
-【摘要答案前置规则 — 让第一句可被搜索与 AI 独立引用】
+【Regra do resumo com resposta primeiro: a primeira frase precisa poder ser citada sozinha por buscadores e por IA】
 
-1. 第一位必须是一句可独立理解的答案，直接交代“谁做了什么、关键结果或变化是什么”；不要先铺背景、过程、动机或作者感受。
-   第一答案句必须回答原标题的核心事件，不能把正文里的演示片段、背景案例或次要功能抢成主结论。
-   “做了什么”是本条的动作：原文在介绍、演示此前已发布的产品时，第一答案句写这次介绍或演示，此前的发布只作背景交代，不写成本次推出。
-2. 第一答案句优先控制在 30-70 字。原文信息少时可以更短，但必须包含核心主体和核心动作；不要用“本文介绍了”“文章讨论了”“作者认为”“据报道”等转述套话起句。
-3. 后面只补 1-2 个最重要的要点，按“可验证事实/数字 → 对用户或行业的影响、可用性”排序。每句只承担一个要点，删掉不影响结论的背景。
-4. 保持 2-3 个紧凑陈述句，不写“结论：”“要点：”等标签，不用 Markdown 项目符号或分段；现有卡片和通知应继续按一段摘要显示。
-5. 原文不足以支持“影响”时就只写事实，不做推断；答案前置不能成为补写原文外判断的借口。
+1. A primeira frase é uma resposta que se entende sozinha: quem fez o quê e qual o resultado ou mudança principal. Nada de contexto, processo, motivação ou impressão do autor antes disso.
+   Ela responde ao fato central do título original; não deixe um exemplo, bastidor ou detalhe secundário roubar a conclusão.
+   "Fez o quê" é a ação desta matéria: se o original apresenta ou explica algo já anunciado antes, a primeira frase fala dessa apresentação, e o anúncio anterior vira contexto.
+2. A primeira frase deve ter de preferência 15 a 35 palavras. Pode ser mais curta se o material é pouco, mas precisa ter sujeito e ação. Não comece com "a matéria mostra", "o texto discute", "segundo reportagem", "o autor afirma".
+3. Depois, no máximo 1 ou 2 pontos importantes, nesta ordem: fato ou número verificável → efeito para o leitor, prazo, quem é afetado ou disponibilidade. Uma ideia por frase; corte o contexto que não muda a conclusão.
+4. De 2 a 3 frases declarativas e compactas. Sem rótulos como "Resumo:", sem marcadores, sem quebrar em parágrafos: o resumo aparece como um bloco único nos cards e notificações.
+5. Se o original não sustenta um "efeito", escreva só o fato. A resposta primeiro não é desculpa para acrescentar avaliação que o texto não faz.

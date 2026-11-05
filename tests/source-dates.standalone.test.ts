@@ -200,13 +200,13 @@ test("a date rule's element that prints today's or a recent day's time reads it 
   assert.deepEqual(readRelativeDate("今天08:29", now), at("2026-10-24T00:29:00Z"));
   assert.deepEqual(readRelativeDate("昨天 23:10", now), at("2026-10-23T15:10:00Z"));
   assert.deepEqual(readRelativeDate("前天 08:05", now), at("2026-10-22T00:05:00Z"));
-  // 01:30Z is 09:30 on the 24th in +08:00 but 22:30 on the 23rd in -03:00: "今天" is the source's day.
+  // 01:30Z é 09:30 do dia 24 em +08:00, mas 22:30 do dia 23 em -03:00: "hoje" é o dia da fonte.
   assert.deepEqual(readRelativeDate("今天 21:00", new Date("2026-10-24T01:30:00.000Z"), "-03:00"), at("2026-10-24T00:00:00Z"));
 });
 
 test("a byline ahead of the date in the same element is no part of it", () => {
   const now = new Date("2026-10-24T10:30:00.000Z");
-  // 创业邦 prints its author and the age in one element: "版面之外·今天 15:46", "创业邦的创作者·48分钟前".
+  // Uma fonte imprime o autor e a idade no mesmo elemento: "Fora da página · hoje 15:46", "Criador da fonte · 48 minutos atrás".
   assert.deepEqual(readRelativeDate("版面之外·今天 15:46", now), readRelativeDate("今天 15:46", now));
   assert.deepEqual(readRelativeDate("创业邦的创作者·48分钟前", now), { publishedAt: new Date("2026-10-24T09:42:00Z"), publicationTime: "2026-10-24T09:42:00.000Z" });
   assert.deepEqual(readRelativeDate("20社 · 昨天 09:00", now), readRelativeDate("昨天 09:00", now));
@@ -225,4 +225,14 @@ test("today's time inside other text, or no real time, is no date", () => {
   for (const v of ["据说今天 15:46 发布", "今天 25:00", "今天 15:61", "版面之外·今天 15:46 1.1万", "关于·两天前开业的店", "甲·乙·今天 15:46", "·今天 15:46", "16h", "29 m ago later"]) {
     assert.deepEqual(readRelativeDate(v, now), { publishedAt: null, publicationTime: null }, v);
   }
+});
+
+test("Portuguese dates and ages read in Brasília time", () => {
+  assert.equal(iso("05/11/2026 10:30"), "2026-11-05T13:30:00.000Z");
+  assert.equal(iso("5 de novembro de 2026 às 10h30"), "2026-11-05T13:30:00.000Z");
+  assert.equal(iso("12 de out. de 2026"), "2026-10-12T03:00:00.000Z");
+  const now = new Date("2026-11-05T15:00:00Z");
+  assert.equal(readRelativeDate("há 2 horas", now).publishedAt?.toISOString(), "2026-11-05T13:00:00.000Z");
+  assert.equal(readRelativeDate("ontem", now).publicationTime, "2026-11-04");
+  assert.equal(readRelativeDate("hoje 15:46", now).publishedAt?.toISOString(), "2026-11-05T18:46:00.000Z");
 });

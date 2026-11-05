@@ -1,7 +1,7 @@
 // Public read layer, item level. Every exit (site API, v1, RSS, MCP, sitemap) reads
 // items through these columns and views; which rows are public is decided by scope.ts.
 import { CATEGORY_KEYS, toPublicApiCategory, type CategoryKey, type ChannelKey, type PublicApiCategoryKey } from "@aihot/contracts/taxonomy";
-import type { FeedItemSummary, ItemSummary, MediaView, XPostView } from "@aihot/contracts/site";
+import type { CoverView, FeedItemSummary, ItemSummary, MediaView, XPostView } from "@aihot/contracts/site";
 import { POLICY } from "@aihot/site";
 import { sql, type Db } from "../db.ts";
 import { isChineseText } from "../lib/text.ts";
@@ -47,6 +47,10 @@ export interface ItemRow {
   zh_text: string | null;
   /** Chinese translation of the post an X post quotes. */
   quoted_zh: string | null;
+  /** The source's licence allows its cover image on the site (sources.site_images). */
+  site_images?: boolean;
+  /** The article's collected media, selected only for sources that may show their images. */
+  article_media?: Array<Record<string, any>> | null;
 }
 
 /** Columns every item listing selects. Internal judgement details never leave this layer. */
@@ -57,7 +61,8 @@ export const ITEM_COLUMNS = sql`
   a.x_post, CASE WHEN p.body_mode = 'full' THEN a.x_article END AS x_article, a.author, a.language,
   CASE WHEN s.kind = 'x_search' AND ${sourceOwnsPost(sql`s.config`, sql`a.x_post->>'handle'`)} THEN s.icon_url END AS author_avatar_url,
   st.public_id::text AS story_public_id, st.title AS story_title,
-  CASE WHEN p.channel = 'x' THEN tr.body_text END AS zh_text, qt.text_zh AS quoted_zh`;
+  CASE WHEN p.channel = 'x' THEN tr.body_text END AS zh_text, qt.text_zh AS quoted_zh,
+  s.site_images, CASE WHEN s.site_images THEN a.media END AS article_media`;
 
 /** Public API listings never render article bodies, X media or story metadata. */
 export type ApiItemRow = Pick<ItemRow, "id" | "title" | "original_title" | "summary" | "source_name" | "url" | "published_at" | "discovered_at" | "category" | "score" | "selected" | "reason">;
@@ -174,6 +179,27 @@ export function toItemSummary(row: ItemRow): ItemSummary {
   };
 }
 
+/**
+ * Credit line of a licensed cover: the official agencies ask for "Foto: Autor/Órgão", or "Arquivo/Órgão"
+ * when the feed names no photographer. The organ is the source name before its section ("Órgão — Seção").
+ */
+export function coverCredit(sourceName: string): string {
+  return `Foto: Arquivo/${publicSourceName(sourceName).split(/\s+[—–]\s+/)[0]}`;
+}
+
+/** The article's first usable image, only where the source's licence allows images. */
+export function coverView(row: Pick<ItemRow, "site_images" | "article_media" | "source_name">): CoverView | null {
+  if (row.site_images !== true) return null;
+  for (const m of row.article_media ?? []) {
+    if (m?.kind !== "image") continue;
+    const url = proxiedImage(m.url, "card");
+    if (!url) continue;
+    const srcSet = proxiedImageSet(m.url, "card");
+    return { url, ...(srcSet ? { srcSet } : {}), credit: coverCredit(row.source_name) };
+  }
+  return null;
+}
+
 /** Project the shared public article into the exact fields a site card renders. */
 export function toFeedItemSummary(row: ItemRow): FeedItemSummary {
   const item = toItemSummary(row);
@@ -182,6 +208,7 @@ export function toFeedItemSummary(row: ItemRow): FeedItemSummary {
     id: item.id, title: item.title, summary: item.summary ?? (x?.text || null), reason: item.reason,
     source: item.source, publishedAt: item.publishedAt, timelineAt: item.timelineAt,
     category: item.category, tags: item.tags, score: item.score, selected: item.selected, channel: item.channel,
+    cover: coverView(row),
     x: x ? {
       authorName: x.authorName, handle: x.handle, avatarUrl: x.avatarUrl,
       ...(x.avatarSrcSet ? { avatarSrcSet: x.avatarSrcSet } : {}), media: x.media,

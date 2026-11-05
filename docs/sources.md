@@ -1,35 +1,35 @@
-# 信源
+# Fontes
 
-信源在后台“信源”页管理：新建、试抓一次看看抓到什么、改频率、启停、看失败原因和最近的条目。首次启动时，`industry/sources.json` 里的示范信源会被导入。
+As fontes são gerenciadas na página “Fontes” da administração: criar, coletar uma vez de teste para ver o que vem, ajustar a frequência, ligar e desligar, ver o motivo das falhas e os itens mais recentes. Na primeira inicialização, as fontes de exemplo de `industry/sources.json` são importadas.
 
-## 六种信源
+## Seis tipos de fonte
 
-| 类型 | 适合 | 需要 |
+| Tipo | Serve para | Precisa de |
 |---|---|---|
-| `rss` | 有 RSS / Atom 的博客、媒体、Substack、公众号转 RSS 服务 | 无 |
-| `web_list` | 没有 RSS 的网页列表（新闻页、博客列表、更新日志） | 写选择器；按需配置 Jina Reader 渲染（按次计费） |
-| `json_list` | 返回 JSON 的接口（GitHub Releases 等） | 写字段路径 |
-| `x_search` | X（推特）账号 | SocialData 的 key，按请求计费 |
-| `mp_account` | 微信公众号 | 极致了（Dajiala）的 key，按请求计费 |
-| `external` | 你自己的脚本推送进来的内容 | `INGEST_TOKEN`，见下文 |
+| `rss` | Blogs, mídia, Substack e serviços que convertem contas do WeChat em RSS, quando há RSS / Atom | Nada |
+| `web_list` | Listas em páginas sem RSS (página de notícias, lista de blog, histórico de atualizações) | Escrever seletores; configurar a renderização do Jina Reader quando necessário (cobrada por uso) |
+| `json_list` | Interfaces que devolvem JSON (GitHub Releases etc.) | Escrever os caminhos dos campos |
+| `x_search` | Contas do X (Twitter) | Chave do SocialData, cobrada por requisição |
+| `mp_account` | Contas do WeChat | Chave da Dajiala, cobrada por requisição |
+| `external` | Conteúdo enviado pelos seus próprios scripts | `INGEST_TOKEN`, veja abaixo |
 
-`json_list` 的地址或配置可能携带凭据，只跟随同源重定向（协议、主机和端口都相同）。若接口搬到另一个来源，请直接更新信源地址；不要依赖跨源跳转传递认证信息。
+O endereço ou a configuração de um `json_list` pode carregar credenciais, e só segue redirecionamentos para a mesma origem (mesmo protocolo, host e porta). Se a interface mudar para outra origem, atualize diretamente o endereço da fonte; não dependa de um salto entre origens para transmitir autenticação.
 
-抓取默认不连内网地址。订阅或列表地址指向自建在内网的服务时（比如同一 Docker 网络里的 RSSHub，地址写 `http://rsshub:1200/...`），在 `.env` 里设 `PRIVATE_FEED_HOSTS=rsshub`（逗号分隔的完整主机名，不区分大小写），重启 API 和 worker。放行只对 `rss` 的 `feedUrl`、`web_list` 与 `json_list` 的 `url` 本身生效，这些主机直连、不走 `EGRESS_PROXY_URL`；跳转到别的主机、文章正文、详情页、图片和图标仍按原规则拒绝内网地址，链路本地和云元数据地址（`169.254.0.0/16`、`100.100.100.200` 等）任何时候都拒绝。
+Por padrão, a coleta não conecta a endereços da rede interna. Quando o endereço do feed ou da lista aponta para um serviço próprio na rede interna (por exemplo, um RSSHub na mesma rede Docker, com endereço `http://rsshub:1200/...`), defina no `.env` `PRIVATE_FEED_HOSTS=rsshub` (nomes de host completos separados por vírgula, sem diferenciar maiúsculas de minúsculas) e reinicie a API e o worker. A liberação só vale para o próprio `feedUrl` de `rss` e o próprio `url` de `web_list` e `json_list`, e esses hosts são acessados diretamente, sem passar pelo `EGRESS_PROXY_URL`; redirecionamentos para outros hosts, textos de artigos, páginas de detalhe, imagens e ícones continuam recusando endereços internos pelas regras de sempre, e endereços link-local e de metadados de nuvem (`169.254.0.0/16`, `100.100.100.200` etc.) são recusados sempre.
 
-每种信源认哪些配置项写在 [`config-keys.ts`](../packages/backend/src/sources/config-keys.ts)。填了不认识的配置项，保存会被拒绝、抓取会直接失败并在后台显示原因，不会悄悄退回通用解析。
+As opções de configuração que cada tipo de fonte reconhece estão em [`config-keys.ts`](../packages/backend/src/sources/config-keys.ts). Se você preencher uma opção desconhecida, o salvamento é recusado, e a coleta falha direto, mostrando o motivo na administração, sem voltar discretamente a um processamento genérico.
 
-## 先预览，再创建
+## Primeiro visualize, depois crie
 
-进入 `/admin/sources/new`，填写 ID、名称，选择类型，再把[下一节](#每种信源怎么配置)对应的 JSON 填入“采集配置（JSON）”。这里填的是配置对象，不要包上 `kind` 或 `config`。切换类型会重置配置，先选类型再粘贴。
+Entre em `/admin/sources/new`, preencha o ID e o nome, escolha o tipo e coloque o JSON correspondente da [próxima seção](#como-configurar-cada-tipo-de-fonte) em “Configuração de coleta (JSON)”. O que se preenche aqui é o objeto de configuração, sem envolvê-lo em `kind` ou `config`. Trocar o tipo reinicia a configuração; escolha primeiro o tipo e depois cole.
 
-名称里全角括号中的备注（比如“某媒体（热点 RSS）”）只给后台看，读者在网页、RSS、Agent Markdown、MCP 和搜索里看到的是去掉备注的名字；X 账号写成 `X：显示名 (@handle)` 的，读者只看到显示名。公开 API 的 JSON 里仍是完整的名字。
+Observações entre parênteses de largura total no nome (por exemplo, “Alguma mídia (RSS de destaques)”) servem só para a administração; o leitor, no site, no RSS, no Markdown para Agentes, no MCP e na busca, vê o nome sem a observação; contas do X escritas como `X：nome de exibição (@handle)` aparecem ao leitor só com o nome de exibição. No JSON da API pública, o nome continua completo.
 
-`rss`、`web_list`、`json_list`、`x_search` 可以点“预览抓取”：显示条目总数和前 20 条的标题、原文链接、发布时间、摘要，不把条目存入文章库。检查抓到的是文章而不是导航，日期与原文一致，再点“创建”。预览和正式采集套用同一组过滤（地址前缀、分类、噪声词、地址改写、`publishedAfter`），看到的就是正式采集会收的条目；但它不等于完成生产采集，也不经过后续详情补齐、精选和公开发布流程。
+`rss`, `web_list`, `json_list` e `x_search` permitem clicar em “Visualizar coleta”: mostra o total de itens e, dos 20 primeiros, título, link do original, horário de publicação e resumo, sem gravar os itens na biblioteca de artigos. Confira se o que veio são artigos e não a navegação, e se a data bate com a do original, e então clique em “Criar”. A visualização e a coleta oficial aplicam o mesmo conjunto de filtros (prefixo de endereço, categoria, palavras de ruído, reescrita de endereço, `publishedAfter`), e o que você vê é o que a coleta oficial vai aceitar; mas isso não equivale a concluir a coleta de produção e não passa pelo complemento de detalhes, pela seleção e pelo fluxo de publicação pública que vêm depois.
 
-预览仍会发出抓取请求；X 和 Jina 预览也可能产生费用，经过付费回执和预算。`COLLECT_ENABLED=false` 只关闭后台自动采集，不能用它来保证手动预览不访问外部服务。下面的本地 HTML/JSON 示例不需要任何 API key。
+A visualização ainda envia requisições de coleta; as visualizações do X e do Jina também podem gerar custo, passando pelo recibo pago e pelo orçamento. `COLLECT_ENABLED=false` só desliga a coleta automática em segundo plano e não serve para garantir que a visualização manual não acesse serviços externos. Os exemplos locais de HTML/JSON abaixo não precisam de nenhuma chave de API.
 
-## 每种信源怎么配置
+## Como configurar cada tipo de fonte
 
 ### rss
 
@@ -37,34 +37,34 @@
 { "feedUrl": "https://example.com/feed.xml" }
 ```
 
-可选：`summaryIsBody`（确认文字订阅里的摘要就是全文时，将 RSS 的 `description`、Atom 的 `summary` 当正文，不再去抓原文页）、`allowCategories` / `denyCategories`（按订阅里的分类过滤）。
+Opcional: `summaryIsBody` (quando se confirma que o resumo do feed de texto é o texto completo, usa o `description` do RSS ou o `summary` do Atom como corpo, sem coletar a página original), `allowCategories` / `denyCategories` (filtram pelas categorias do feed).
 
-所有信源的 YouTube、Vimeo 视频播放页都不作为文章正文提取。Media RSS 的视频描述保留为摘要，即使设置了 `summaryIsBody` 也不会把描述当成视频字幕；订阅通过 `content` / `content:encoded` 提供的真实文字仍可使用。其他文章中嵌入视频，不影响文章本身的正文读取。
+As páginas de reprodução de vídeo do YouTube e do Vimeo, de qualquer fonte, não são extraídas como corpo de artigo. A descrição de vídeo do Media RSS é mantida como resumo e, mesmo com `summaryIsBody`, a descrição não é tratada como legenda do vídeo; o texto real que o feed fornece por `content` / `content:encoded` continua utilizável. Vídeos incorporados em outros artigos não afetam a leitura do corpo do próprio artigo.
 
-文章正文中的原生视频保留安全的媒体地址和候选格式，使用浏览器控件手动播放。视频文件由浏览器直连原站，封面沿用图片代理；不自动播放、不循环，预加载提示设为 `none`，但浏览器不保证交互前完全没有请求。没有媒体地址和可用封面的播放器只保留后备文字。Markdown 和允许再分发的全文 RSS 保留视频结构，能否播放取决于阅读器；动态平台播放器和 iframe 不在此范围。
+Os vídeos nativos no corpo do artigo mantêm o endereço de mídia seguro e os formatos candidatos, e usam os controles do navegador para reprodução manual. O arquivo de vídeo é buscado direto do site de origem pelo navegador, e a capa continua passando pelo proxy de imagens; não há reprodução automática nem repetição, a dica de pré-carregamento é `none`, mas o navegador não garante que não haja nenhuma requisição antes da interação. Um player sem endereço de mídia nem capa utilizável mantém só o texto de reserva. O Markdown e o RSS de texto completo com redistribuição permitida mantêm a estrutura do vídeo, e a reprodução depende do leitor; players de plataformas dinâmicas e iframes ficam fora deste escopo.
 
-文章插图里内嵌的 SVG 图不保留图形本身（颜色和字体依赖原站样式表），换成原站给这张图写的无障碍文字说明（`aria-label`、`aria-labelledby` 指向的文字，或图里的 `<title>`、`<desc>`），作为纯文字放在图原来的位置；同一张图的宽窄两版只留一份，插图里已经显示的文字（图注、小标题）不重复。没有文字说明的图和插图之外的 SVG 图标照旧去掉。
+Os gráficos SVG embutidos nas ilustrações do artigo não mantêm o gráfico em si (cores e fontes dependem das folhas de estilo do site de origem); são trocados pela descrição de acessibilidade que o site de origem escreveu para o gráfico (o texto apontado por `aria-label` e `aria-labelledby`, ou o `<title>` e `<desc>` do gráfico), colocada como texto puro no lugar original do gráfico; as duas versões, larga e estreita, do mesmo gráfico ficam em uma só cópia, e o texto que a ilustração já mostra (legenda, subtítulo) não se repete. Gráficos sem descrição e ícones SVG fora das ilustrações continuam sendo removidos.
 
-没有网页的播客单集（没有 `<link>`、`guid` 也不是网址），原文链接用它的音频或视频文件，浏览器可以直接播放；这类单集不抓网页，按订阅里的文字处理。
+Em episódios de podcast sem página (sem `<link>`, e com `guid` que não é um endereço), o link do original usa o arquivo de áudio ou de vídeo, que o navegador consegue reproduzir diretamente; esses episódios não coletam página e são tratados pelo texto do feed.
 
 ### web_list
 
-支持普通 CSS 选择器，`div` 列表也能采集。关键是 `itemSelector` 要选中**每条新闻**，而不是包住所有新闻的容器。例如：
+Aceita seletores CSS comuns, e listas em `div` também podem ser coletadas. O essencial é que o `itemSelector` selecione **cada notícia**, e não o contêiner que envolve todas. Por exemplo:
 
 ```html
 <div class="news-list">
   <div class="news-item">
-    <h2><a href="/posts/first">第一条示例新闻</a></h2>
-    <time datetime="2026-10-01T09:00:00+08:00">10 月 1 日</time>
+    <h2><a href="/posts/first">Primeira notícia de exemplo</a></h2>
+    <time datetime="2026-10-01T09:00:00+08:00">1º de outubro</time>
   </div>
   <div class="news-item">
-    <h2><a href="/posts/second">第二条示例新闻</a></h2>
-    <time datetime="2026-10-01T10:00:00+08:00">10 月 1 日</time>
+    <h2><a href="/posts/second">Segunda notícia de exemplo</a></h2>
+    <time datetime="2026-10-01T10:00:00+08:00">1º de outubro</time>
   </div>
 </div>
 ```
 
-对应配置（`example.com` 是占位地址，换成目标网页；可运行版本见[本地示例](#本地跑通-htmljson-示例)）：
+A configuração correspondente (`example.com` é um endereço de exemplo; troque pela página de destino; a versão executável está nos [exemplos locais](#rodando-os-exemplos-htmljson-localmente)):
 
 ```json
 {
@@ -78,17 +78,17 @@
 }
 ```
 
-- `itemSelector` 在整个页面找条目；`linkSelector`、`titleSelector` 在每个条目内取第一个匹配节点，也可以匹配条目自身。选 `.news-list` 只会得到一个容器，通常只取到第一条新闻；只写 `div` 又会混入嵌套容器。要选重复出现的新闻节点。
-- 链接取自 `href`；`/posts/first` 等相对链接按列表重定向后的最终地址解析，也可用 `baseUrl` 指定基准地址。标题取节点文字。重复链接会合并；Markdown 列表先出现“Read more”等按钮、后出现真实标题时，使用真实标题。指向列表自身的链接通常会跳过。
-- 日期在条目内查找 `publishedAtSelector`，依次尝试 `datetime`、`content`、`title` 属性和文字，无法解析的提示文字不会遮住同一节点的有效日期。没有时区的日期时间可用 `publishedAtUtcOffset`（默认 `+08:00`）；自带时区的时间保留原时区语义，纯 `YYYY-MM-DD` 按 UTC 零点读。不完整的月份、产品版本号和不存在的日历日期不作为发布日期。
-- `parseMode`：普通网页默认 `html`；`markdown` 按 Markdown 链接读；`docusaurus_changelog` 读更新日志标题；`intercom_changelog` 按 Intercom 帮助中心的日期章节读取标题和正文，每节保留自己的网址锚点，默认按 UTC 日历日读取，也可指定 `publishedAtUtcOffset`。需要 Jina 时，显式把 `url` 写成 `https://r.jina.ai/https://目标站/路径` 并配置 `JINA_API_KEY`，不是抓不到就自动切换。Jina 默认返回 Markdown；要继续使用 CSS 选择器，显式设 `parseMode: "html"`。
-- `detail`：列表缺日期、标题或摘要时抓详情页补齐（`publishedAtSelector`、`titleSelector`、`summarySelector` 等）。`maxFetches` 是每轮最多读几篇详情页，不设时为 0，即一篇都不读：每读一篇就多一次请求，所以要信源自己声明。读取失败或本轮 `maxFetches` 用完的条目，后续抓取继续补全；补元数据时保留已确认的正文。已有真实标题不会因为列表仍写“Read the Blog”而被换回按钮文字，也不会仅因标题较长再次读取详情。需要强制使用详情标题时设置 `titleAuthoritative: true`。详情页和正文提取读到不带时区的时间时，先用 `detail.publishedAtUtcOffset`，未设则继承信源的 `publishedAtUtcOffset`，两处都未设时默认 `+08:00`。RSS、JSON 列表也可以用 `detail`。
-- Jina 列表的 `detail.titleRegex`、`publishedAtRegex` 匹配 Jina 文本，可共用同一次详情响应；CSS 选择器读取原站 HTML。应按实际可读取的页面选择规则。
-- `allowUrlPrefixes` / `denyUrlPrefixes`：只收某些路径下的文章。
+- O `itemSelector` procura os itens na página inteira; `linkSelector` e `titleSelector` pegam o primeiro nó correspondente dentro de cada item, e também podem corresponder ao próprio item. Escolher `.news-list` dá apenas um contêiner, e em geral só se obtém a primeira notícia; escrever só `div` mistura contêineres aninhados. Selecione o nó de notícia que se repete.
+- O link vem de `href`; links relativos como `/posts/first` são resolvidos pelo endereço final da lista depois de redirecionamentos, e também é possível indicar o endereço-base com `baseUrl`. O título é o texto do nó. Links repetidos são fundidos; quando, numa lista Markdown, aparece primeiro um botão como “Read more” e depois o título real, usa-se o título real. Links que apontam para a própria lista em geral são ignorados.
+- A data é procurada dentro do item com `publishedAtSelector`, tentando em ordem os atributos `datetime`, `content`, `title` e o texto; um texto de dica que não pode ser interpretado não esconde uma data válida do mesmo nó. Datas e horas sem fuso podem usar `publishedAtUtcOffset` (padrão `+08:00`); horários com fuso mantêm a semântica do fuso original, e um simples `YYYY-MM-DD` é lido como meia-noite UTC. Meses incompletos, números de versão de produto e datas de calendário inexistentes não valem como data de publicação.
+- `parseMode`: em páginas comuns o padrão é `html`; `markdown` lê links Markdown; `docusaurus_changelog` lê títulos de histórico de atualizações; `intercom_changelog` lê título e corpo pelas seções de data da central de ajuda do Intercom, cada seção mantendo a própria âncora de endereço, lendo por padrão pelo dia do calendário UTC, e também é possível indicar `publishedAtUtcOffset`. Quando precisar do Jina, escreva explicitamente o `url` como `https://r.jina.ai/https://site-de-destino/caminho` e configure `JINA_API_KEY`; não há troca automática quando a coleta não funciona. O Jina devolve Markdown por padrão; para continuar usando seletores CSS, defina explicitamente `parseMode: "html"`.
+- `detail`: quando a lista não tem data, título ou resumo, coleta a página de detalhe para completar (`publishedAtSelector`, `titleSelector`, `summarySelector` etc.). `maxFetches` é quantas páginas de detalhe se lê por rodada no máximo; sem definir, vale 0, ou seja, nenhuma página é lida: cada página lida é uma requisição a mais, por isso a própria fonte precisa declarar. Os itens cuja leitura falhou ou que passaram do `maxFetches` da rodada continuam sendo completados nas coletas seguintes; ao completar metadados, o texto já confirmado é mantido. Um título real já existente não volta a ser o texto de botão só porque a lista continua escrevendo “Read the Blog”, nem a página de detalhe é lida de novo só porque o título é longo. Para forçar o uso do título do detalhe, defina `titleAuthoritative: true`. Quando a página de detalhe e a extração do texto leem um horário sem fuso, usam primeiro `detail.publishedAtUtcOffset`, herdam o `publishedAtUtcOffset` da fonte se não definido, e se nenhum dos dois estiver definido o padrão é `+08:00`. RSS e listas JSON também podem usar `detail`.
+- No `detail.titleRegex` e `publishedAtRegex` de listas do Jina, as expressões regulares casam com o texto do Jina e podem compartilhar a mesma resposta de detalhe; os seletores CSS leem o HTML do site de origem. Escolha as regras conforme a página realmente legível.
+- `allowUrlPrefixes` / `denyUrlPrefixes`: só aceita artigos de certos caminhos.
 
 ### json_list
 
-假设接口返回下面的结构，`itemsPath` 指向数组，其他字段路径相对**每个数组元素**填写。路径用点分隔，不是 JSONPath，不写 `$` 或 `[*]`。
+Suponha que a interface devolva a estrutura abaixo: `itemsPath` aponta para o array, e os demais caminhos de campo são escritos relativos a **cada elemento do array**. Os caminhos usam ponto como separador, não é JSONPath, e não se escreve `$` nem `[*]`.
 
 ```json
 {
@@ -96,9 +96,9 @@
     "items": [
       {
         "id": "first",
-        "title": "第一条示例新闻",
+        "title": "Primeira notícia de exemplo",
         "url": "https://example.com/posts/first",
-        "summary": "第一条新闻的摘要。",
+        "summary": "Resumo da primeira notícia.",
         "published_at": "2026-10-01T09:00:00+08:00"
       }
     ]
@@ -106,7 +106,7 @@
 }
 ```
 
-对应配置：
+A configuração correspondente:
 
 ```json
 {
@@ -121,17 +121,17 @@
 }
 ```
 
-- 接口本身返回数组时，省略 `itemsPath`。`titlePaths`、`summaryPaths`、`authorPaths` 是候选路径数组，按顺序取第一个非空值，例如 `["title", "name"]`。
-- 已有完整网址时用 `{raw:url}`；只有 slug 时可用 `https://example.com/posts/{slug}`。`{字段路径}` 会编码字段值，`{raw:字段路径}` 原样插入。JSON 列表不会自动把相对网址补成绝对网址，模板应产出完整的 HTTP(S) 地址。
-- `summaryIsBody`：确认接口里的摘要就是全文时设为 `true`，把 `summaryPaths` 取到的文字当正文，不再去抓原文页。
-- 日期建议返回带时区的 ISO 字符串；`2026-09-30 17:43:58` 这类不带时区的时间，与网页列表一样按 `publishedAtUtcOffset` 读（默认 `+08:00`）；数字时间戳分别设 `publishedAtUnit: "epoch_s"`（秒）或 `"epoch_ms"`（毫秒），`20261001` 这类日期设 `"yyyymmdd"`。
-- 缺少标题或无法生成链接的条目会跳过。非空数组全部映射失败时，会报 `no items mapped (check title/url paths)`；路径不是数组时，会报 `items path did not resolve to an array`。
+- Quando a própria interface devolve um array, omita `itemsPath`. `titlePaths`, `summaryPaths` e `authorPaths` são arrays de caminhos candidatos, e vale o primeiro valor não vazio, na ordem, por exemplo `["title", "name"]`.
+- Quando já existe o endereço completo, use `{raw:url}`; quando só há o slug, é possível usar `https://example.com/posts/{slug}`. `{caminho do campo}` codifica o valor do campo, e `{raw:caminho do campo}` insere como está. A lista JSON não completa sozinha um endereço relativo em absoluto; o modelo deve produzir um endereço HTTP(S) completo.
+- `summaryIsBody`: quando se confirma que o resumo da interface é o texto completo, defina `true`, e o texto obtido por `summaryPaths` é tratado como corpo, sem coletar a página original.
+- Recomenda-se que a data venha como string ISO com fuso; horários sem fuso como `2026-09-30 17:43:58` são lidos, como nas listas de páginas, pelo `publishedAtUtcOffset` (padrão `+08:00`); para carimbos de tempo numéricos, defina `publishedAtUnit: "epoch_s"` (segundos) ou `"epoch_ms"` (milissegundos), e para datas como `20261001`, defina `"yyyymmdd"`.
+- Itens sem título ou sem como gerar o link são ignorados. Quando todos os itens de um array não vazio falham no mapeamento, aparece `no items mapped (check title/url paths)`; quando o caminho não é um array, aparece `items path did not resolve to an array`.
 
-### 本地跑通 HTML/JSON 示例
+### Rodando os exemplos HTML/JSON localmente
 
-仓库提供两份虚构示例：[news.html](examples/sources/news.html) 和 [news.json](examples/sources/news.json)，各有两条新闻。它们用于核对选择器和字段映射，不是运营信源；示例文章链接不提供正文。
+O repositório traz dois exemplos fictícios: [news.html](examples/sources/news.html) e [news.json](examples/sources/news.json), cada um com duas notícias. Servem para conferir seletores e mapeamento de campos, não são fontes de operação; os links dos artigos de exemplo não fornecem texto.
 
-在仓库根目录、Node.js 24.11 以上运行以下命令。服务只监听本机，只提供这两份文件；用 `Ctrl+C` 停止。
+Na raiz do repositório, com Node.js 24.11 ou superior, rode o comando abaixo. O serviço escuta só na própria máquina e serve apenas esses dois arquivos; pare com `Ctrl+C`.
 
 ```bash
 node --input-type=module -e '
@@ -148,9 +148,9 @@ http.createServer((req, res) => {
 }).listen(8787, "127.0.0.1");'
 ```
 
-在同一台机器上，按[非 Docker 部署方式](deploy.md#不用-docker)准备好数据库，用 `npm run dev:api`、`npm run dev:web` 运行开发 API 和网页，保持采集、模型、飞书和 IndexNow 开关关闭，不启动 worker。仅为此次本机示例，在开发 API 进程设置 `ALLOW_PRIVATE_NETWORK_FETCH=true` 后重启；默认禁止抓内网地址，生产环境拒绝启用此项，验证后移除。若 API 在容器或另一台服务器，`127.0.0.1` 指向它自己，此命令的地址不能直接用于该部署。
+Na mesma máquina, prepare o banco conforme o [método sem Docker](deploy.md#sem-docker), rode a API e o site de desenvolvimento com `npm run dev:api` e `npm run dev:web`, mantenha desligadas as chaves de coleta, modelos, Feishu e IndexNow, e não inicie o worker. Só para este exemplo local, defina `ALLOW_PRIVATE_NETWORK_FETCH=true` no processo da API de desenvolvimento e reinicie; por padrão é proibido coletar endereços internos, a produção recusa ligar esta opção, e depois da verificação ela deve ser removida. Se a API estiver num contêiner ou em outro servidor, `127.0.0.1` aponta para ele mesmo, e o endereço deste comando não pode ser usado diretamente nessa implantação.
 
-分别选择 `web_list`、`json_list`，粘贴配置并点“预览抓取”，无需创建信源：
+Escolha `web_list` e `json_list` em separado, cole a configuração e clique em “Visualizar coleta”, sem precisar criar a fonte:
 
 ```json
 {
@@ -177,71 +177,72 @@ http.createServer((req, res) => {
 }
 ```
 
-两次都应显示 **2 条**，依次为下表内容。JSON 示例还显示对应摘要，HTML 示例没有配置摘要提取。预览 API 的日期是 UTC，后台界面按 `+08:00` 显示为 09:00 和 10:00。
+Nas duas vezes devem aparecer **2 itens**, na ordem da tabela abaixo. O exemplo JSON também mostra os resumos correspondentes, e o exemplo HTML não tem extração de resumo configurada. A data da API de visualização é UTC, e a interface da administração mostra, em `+08:00`, 09:00 e 10:00.
 
-| 标题 | 原文链接 | 预览 API 的 publishedAt |
+| Título | Link do original | `publishedAt` na API de visualização |
 |---|---|---|
-| 第一条示例新闻 | `http://127.0.0.1:8787/posts/first` | `2026-10-01T01:00:00.000Z` |
-| 第二条示例新闻 | `http://127.0.0.1:8787/posts/second` | `2026-10-01T02:00:00.000Z` |
+| Primeira notícia de exemplo | `http://127.0.0.1:8787/posts/first` | `2026-10-01T01:00:00.000Z` |
+| Segunda notícia de exemplo | `http://127.0.0.1:8787/posts/second` | `2026-10-01T02:00:00.000Z` |
 
-可以把 HTML 的 `itemSelector` 暂改成 `.news-list` 对照：只会返回第一条。改回 `.news-list > .news-item` 后恢复两条，这就是“列表容器”和“每条新闻”的区别。
+Dá para trocar temporariamente o `itemSelector` do HTML por `.news-list` para comparar: só devolve o primeiro. Voltando a `.news-list > .news-item`, voltam os dois, e essa é a diferença entre “contêiner da lista” e “cada notícia”.
 
-抓真实网页时先看原始 HTTP 响应中有没有新闻节点。普通 HTML 模式不执行 JavaScript；浏览器里看得到、响应里没有的内容，不能靠换一个 CSS 选择器生成。优先找 RSS 或 JSON 接口，或按需配置 Jina / 自己维护的外部采集。`no items matched (html)` 还可能是选择器不匹配、没有 `href` 或标题、链接被前缀规则过滤；先核对响应与配置，不必先更换采集器。
+Ao coletar uma página real, veja primeiro se a resposta HTTP bruta contém os nós de notícia. O modo HTML comum não executa JavaScript; o que se vê no navegador mas não está na resposta não pode ser gerado trocando o seletor CSS. Procure primeiro um RSS ou uma interface JSON, ou configure o Jina quando necessário, ou uma coleta externa mantida por você. `no items matched (html)` também pode ser seletor que não casa, falta de `href` ou de título, ou link filtrado pela regra de prefixo; confira primeiro a resposta e a configuração, sem precisar trocar o coletor.
 
 ### x_search
 
-这类信源使用 SocialData 搜索，不是把 X 个人主页 URL 填入网页列表。以 `https://x.com/SomeAccount` 为例，取用户名 `SomeAccount`，不要包含 `@` 或整段 URL：
+Este tipo de fonte usa a busca do SocialData; não se coloca a URL do perfil do X numa lista de página. Tomando `https://x.com/SomeAccount` como exemplo, use o nome de usuário `SomeAccount`, sem `@` nem a URL inteira:
 
 ```json
 { "query": "from:SomeAccount -filter:replies", "searchType": "Latest" }
 ```
 
-`SomeAccount` 是占位用户名，换成你要关注的真实账号。`-filter:replies` 排除回复；`Latest` 按最新内容查找。
+`SomeAccount` é um nome de usuário de exemplo; troque pela conta real que quer acompanhar. `-filter:replies` exclui respostas; `Latest` busca o conteúdo mais recente.
 
-在后端运行环境的 `.env` 配置 `SOCIALDATA_API_KEY`，重启 API（预览）和 worker（定时采集）后生效；不要把 key 写进信源 JSON 或提交到仓库。先在后台“设置 → 付费请求上限”检查 SocialData 额度，再按需预览。未配置 key 会报 `SOCIALDATA_API_KEY is not configured`；服务拒绝请求或预算熔断时看后台错误原因。预览可能有付费请求，本文不要求用真实服务验证，结果取决于账号和服务当时的返回。
+Configure `SOCIALDATA_API_KEY` no `.env` do ambiente do back-end e reinicie a API (visualização) e o worker (coleta agendada) para valer; não escreva a chave no JSON da fonte nem a envie ao repositório. Primeiro confira na administração, em “Configurações → Limites de requisições pagas”, a cota do SocialData, e só então visualize quando precisar. Sem a chave configurada, aparece `SOCIALDATA_API_KEY is not configured`; quando o serviço recusa a requisição ou o disjuntor de orçamento atua, veja o motivo do erro na administração. A visualização pode ter requisições pagas, este texto não exige verificar com o serviço real, e o resultado depende da conta e do que o serviço devolve na hora.
 
-生产自动采集时，普通账号会被自动合并成一次搜索（每次最多二十几个账号），省请求数；单个信源的手动预览不是合并采集。
+Na coleta automática de produção, as contas comuns são fundidas automaticamente numa única busca (no máximo umas vinte e poucas contas por vez), economizando requisições; a visualização manual de uma fonte individual não é uma coleta fundida.
 
 ### mp_account
 
 ```json
-{ "ghid": "gh_xxxxxxxx", "nickname": "公众号名称" }
+{ "ghid": "gh_xxxxxxxx", "nickname": "Nome da conta" }
 ```
 
-每个公众号按它的抓取间隔检查一次（查列表按次计费），新文章的正文一并取回。
+Cada conta do WeChat é verificada uma vez no seu intervalo de coleta (consultar a lista é cobrado por uso), e o texto dos artigos novos é trazido junto.
 
-需要在后端 `.env` 配置 `DAJIALA_KEY`，`ghid` 换成公众号原始 ID。配置字段用上面的 `ghid` / `nickname`，不要写成 `biz` / `name`。当前 `mp_account` 不支持“预览抓取”；`external` 也不支持主动试抓，按下方推送接口接入。
+É preciso configurar `DAJIALA_KEY` no `.env` do back-end, e trocar `ghid` pelo ID original da conta. Os campos de configuração são `ghid` / `nickname` acima, e não devem ser escritos como `biz` / `name`. Hoje o `mp_account` não aceita “Visualizar coleta”; o `external` também não aceita coleta de teste ativa, e se integra pela interface de envio abaixo.
 
-## 分级、参与方式与全文
+## Classificação, forma de participação e texto completo
 
-- **分级** `tier`：`T1` 官方一手（官网、官方博客、机构）、`T1_5` 官方账号与准官方创作者、`T2` 媒体与个人、`EXCLUDE_MP` 不参与精选。入选门槛按分级不同（`industry/selection.ts`）。
-- **信源类别**（可选）：日常内容主要写给开发者或业内的官方信源，可以在后台“信源”页选一个类别（`industry/selection.ts` 的 `classes`），入选门槛抬到不低于类别的数，见 [精选与校准](selection.md#门槛industryselectionts)。`industry/sources.json` 不带这一项，导入后在后台设。
-- **参与方式** `participation_mode`：`editorial` 进精选和全部动态；`hot_signal` 不单独展示，只作为“大家在讨论什么”的热度证据；`isolated` 不进任何公开页面。
-- **一手**：只有 `T1` 算一手，不单独设置。同一条新闻有几篇报道时，代表报道优先选一手的，事件页也优先展示一手报道。
-- **发布方**（可选，写在 `config` 里）：
-  - `publisherUrlPrefixes`：`T1` 信源自己文章网址的前缀，比如 `["https://example.com/blog/"]`。别的信源（聚合站、转帖）带来的这些网址的文章，只要能认定是唯一一个官方信源的，就改记到它名下。网页列表信源不写时，认它自己列表所在的路径（这篇也要在它的列表里出现过）。
-  - `publisherRole`：`T1_5` 账号的身份，`organization`（机构官方账号）或 `person`（官方人员）。再填上信源的 `owner_entity_id`（`industry/taxonomy.ts` 的 `ENTITIES` id），这个账号发的、主体正是这家公司的新闻，就能当代表报道（排在 `T1` 之后）。
-- **全文**：`site_fulltext` 决定站内能不能显示全文，`syndicate_fulltext` 决定全文 RSS 能不能带正文。两者**默认都关**，只显示摘要和原文链接；来源明确允许时再打开。公众号、付费墙内容不会因为技术上抓得到就获得全文展示。
+- **Classificação** `tier`: `T1` oficial de primeira mão (site oficial, blog oficial, instituições), `T1_5` contas oficiais e criadores quase oficiais, `T2` mídia e pessoas, `EXCLUDE_MP` não participa da seleção. O limiar de entrada na seleção varia conforme a classificação (`industry/selection.ts`).
+- **Classe da fonte** (opcional): uma fonte oficial cujo conteúdo do dia a dia é escrito principalmente para desenvolvedores ou para o setor pode receber, na página “Fontes” da administração, uma classe (`classes` em `industry/selection.ts`), elevando o limiar de entrada a pelo menos o número da classe, veja [Seleção e calibração](selection.md#limiares-industryselectionts). O `industry/sources.json` não traz este item, e depois de importar ele é definido na administração.
+- **Forma de participação** `participation_mode`: `editorial` entra na seleção e em todas as atualizações; `hot_signal` não é exibida sozinha, serve só de evidência de popularidade para “do que as pessoas estão falando”; `isolated` não entra em nenhuma página pública.
+- **Primeira mão**: só `T1` conta como primeira mão, sem definição à parte. Quando uma mesma notícia tem várias reportagens, a reportagem representante prefere a de primeira mão, e a página do evento também exibe primeiro a reportagem de primeira mão.
+- **Editor** (opcional, escrito em `config`):
+  - `publisherUrlPrefixes`: o prefixo dos endereços dos próprios artigos de uma fonte `T1`, por exemplo `["https://example.com/blog/"]`. Os artigos com esses endereços trazidos por outras fontes (agregadores, republicações), desde que se possa identificar uma única fonte oficial, passam a ser registrados em nome dela. Numa fonte de lista de página que não escreve isso, vale o caminho onde fica a própria lista (e o artigo também precisa ter aparecido na lista dela).
+  - `publisherRole`: a identidade da conta `T1_5`, `organization` (conta oficial da instituição) ou `person` (pessoa oficial). Preencha também o `owner_entity_id` da fonte (o id em `ENTITIES` de `industry/taxonomy.ts`), e as notícias postadas por essa conta cujo sujeito é essa empresa podem ser a reportagem representante (ficando depois de `T1`).
+- **Texto completo**: `site_fulltext` decide se o site pode exibir o texto completo, e `syndicate_fulltext` decide se o RSS de texto completo pode levar o corpo. Os dois vêm **desligados por padrão**, mostrando só o resumo e o link do original; só ligue quando a fonte permitir expressamente. Contas do WeChat e conteúdo atrás de paywall não ganham exibição de texto completo só porque tecnicamente dá para coletar.
+- **Foto de capa**: `site_images` decide se a foto da fonte aparece como capa do item, com crédito. Vem **desligado por padrão**; só ligue para fontes que liberam as fotos com crédito. A foto passa pelo proxy de imagens assinado, nunca é copiada para o servidor.
 
-## 抓取频率
+## Frequência de coleta
 
-每个信源有自己的抓取间隔。每天 04:20 会按近 7 天的产出自动调整：产出多的抓得勤，最短 15 分钟（经 Jina 读的网页列表最短 60 分钟）；最长的，一般信源 60 分钟，X 账号和经 Jina 读的网页列表 120 分钟，只作热度证据的 180 分钟。合并搜索的 X 账号跟着合并后的节奏：进精选的半小时一次，只作热度证据的一小时一次。
+Cada fonte tem o próprio intervalo de coleta. Todo dia às 04:20 ele é ajustado automaticamente pela produção dos últimos 7 dias: quem produz mais é coletada com mais frequência, no mínimo 15 minutos (listas de páginas lidas pelo Jina, no mínimo 60 minutos); no máximo, 60 minutos para fontes comuns, 120 minutos para contas do X e listas de páginas lidas pelo Jina, e 180 minutos para as que servem só de evidência de popularidade. As contas do X de busca fundida seguem o ritmo da busca fundida: as que entram na seleção, uma vez a cada meia hora, e as que servem só de evidência de popularidade, uma vez por hora.
 
-抓取失败不推进位置，下次从同一处继续；连续失败的信源在后台标红，每周一会在运营群发一份信源周报（配置了飞书告警时）。
+Uma coleta que falha não avança a posição, e a próxima continua do mesmo ponto; as fontes com falhas seguidas ficam marcadas em vermelho na administração, e toda segunda-feira é enviado ao grupo de operação um resumo semanal das fontes (quando o alerta do Feishu está configurado).
 
-「7 天没有新内容」按**信源自己的节奏**判断，而不是一个固定的窗口：日报和周报里分两类。**超出自身更新节奏**的排在前面，先对照原站（把最近 90 天的**产出日**去重到「天」，相邻两天的间隔取中位数当它的节奏；至少有 4 个这样的日子才算有节奏，静默时长要超过中位间隔的 4 倍才算超）。产出日取该条内容的发布时间，页面没给时间就用我们发现它的那天；**一次首次导入算一天**——它是一次交付，发布时间往回铺多远都不算多次产出（否则一个从没产出过的源会显得很准时，跨月的首次导入还会把中位间隔撑大，把一个已经安静的源藏起来）。窗口只算这 90 天里的产出日，更早的历史说明不了它现在多久发一次；发现时间与发布时间没有固定先后，任一个落在窗口内就读，产出日再按窗口夹一次。**判断不了节奏的仍然列出**，但不当作故障，分两种：窗口内没有可比较的产出（它产出过，只是都在窗口外），以及从未收到过内容（那是采集问题）；在自身节奏内的不再列出。抓取间隔 `interval_minutes` 不参与判断——它表示我们多久看一次，不是它多久发一次。
+“7 dias sem conteúdo novo” é julgado pelo **ritmo da própria fonte**, e não por uma janela fixa: no resumo diário e no semanal há duas classes. As **que passaram do próprio ritmo de atualização** vêm primeiro, para conferir com o site de origem (pega-se os **dias de produção** dos últimos 90 dias, reduzidos a “dias”, e a mediana do intervalo entre dias vizinhos é o ritmo; só se considera que tem ritmo quem tem pelo menos 4 desses dias, e o tempo de silêncio precisa passar de 4 vezes o intervalo mediano para contar como excesso). O dia de produção é o horário de publicação do conteúdo, e, se a página não dá o horário, o dia em que o descobrimos; **uma primeira importação conta como um dia**: é uma entrega única, e por mais que o horário de publicação se espalhe para trás não conta como várias produções (senão uma fonte que nunca produziu pareceria muito pontual, e uma primeira importação que atravessa meses esticaria o intervalo mediano e esconderia uma fonte que já ficou quieta). A janela só conta os dias de produção desses 90 dias, e o histórico mais antigo não diz com que frequência ela publica agora; o horário de descoberta e o de publicação não têm ordem fixa, vale qualquer um que caia dentro da janela, e o dia de produção é de novo limitado pela janela. **As que não têm como julgar o ritmo continuam listadas**, mas não são tratadas como falha, em dois casos: não há produção comparável dentro da janela (ela produziu, mas tudo fora da janela), e nunca recebeu conteúdo (isso é problema de coleta); as que estão dentro do próprio ritmo deixam de ser listadas. O intervalo de coleta `interval_minutes` não participa do julgamento: ele indica com que frequência olhamos, e não com que frequência ela publica.
 
-## 规则：旧文不刷屏
+## Regra: conteúdo antigo não inunda a tela
 
-首次发现时原文已经发布超过 48 小时的资料、新信源第一次导入的存量条目、标记为回灌的推送，都按原文时间归档：不进入“今天”，也不推送。没有可信发布时间的资料先不公开（不进公开列表、精选、报告、热点和推送），从原信源或原文页读到日期后再判断新旧。这条规则所有入口共用，防止一次性导入历史内容刷屏。
+O material que, quando descoberto pela primeira vez, já tinha sido publicado há mais de 48 horas, os itens de acervo da primeira importação de uma fonte nova e os envios marcados como retroativos são todos arquivados pela data original: não entram em “hoje” nem são enviados. O material sem horário de publicação confiável não é publicado de imediato (não entra nas listas públicas, na seleção, nos relatórios, nos destaques nem nos envios), e só se julga se é novo ou antigo depois de ler a data na fonte original ou na página do texto. Esta regra é compartilhada por todas as entradas, para impedir que uma importação de conteúdo histórico de uma só vez inunde a tela.
 
-新信源第一次导入时，只取列表里前 `_aihot.initialBackfillLimit` 条（默认 30）、`_aihot.initialBackfillMonths` 个月以内（默认 12）的条目。之后的抓取只收发布时间在信源第一次导入前 48 小时以内或之后的条目，列表里更早的存量不再进来，不会为整个订阅存档付费；第一次导入以后发布的条目，排在长列表第几条都会收。列表上没有发布时间的条目照收，按上面的规则等读到日期再判断。X 账号按抓取位置往后读，不受这条限制。
+Na primeira importação de uma fonte nova, só se pegam os primeiros `_aihot.initialBackfillLimit` itens da lista (padrão 30), dos últimos `_aihot.initialBackfillMonths` meses (padrão 12). As coletas seguintes só aceitam itens com horário de publicação até 48 horas antes da primeira importação da fonte, ou depois; o acervo mais antigo da lista não entra mais, sem pagar pelo arquivo inteiro do feed; os itens publicados depois da primeira importação são aceitos, em qualquer posição de uma lista longa. Os itens sem horário de publicação na lista são aceitos normalmente e, pela regra acima, esperam a leitura da data para ser julgados. Contas do X são lidas adiante a partir da posição de coleta, sem essa restrição.
 
-如果只想从一个固定时间之后开始监控，可在 RSS、网页列表、JSON 配置中设置 `publishedAfter`，例如 `"2026-10-01T00:00:00.000Z"`。必须是完整的 UTC 时间，可省略毫秒；预览、首次和后续采集都只接受**严格晚于**它且发布日期可信的条目，未知日期也会排除。起点当天的单页更新章节若仍使用同一发布日期，之后追加的内容也不会被纳入；选择起点时要把这个限制考虑进去。
+Se quiser monitorar apenas a partir de um horário fixo, defina `publishedAfter` na configuração de RSS, lista de página ou JSON, por exemplo `"2026-10-01T00:00:00.000Z"`. Precisa ser um horário UTC completo, podendo omitir os milissegundos; a visualização, a primeira coleta e as seguintes só aceitam itens **estritamente posteriores** a ele e com data de publicação confiável, e as datas desconhecidas também são excluídas. Se uma página de atualização única no dia do ponto de partida continuar usando a mesma data de publicação, o conteúdo acrescentado depois também não será incluído; considere esse limite ao escolher o ponto de partida.
 
-## 外部推送接口
+## Interface de envio externo
 
-自己写脚本抓的内容，可以推进站里，走和普通采集一样的判重、精选和归组。
+O conteúdo que você coleta com scripts próprios pode ser enviado ao site, passando pela mesma deduplicação, seleção e agrupamento da coleta comum.
 
 ```
 POST /api/ingest/items
@@ -250,16 +251,16 @@ Content-Type: application/json
 
 {
   "sourceId": "my-crawler",
-  "sourceName": "我的抓取脚本",
+  "sourceName": "Meu script de coleta",
   "items": [
-    { "title": "必填", "url": "必填", "publishedAt": "2026-10-01T08:00:00+08:00", "author": "可选" }
+    { "title": "obrigatório", "url": "obrigatório", "publishedAt": "2026-10-01T08:00:00+08:00", "author": "opcional" }
   ]
 }
 ```
 
-- `INGEST_TOKEN` 在 `.env` 里设置，至少 16 位；不设置时接口一律返回 401。
-- 每次最多 50 条，超过返回 413。每个客户端每分钟能推几次由 `INGEST_RATE_LIMIT` 决定：`docker compose` 默认 10，超过返回 429（带 `Retry-After: 60`）；不用 Docker 时默认不限，前面没有反向代理限流的话在 `.env` 里设上，设成 0 表示不限。
-- 返回 `{"ok": true, "created": <新建条数>}`。不是 JSON 对象的条目、缺标题或网址的条目会被跳过，同一请求里重复的网址只取第一条。
-- `sourceId` 不存在时会自动建一个 `external` 信源，默认不进公开页面：到后台把它的参与方式改成 `editorial` 才会出现在站上。
-- 在后台暂停信源后，推送接口返回 409，不再接收新文章；恢复信源后可以继续推送。
-- 条目的 `raw._aihot.backfill` 为 `true` 时按历史回灌处理（不进入“今天”、不推送）。
+- `INGEST_TOKEN` é definido no `.env`, com pelo menos 16 caracteres; sem defini-lo, a interface responde sempre 401.
+- No máximo 50 itens por vez; acima disso devolve 413. Quantas vezes por minuto cada cliente pode enviar é decidido por `INGEST_RATE_LIMIT`: no `docker compose` o padrão é 10, e acima disso devolve 429 (com `Retry-After: 60`); sem Docker o padrão é sem limite, e se não houver limite de proxy reverso à frente, defina no `.env`; 0 significa sem limite.
+- Devolve `{"ok": true, "created": <número de itens criados>}`. Itens que não são objetos JSON e itens sem título ou endereço são ignorados, e endereços repetidos na mesma requisição ficam só com o primeiro.
+- Quando o `sourceId` não existe, é criada automaticamente uma fonte `external`, que por padrão não entra nas páginas públicas: só aparece no site depois que, na administração, a forma de participação dela for mudada para `editorial`.
+- Depois de pausar a fonte na administração, a interface de envio devolve 409 e deixa de receber artigos novos; ao retomar a fonte, o envio pode continuar.
+- Quando o `raw._aihot.backfill` do item é `true`, é tratado como carga histórica (não entra em “hoje” e não é enviado).

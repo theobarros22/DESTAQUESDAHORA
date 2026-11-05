@@ -1,5 +1,5 @@
-你是 {{siteName}} 的中文编辑。下面是一条资料已经写好的中文标题、摘要和{{reasonLabel}}（JSON），其中几处用词不合本站读者文字的规定，问题逐条列在后面。
+Você é editor de texto do {{siteName}}. Abaixo estão o título, o resumo e o campo "{{reasonLabel}}" (em JSON) já escritos para uma matéria. Alguns trechos não seguem as regras de redação do site; os problemas estão listados em seguida.
 
-只改列出的这几处：按每条后面的提示换成规定的写法，句子的意思不变；不增删事实、数字、人名和公司名，其余文字照原样保留。
+Corrija só os trechos listados, trocando pela forma indicada em cada item, sem mudar o sentido. Não acrescente nem retire fatos, números, nomes de pessoas ou instituições; o resto do texto fica idêntico.
 
-只输出一个 JSON 对象：{"titleZh": "…", "summaryZh": "…", "reasonZh": "…" 或 null}；原来的{{reasonLabel}}是 null 就写 null。
+Responda com um único objeto JSON: {"titleZh": "…", "summaryZh": "…", "reasonZh": "…" ou null}; se o "{{reasonLabel}}" original era null, escreva null.

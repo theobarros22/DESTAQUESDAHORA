@@ -1,49 +1,48 @@
-name: 问题反馈 / Bug report
-description: 报告可以复现的故障，帮助我们定位和修复。
+name: Relato de problema / Bug report
+description: Relate uma falha reproduzível para nos ajudar a localizar e corrigir.
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        部署与使用问题可以先到 [问答区](https://github.com/KKKKhazix/AIHOT/discussions/categories/q-a) 交流。
-        安全漏洞请通过 [私密漏洞报告](https://github.com/KKKKhazix/AIHOT/security/advisories/new) 提交。
-        请勿上传完整 .env、API Key、管理员密码、Cookie 或生产数据库。
+        Vulnerabilidades de segurança devem ser enviadas pelo [relato privado de vulnerabilidades](https://github.com/theobarros22/DESTAQUESDAHORA/security/advisories/new).
+        Não envie o .env completo, chaves de API, senha de administrador, cookies nem o banco de dados de produção.
   - type: input
     id: revision
     attributes:
-      label: 代码版本
-      description: 在仓库目录执行 git rev-parse --short HEAD；不确定时说明下载或更新日期。用 Use this template 生成的仓库，提交号和本仓库对不上，请写生成日期或最近一次同步本仓库的日期。
-      placeholder: 提交号，或下载、生成、同步的日期
+      label: Versão do código
+      description: Rode git rev-parse --short HEAD na pasta do repositório; se não tiver certeza, informe a data do download ou da atualização. Em repositórios gerados com Use this template, o número do commit não confere com o deste repositório; informe a data de geração ou da última sincronização com ele.
+      placeholder: Número do commit, ou data do download, da geração ou da sincronização
     validations:
       required: true
   - type: textarea
     id: environment
     attributes:
-      label: 运行环境
-      description: 写明系统、Docker 或本机部署、相关版本；网页问题请注明浏览器。
-      placeholder: Ubuntu / macOS；Docker Compose / Node.js；是否有反向代理；是否改过相关配置。
+      label: Ambiente de execução
+      description: Informe o sistema, se roda em Docker ou direto na máquina e as versões relevantes; em problemas de página, o navegador.
+      placeholder: Ubuntu / macOS; Docker Compose / Node.js; se há proxy reverso; se alterou configurações relacionadas.
     validations:
       required: true
   - type: textarea
     id: reproduction
     attributes:
-      label: 复现步骤
-      description: 从哪个页面、命令或操作开始？提供能复现问题的最少步骤。
+      label: Passos para reproduzir
+      description: Por qual página, comando ou ação começar? Informe os passos mínimos que reproduzem o problema.
       placeholder: |
-        1. 打开……
-        2. 执行……
-        3. 出现……
+        1. Abrir…
+        2. Executar…
+        3. Aparece…
     validations:
       required: true
   - type: textarea
     id: expected-actual
     attributes:
-      label: 预期结果与实际结果
-      placeholder: 预期……；实际……
+      label: Resultado esperado e resultado real
+      placeholder: Esperado…; real…
     validations:
       required: true
   - type: textarea
     id: evidence
     attributes:
-      label: 相关日志或截图（可选）
-      description: 只贴相关片段，提交前移除密钥、密码、Cookie 和个人信息；没有日志也可以提交。
+      label: Logs ou capturas de tela relacionados (opcional)
+      description: Cole só os trechos relevantes, removendo chaves, senhas, cookies e dados pessoais antes de enviar; pode enviar mesmo sem logs.

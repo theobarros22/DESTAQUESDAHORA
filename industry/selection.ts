@@ -1,35 +1,35 @@
-// 精选的门槛。评分标准本身写在 prompts/selection-score.md；这里只决定“多少分算入选”。
-// 每篇资料由评分模型独立打两次分（0–100），两次之和 ≥ 2 × 门槛才成为精选候选；
-// 确认新闻身份与新增价值后，由发布规则决定展示（见 docs/selection.md），卡片上显示两次的平均分。
-// 门槛按信源分级区分：官方一手信源的门槛低一些，媒体和个人的高一些；信源类别再把某些官方信源的门槛抬高。
-// 改了门槛或评分提示词，用 scripts/eval-selection.ts 在你自己标注的样本上重跑一遍，再决定上线（见 docs/selection.md）。
+// Limiares da Seleção. Os critérios de pontuação ficam em prompts/selection-score.md; aqui se decide apenas “quantos pontos bastam para entrar”.
+// Cada material recebe duas notas independentes do modelo de pontuação (0–100); só vira candidato à Seleção se a soma for ≥ 2 × limiar;
+// depois de confirmar a identidade da notícia e o valor novo, as regras de publicação decidem a exibição (veja docs/selection.md); o cartão mostra a média das duas notas.
+// Os limiares variam conforme a classificação da fonte: fontes oficiais de primeira mão têm limiar menor; veículos e pessoas, maior; a categoria da fonte ainda eleva o limiar de algumas fontes oficiais.
+// Ao mudar limiares ou o prompt de pontuação, rode scripts/eval-selection.ts de novo sobre amostras rotuladas por você antes de publicar (veja docs/selection.md).
 
 export const SELECTION = {
   /**
-   * 信源分级 → 入选门槛（平均分）。分级在后台“信源”里给每个源设置：
-   *   T1 官方一手（官网、官方博客、机构）· T1_5 官方账号、准官方创作者 · T2 媒体与个人
-   * 分级 EXCLUDE_MP 以及这里没有列出的分级，不参与精选评分（只进“全部动态”）。
+   * Classificação da fonte → limiar de entrada (nota média). A classificação é definida para cada fonte em “Fontes”, na área administrativa:
+   *   T1 oficial de primeira mão (site, blog oficial, instituições) · T1_5 contas oficiais, criadores quase oficiais · T2 veículos e pessoas
+   * A classificação EXCLUDE_MP e as que não estão listadas aqui não entram na pontuação da Seleção (aparecem só em “Todas as atualizações”).
    */
   thresholds: { T1: 60, T1_5: 65, T2: 76 } as Record<string, number>,
   /**
-   * 信源类别 → 门槛下限。分级只说明来源是不是官方、一手；有些官方信源的日常内容主要写给开发者或业内，
-   * 读者要看的只是其中的大事，就在后台“信源”里给它一个类别，门槛抬到不低于这里的数。
-   * 只抬不降：分级门槛本来就更高的（媒体）不受影响。没有类别的信源只按分级。
-   *   ecosystem 生态与基础设施：芯片与硬件、推理与云服务、模型托管、开发框架与工具链、安全研究厂商、工程与开发者博客
-   *   leaderboard 评测榜单：给各家模型跑分、排名的评测机构
+   * Categoria da fonte → piso do limiar. A classificação só diz se a origem é oficial e de primeira mão; o conteúdo diário de algumas fontes oficiais é escrito sobretudo para desenvolvedores ou para o setor,
+   * e o leitor só quer ver as grandes notícias: dê à fonte uma categoria em “Fontes” e o limiar sobe para, no mínimo, o valor daqui.
+   * Só sobe, nunca desce: quem já tem limiar maior pela classificação (veículos) não é afetado. Fontes sem categoria seguem só a classificação.
+   *   ecosystem ecossistema e infraestrutura: chips e hardware, inferência e nuvem, hospedagem de modelos, frameworks e ferramentas de desenvolvimento, empresas de pesquisa em segurança, blogs de engenharia e de desenvolvedores
+   *   leaderboard rankings de avaliação: instituições que medem e ranqueiam o desempenho dos modelos
    */
   classes: {
-    ecosystem: { label: "生态与基础设施", threshold: 70 },
-    leaderboard: { label: "评测榜单", threshold: 76 },
+    ecosystem: { label: "Ecossistema e infraestrutura", threshold: 70 },
+    leaderboard: { label: "Rankings de avaliação", threshold: 76 },
   } as Record<string, { label: string; threshold: number }>,
   /**
-   * 没入选、但平均分高于这个数的资料，也用精选的写法（内容理解：标题、摘要、推荐理由）来写，
-   * 其余用更便宜的“标题摘要翻译”。
+   * Materiais que não entraram na Seleção, mas têm nota média acima deste valor, também são escritos no formato da Seleção (compreensão do conteúdo: título, resumo, motivo da indicação);
+   * os demais usam a “tradução de título e resumo”, mais barata.
    */
   understandFloor: 50,
   /**
-   * 浏览“全部动态”（网页列表、接口和 RSS 的全部模式）只出平均分不低于这个数的资料，没评上分的照常出；
-   * 搜索仍覆盖全部。低于 40 分的多是转述和资讯账号的刷屏（曾占全部动态三分之一以上），精选从没收过 60 分以下的。
+   * Navegar em “Todas as atualizações” (lista web, API e todos os modos do RSS) mostra só materiais com nota média não inferior a este valor; os sem nota continuam aparecendo;
+   * a busca continua cobrindo tudo. Abaixo de 40 pontos estão sobretudo reproduções e contas de notícias em enxurrada (já chegaram a mais de um terço de Todas as atualizações); a Seleção nunca aceitou nada abaixo de 60.
    */
   browseFloor: 40,
 } as const;

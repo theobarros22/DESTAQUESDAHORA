@@ -1,6 +1,6 @@
 // An item whose original carries no reliable date keeps its public page, and no exit presents when it was
 // collected as when it was published. Failure cases: the Markdown export labels the collection time
-// "发布时间"; RSS gives the collection time as pubDate; a dated item loses its publication time.
+// "data de publicação"; o RSS informa a hora da coleta como pubDate; um item datado perde a hora de publicação.
 import { tag } from "./setup.ts";
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";

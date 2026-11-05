@@ -1,34 +1,39 @@
-# 使用规则
+# Termos de uso
 
-这是开源框架自带的模板。上线前请按你的实际情况改写（运营主体、允许和不允许的用途、联系方式），必要时请专业人士审阅。
+RASCUNHO. Este texto é um ponto de partida e não foi revisado por advogado. Antes de publicar, preencha os dados do responsável e peça revisão jurídica.
 
-| 项 | 值 |
+| Item | Valor |
 |---|---|
-| 版本 | 请填写 |
-| 生效日期 | 请填写 |
-| 运营主体 | 请填写 |
-| 联系方式 | 请填写 |
+| Versão | Rascunho 0.1 |
+| Vigência | A definir antes da publicação |
+| Responsável | A preencher (nome ou razão social) |
+| CNPJ | A preencher |
+| Contato | A preencher (e-mail de contato) |
 
-页首说明：
+Apresentação:
 
-> 本站聚合公开信源，用模型生成中文摘要与精选，原文版权归各来源所有。网页、RSS、公开 API 与 MCP 均可匿名使用。
+> O Destaques da Hora reúne notícias de fontes públicas sobre política, inteligência artificial, tecnologia e dicas. Os resumos e a seleção são feitos com apoio de modelos de IA e revisados por regras editoriais. Os direitos dos textos originais pertencem às fontes. Site, RSS, API pública e MCP podem ser usados de forma anônima.
 
-## 1. 内容与版权
+## 1. Conteúdo e direitos autorais
 
-本站展示的标题、摘要和推荐理由由模型根据公开来源生成，可能有误，重要信息请以原文为准。原文版权归各来源所有；站内只在来源允许时展示全文，其余只展示摘要和原文链接。
+Os títulos, resumos e a explicação "Por que importa" são gerados com apoio de modelos de IA a partir de fontes públicas e podem conter erros. Para decisões importantes, confira sempre o original. Os direitos dos originais pertencem às respectivas fontes: o site só exibe o texto completo quando a licença da fonte permite (por exemplo, conteúdo sob licença Creative Commons) e, nos demais casos, mostra apenas o resumo e o link para o original.
 
-## 2. 来源方的更正与下架
+## 2. Imparcialidade editorial
 
-如果你是来源方，希望更正、下架或调整展示方式，请通过反馈页联系我们，我们会尽快处理。
+O Destaques da Hora não é veículo de nenhum partido, candidato ou governo. A seleção usa os mesmos critérios para todos os lados, e os resumos devem relatar fatos e atribuir acusações e declarações a quem as fez. Se você encontrar um erro ou um tratamento desigual, avise pela página de feedback.
 
-## 3. 使用本站的数据
+## 3. Correção, retirada e direito de resposta
 
-请写明你允许的用途（例如个人阅读、组织内部使用），以及需要事先取得你同意的用途（例如商业产品、公开转载、批量再分发）。
+Se você é a fonte, é citado em uma notícia ou quer corrigir, retirar ou pedir direito de resposta, fale conosco pela página de feedback ou pelo contato acima. Avaliamos cada pedido com cuidado e respondemos o mais rápido possível.
 
-## 4. 接口与频率
+## 4. Uso dos dados do site
 
-RSS、公开 API 和 MCP 为匿名只读接口。请按响应中的缓存时间轮询，遇到 429 请遵守 Retry-After，不要并发重试。
+Uso pessoal e uso interno em organizações são permitidos. Uso comercial, republicação pública e redistribuição em massa dependem de autorização prévia por escrito. [A preencher: ajuste esta lista à sua política.]
 
-## 5. 免责
+## 5. API e frequência de consulta
 
-本站按“现状”提供，不保证内容完整、准确和持续可用。
+RSS, API pública e MCP são anônimos e só de leitura. Respeite o tempo de cache informado nas respostas e, ao receber 429, aguarde o tempo de Retry-After; não faça tentativas em paralelo.
+
+## 6. Isenção de responsabilidade
+
+O site é oferecido no estado em que se encontra, sem garantia de que o conteúdo esteja completo, correto ou sempre disponível. O conteúdo é informativo e não substitui aconselhamento jurídico, financeiro ou profissional.

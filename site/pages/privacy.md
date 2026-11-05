@@ -1,34 +1,49 @@
-# 隐私说明
+# Política de privacidade
 
-这是开源框架自带的模板，只写了这套软件默认会处理哪些数据。上线前请按你的实际情况改写（运营主体、联系方式、你另外接入的统计或服务），必要时请专业人士审阅。
+RASCUNHO. Este texto descreve os dados que o software trata por padrão, segundo a Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018). Não foi revisado por advogado. Antes de publicar, preencha os dados do controlador e do encarregado e inclua qualquer ferramenta de estatística ou serviço que você adicionar.
 
-| 项 | 值 |
+| Item | Valor |
 |---|---|
-| 版本 | 请填写 |
-| 生效日期 | 请填写 |
-| 运营主体 | 请填写 |
-| 联系方式 | 请填写 |
+| Versão | Rascunho 0.1 |
+| Vigência | A definir antes da publicação |
+| Responsável | A preencher (controlador dos dados) |
+| CNPJ | A preencher |
+| Contato | A preencher (e-mail do encarregado de dados/DPO) |
 
-页首说明：
+Apresentação:
 
-> 使用本站不需要注册或登录。我们只处理让网站正常运行、处理反馈所必需的信息，不出售个人信息。
+> Para usar o site não é preciso cadastro nem login. Tratamos apenas as informações necessárias para o site funcionar e para responder aos feedbacks, e não vendemos dados pessoais.
 
-## 1. 浏览器本地数据
+## 1. Dados guardados no seu navegador
 
-收藏、已读记录、深浅色设置、最近搜索（你搜过的词，最多 10 条）、更新日志已读状态和反馈草稿保存在你当前的浏览器里；返回时的列表位置、滚动位置和展开状态只存在当前标签页的会话存储里，关闭标签页即清除。这些都不会发送到服务器。清除浏览器数据后它们会消失；换设备不会同步。收藏、已读记录和深浅色设置可以在“收藏”页导出和导入。
+Salvos, lidos, tema claro ou escuro, buscas recentes (até 10 termos), leitura do histórico de novidades e rascunhos de feedback ficam guardados no navegador que você está usando. A posição da lista, da rolagem e os itens abertos ao voltar ficam só no armazenamento da aba e somem quando você a fecha. Nada disso é enviado ao servidor. Os dados desaparecem ao limpar os dados do navegador e não são sincronizados entre aparelhos. Você pode exportar e importar salvos, lidos e tema na página "Salvos".
 
-## 2. 反馈
+## 2. Feedback
 
-你在反馈页提交的内容、选填的邮箱、提交时所在页面的地址，以及你选择附上的截图，会保存在服务器上，用于处理你的反馈。站点配置了飞书内部群时，反馈会转发到那个群，截图上传到飞书后服务器上不再保留。为防止滥用，服务器会保存一个由网络地址和浏览器类别计算出的、无法还原的标识，用于限流和封禁滥用来源。
+O que você envia na página de feedback, o e-mail (opcional), o endereço da página em que estava e a captura de tela que decidir anexar são guardados no servidor para tratarmos o seu feedback. Se o site estiver configurado com um grupo interno de mensagens (hoje, o Feishu), o feedback é encaminhado a esse grupo, e a captura de tela deixa de ser guardada no servidor depois de enviada. Para evitar abuso, o servidor guarda um identificador irreversível, calculado a partir do endereço de rede e do tipo de navegador, usado para limitar envios e bloquear origens abusivas.
 
-## 3. 服务器与网络日志
+Base legal: legítimo interesse (operar e proteger o site) e, no caso de e-mail e anexos, o seu consentimento ao enviá-los.
 
-本软件默认不做访客统计。你的服务器、反向代理或 CDN 可能会按它们自己的配置记录访问日志（如 IP 地址、访问时间、页面地址、浏览器信息）。请在这里写明你实际使用的服务和保存期限。
+## 3. Servidor e registros de rede
 
-## 4. 第三方内容
+O software não faz estatística de visitantes por padrão. O seu servidor, proxy reverso ou CDN podem registrar acessos conforme a configuração de cada um (por exemplo, endereço IP, horário, endereço da página e dados do navegador). Informe aqui os serviços que você realmente usa e por quanto tempo os registros são guardados.
 
-本站展示的是第三方原文的摘要与链接。点击原文链接后，你访问的是对方网站，适用对方的隐私政策。
+## 4. Provedores de IA e transferência internacional
 
-## 5. 联系我们
+Os textos das notícias públicas são enviados a provedores de modelos de IA para gerar resumos e seleção. Dados pessoais de leitores não são enviados a esses provedores. Alguns provedores ficam fora do Brasil; liste aqui quais são e em que países operam.
 
-请写明联系方式，以及查询、更正或删除反馈资料的方式。
+## 5. Conteúdo de terceiros
+
+O site mostra resumos e links de originais de terceiros. Ao clicar no link do original, você passa a usar o site de terceiros, que tem a própria política de privacidade.
+
+## 6. Seus direitos como titular
+
+Pela LGPD, você pode pedir confirmação do tratamento, acesso, correção, anonimização, eliminação, portabilidade e informações sobre compartilhamento dos seus dados, além de revogar consentimento. Para exercer esses direitos, use o contato acima. Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD).
+
+## 7. Crianças e adolescentes
+
+O site não é voltado a menores de 18 anos e não coleta intencionalmente dados deles.
+
+## 8. Contato
+
+Informe aqui o e-mail do encarregado de dados (DPO) e como pedir consulta, correção ou eliminação de dados de feedback.

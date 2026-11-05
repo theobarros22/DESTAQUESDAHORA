@@ -5,7 +5,7 @@ import { tabs, type TabKey } from "./nav";
 import { noteScreen, rememberedTab, useScreen } from "./screens";
 import { markBack } from "./transitions";
 import { scrollBehavior } from "../../lib/motion";
-import { useChangelogDot } from "./Sidebar";
+import { useChangelogDot } from "../../lib/changelog-dot";
 
 const subscribe = () => () => {};
 const serverTab = () => null;
@@ -36,7 +36,7 @@ export function TabBar({ changelogVersion }: { changelogVersion: string | null }
   if (screen.toolbar) return null;
   return (
     <nav
-      aria-label="底部导航"
+      aria-label="Navegação inferior"
       className="fixed inset-x-0 bottom-0 z-40 bg-surface/90 pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] shadow-[0_-1px_0_var(--line)] backdrop-blur-xl backdrop-saturate-150 lg:hidden"
     >
       <div className="mx-auto grid h-[50px] max-w-[640px]" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
@@ -60,7 +60,7 @@ export function TabBar({ changelogVersion }: { changelogVersion: string | null }
             >
               <Icon size={23} />
               <span>{t.label}</span>
-              {dot && t.changelog && <span className="absolute left-[calc(50%+9px)] top-[7px] size-1.5 rounded-full bg-hot" aria-label="有新的更新" />}
+              {dot && t.changelog && <span className="absolute left-[calc(50%+9px)] top-[7px] size-1.5 rounded-full bg-hot" aria-label="Há novidades" />}
             </IntentLink>
           );
         })}

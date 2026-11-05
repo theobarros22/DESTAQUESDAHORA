@@ -62,19 +62,19 @@ export interface QuietSource extends SourceHealthRow {
   quiet_days: number | null;
 }
 
-export const SOURCE_USE_NAMES: Record<string, string> = { editorial: "编辑内容", hot_signal: "热度信号" };
+export const SOURCE_USE_NAMES: Record<string, string> = { editorial: "conteúdo editorial", hot_signal: "sinal de calor" };
 
 /** A fixable source problem. */
 export type SourceProblem = "failing" | "unstable" | "undated" | "revisions" | "details";
 /** Each fixable problem as it is listed, per source: `action` is for the daily follow-up. */
 export const SOURCE_PROBLEMS: { problem: SourceProblem; title: string; describe: (s: SourceHealthRow) => string; observedAt: (s: SourceHealthRow) => Date | null; action: string }[] = [
-  { problem: "failing", observedAt: s => s.last_failed_at, title: "连续抓取失败", describe: s => `连续失败 ${s.fail_count} 次${s.last_error ? `，${s.last_error}` : ""}`, action: "转给 AI 检查抓取错误" },
-  { problem: "unstable", observedAt: s => s.last_unusable_at, title: "反复读不出条目", describe: s => `近 7 天 ${s.unusable}/${s.runs} 次抓到了页面却没解析出条目`, action: "即使最近成功也需检查，避免继续漏收" },
-  { problem: "undated", observedAt: s => s.last_undated_at, title: "文章缺发布时间", describe: s => `近 7 天缺发布时间 ${s.undated} 篇`,
-    action: "缺时间可能让新闻按历史文章处理" },
-  { problem: "revisions", observedAt: s => s.last_repeated_at, title: "文章反复修订", describe: s => `近 7 天反复修订 ${s.repeated} 篇`,
-    action: "需核对正文是否混入变化内容" },
-  { problem: "details", observedAt: s => s.last_detail_failure_at, title: "详情补全失败", describe: s => `近 7 天失败 ${s.detail_failures}/${s.detail_attempts} 页`, action: "查看抓取记录中的详情地址与错误" },
+  { problem: "failing", observedAt: s => s.last_failed_at, title: "falhas seguidas de coleta", describe: s => `${s.fail_count} falhas seguidas${s.last_error ? `, ${s.last_error}` : ""}`, action: "Encaminhe a uma IA para checar os erros de coleta" },
+  { problem: "unstable", observedAt: s => s.last_unusable_at, title: "não consegue ler itens repetidamente", describe: s => `Nos últimos 7 dias, ${s.unusable}/${s.runs} coletas pegaram a página mas não extraíram itens`, action: "Mesmo que a coleta recente tenha dado certo, é preciso checar para não continuar perdendo itens" },
+  { problem: "undated", observedAt: s => s.last_undated_at, title: "matérias sem data de publicação", describe: s => `${s.undated} matérias sem data de publicação nos últimos 7 dias`,
+    action: "A falta de data pode fazer notícias novas serem tratadas como matérias históricas" },
+  { problem: "revisions", observedAt: s => s.last_repeated_at, title: "matérias revisadas repetidamente", describe: s => `${s.repeated} matérias revisadas repetidamente nos últimos 7 dias`,
+    action: "Confira se o texto não está misturado com conteúdo variável" },
+  { problem: "details", observedAt: s => s.last_detail_failure_at, title: "falha ao completar detalhes", describe: s => `${s.detail_failures}/${s.detail_attempts} páginas falharam nos últimos 7 dias`, action: "Veja o endereço de detalhe e o erro no registro de coleta" }
 ];
 
 /** A run error that is the network or the origin's answer, not our reading of the page (fetch_runs.error, 10-01..11-01). */

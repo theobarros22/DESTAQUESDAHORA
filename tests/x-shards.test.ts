@@ -249,7 +249,7 @@ test("paid search receipts and coverage commit together for single sources and s
   }
 });
 
-// Names show the account in many ways ("X：某人（@handle）" ends in a full-width bracket), so an account
+// Os nomes mostram a conta de várias formas ("X: Fulano (@handle)" termina com colchete de largura total), então uma conta
 // found by its name's last "(@handle)" never took its posts' avatar.
 test("an account takes the avatar on its own latest post, whatever its name shows", async () => {
   const handle = `sd${T}`;

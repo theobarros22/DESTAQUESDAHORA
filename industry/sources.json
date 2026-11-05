@@ -1,12 +1,335 @@
 {
-  "$comment": "示范信源：首次启动时导入（scripts/seed.ts），已存在的不会被覆盖。之后在后台“信源”里新建、修改和暂停。字段说明见 docs/customize.md。",
+  "$comment": "Fontes iniciais do Destaques da Hora: importadas no primeiro start (scripts/seed.ts); as que já existem não são sobrescritas. Depois, gerencie em /admin/sources. Itens com $comment 'A VERIFICAR' tiveram a URL inferida e precisam de teste. Agência Brasil publica sob CC BY: texto integral liberado com crédito (site_fulltext true); fotos só depois de confirmar a Carta de Serviços da EBC (site_images fica false até lá). Fotos liberadas: Câmara (guia da Câmara) e Senado (Política de Uso). Senado, TSE, Alerj e governo do RJ: adicionar pelo painel depois de confirmar a URL do feed.",
   "sources": [
+    {
+      "id": "rss-agencia-brasil",
+      "name": "Agência Brasil — Últimas",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://agenciabrasil.ebc.com.br/feed/ultimasnoticias/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Oficial",
+        "Política",
+        "Licença CC BY"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-agencia-camara",
+      "name": "Câmara dos Deputados — Agência Câmara",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.camara.leg.br/noticias/rss/ultimas-noticias",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "camara",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Oficial",
+        "Congresso"
+      ],
+      "site_fulltext": false,
+      "site_images": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar. Fotos liberadas pelo guia da Câmara: uso livre com crédito Fotógrafo/Câmara dos Deputados (site_images true)."
+    },
+    {
+      "id": "rss-stf-noticias",
+      "name": "STF — Notícias",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://noticias.stf.jus.br/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "stf",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Justiça"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-g1-politica",
+      "name": "g1 Política",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://g1.globo.com/rss/g1/politica/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "Imprensa",
+        "Política"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-g1-economia",
+      "name": "g1 Economia",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://g1.globo.com/rss/g1/economia/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Economia"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-folha-poder",
+      "name": "Folha — Poder",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://feeds.folha.uol.com.br/poder/rss091.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Imprensa",
+        "Política"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-poder360",
+      "name": "Poder360",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.poder360.com.br/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "Imprensa",
+        "Política"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-congresso-em-foco",
+      "name": "Congresso em Foco",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://congressoemfoco.uol.com.br/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Congresso"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-nucleo",
+      "name": "Núcleo Jornalismo",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://nucleo.jor.br/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "Imprensa",
+        "IA & Política",
+        "Redes sociais"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-aos-fatos",
+      "name": "Aos Fatos",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.aosfatos.org/noticias/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "Checagem",
+        "Desinformação"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-g1-tecnologia",
+      "name": "g1 Tecnologia",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://g1.globo.com/dynamo/tecnologia/rss2.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Tecnologia"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-tecnoblog",
+      "name": "Tecnoblog",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://tecnoblog.net/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Tecnologia"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-olhar-digital",
+      "name": "Olhar Digital",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://olhardigital.com.br/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Tecnologia"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-canaltech",
+      "name": "Canaltech",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://canaltech.com.br/rss/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Imprensa",
+        "Tecnologia",
+        "Dicas"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
     {
       "id": "rss-openai-news",
       "name": "OpenAI News",
       "kind": "rss",
       "config": {
         "feedUrl": "https://openai.com/news/rss.xml",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
@@ -16,7 +339,8 @@
       "participation_mode": "editorial",
       "interval_minutes": 120,
       "tags": [
-        "官方"
+        "Oficial",
+        "IA"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
@@ -27,6 +351,7 @@
       "kind": "rss",
       "config": {
         "feedUrl": "https://deepmind.google/blog/rss.xml",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
@@ -36,181 +361,213 @@
       "participation_mode": "editorial",
       "interval_minutes": 120,
       "tags": [
-        "官方"
+        "Oficial",
+        "IA"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-google-research",
-      "name": "Google Research",
+      "id": "rss-agencia-brasil-geral",
+      "name": "Agência Brasil — Geral",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://research.google/blog/rss/",
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/geral/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
       },
-      "tier": "T1",
-      "owner_entity_id": "google",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "研究"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-hugging-face",
-      "name": "Hugging Face Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://huggingface.co/blog/feed.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": "hugging-face",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "开源"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-microsoft-research",
-      "name": "Microsoft Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.microsoft.com/en-us/research/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": "microsoft",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "研究"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-nvidia-blog",
-      "name": "NVIDIA Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://blogs.nvidia.com/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": "nvidia",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-aws-ml",
-      "name": "AWS Machine Learning Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://aws.amazon.com/blogs/machine-learning/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
+      "tier": "T1_5",
       "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 30,
       "tags": [
-        "官方",
-        "教程"
+        "Oficial",
+        "Brasil",
+        "Licença CC BY"
       ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
     },
     {
-      "id": "rss-github-ai",
-      "name": "GitHub Blog · AI & ML",
+      "id": "rss-agencia-brasil-economia",
+      "name": "Agência Brasil — Economia",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://github.blog/ai-and-ml/feed/",
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/economia/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
       },
-      "tier": "T1",
+      "tier": "T1_5",
       "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 60,
       "tags": [
-        "官方"
+        "Oficial",
+        "Brasil",
+        "Economia",
+        "Licença CC BY"
       ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
     },
     {
-      "id": "rss-mistral",
-      "name": "Mistral AI",
+      "id": "rss-agencia-brasil-saude",
+      "name": "Agência Brasil — Saúde",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://mistral.ai/news/rss",
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/saude/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
       },
-      "tier": "T1",
+      "tier": "T1_5",
       "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 60,
       "tags": [
-        "官方"
+        "Oficial",
+        "Brasil",
+        "Saúde",
+        "Licença CC BY"
       ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
     },
     {
-      "id": "rss-bair",
-      "name": "Berkeley AI Research",
+      "id": "rss-agencia-brasil-internacional",
+      "name": "Agência Brasil — Internacional",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://bair.berkeley.edu/blog/feed.xml",
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/internacional/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
       },
-      "tier": "T1",
+      "tier": "T1_5",
       "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 180,
+      "interval_minutes": 30,
       "tags": [
-        "研究"
+        "Oficial",
+        "Mundo",
+        "Licença CC BY"
       ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
     },
     {
-      "id": "rss-the-verge-ai",
-      "name": "The Verge · AI",
+      "id": "rss-agencia-brasil-esportes",
+      "name": "Agência Brasil — Esportes",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/esportes/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Oficial",
+        "Esportes",
+        "Licença CC BY"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-agencia-brasil-cultura",
+      "name": "Agência Brasil — Cultura",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/cultura/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Cinema e Séries",
+        "Cultura",
+        "Licença CC BY"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-onu-news-pt",
+      "name": "ONU News — Português",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.un.org/feed/subscribe/pt/news/all/rss.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Mundo"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-bbc-brasil",
+      "name": "BBC News Brasil",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://feeds.bbci.co.uk/portuguese/rss.xml",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Imprensa",
+        "Mundo",
+        "Brasil"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-dw-brasil",
+      "name": "DW Brasil",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://rss.dw.com/xml/rss-br-all",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
@@ -220,17 +577,43 @@
       "participation_mode": "editorial",
       "interval_minutes": 60,
       "tags": [
-        "媒体"
+        "Imprensa",
+        "Mundo"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
     },
     {
-      "id": "rss-techcrunch-ai",
-      "name": "TechCrunch · AI",
+      "id": "rss-cnn-brasil-esportes",
+      "name": "CNN Brasil — Esportes",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "feedUrl": "https://www.cnnbrasil.com.br/esportes/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T2",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "Imprensa",
+        "Esportes"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-cnn-brasil-entretenimento",
+      "name": "CNN Brasil — Entretenimento",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.cnnbrasil.com.br/entretenimento/feed/",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
@@ -240,131 +623,130 @@
       "participation_mode": "editorial",
       "interval_minutes": 60,
       "tags": [
-        "媒体"
+        "Imprensa",
+        "Cinema e Séries"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
     },
     {
-      "id": "rss-ars-technica-ai",
-      "name": "Ars Technica · AI",
+      "id": "rss-alerj-noticias",
+      "name": "Alerj — Notícias",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://arstechnica.com/ai/feed/",
+        "feedUrl": "https://www.alerj.rj.gov.br/rss/noticias",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
       },
-      "tier": "T2",
+      "tier": "T1",
+      "owner_entity_id": "alerj",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Rio de Janeiro",
+        "Alerj"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: URL inferida, teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-governo-rj-noticias",
+      "name": "Governo do RJ — Notícias",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.rj.gov.br/rss/noticias",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "governo-rj",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "Oficial",
+        "Rio de Janeiro"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: URL inferida, teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
+    },
+    {
+      "id": "rss-prefeitura-rio",
+      "name": "Prefeitura do Rio — Notícias",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://prefeitura.rio/feed/",
+        "publishedAtUtcOffset": "-03:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
       "owner_entity_id": null,
       "participation_mode": "editorial",
       "interval_minutes": 60,
       "tags": [
-        "媒体"
+        "Oficial",
+        "Rio de Janeiro"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: URL inferida, teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
     },
     {
-      "id": "rss-mit-tech-review-ai",
-      "name": "MIT Technology Review · AI",
+      "id": "rss-tre-rj",
+      "name": "TRE-RJ — Notícias",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.technologyreview.com/topic/artificial-intelligence/feed",
+        "feedUrl": "https://www.tre-rj.jus.br/comunicacao/noticias/rss",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
       },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-the-decoder",
-      "name": "The Decoder",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://the-decoder.com/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
+      "tier": "T1_5",
       "owner_entity_id": null,
       "participation_mode": "editorial",
       "interval_minutes": 60,
       "tags": [
-        "媒体"
+        "Oficial",
+        "Rio de Janeiro",
+        "Eleições"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: URL inferida, teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
     },
     {
-      "id": "rss-simon-willison",
-      "name": "Simon Willison",
+      "id": "rss-agencia-brasil-rj",
+      "name": "Agência Brasil — Rio de Janeiro",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://simonwillison.net/atom/everything/",
+        "feedUrl": "https://agenciabrasil.ebc.com.br/rss/rio-de-janeiro/feed.xml",
+        "publishedAtUtcOffset": "-03:00",
         "_aihot": {
           "initialBackfillLimit": 8
         }
       },
-      "tier": "T2",
+      "tier": "T1_5",
       "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 60,
       "tags": [
-        "个人"
+        "Oficial",
+        "Rio de Janeiro",
+        "Licença CC BY"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-import-ai",
-      "name": "Import AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://importai.substack.com/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
-      "tags": [
-        "个人",
-        "周刊"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-latent-space",
-      "name": "Latent Space",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.latent.space/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
-      "tags": [
-        "个人"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "$comment": "A VERIFICAR: URL inferida, teste em /admin/sources (Pré-visualizar coleta) antes de confiar."
     }
   ]
 }

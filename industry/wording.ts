@@ -1,5 +1,9 @@
-// 读者看得到的文字里本站不用的词，每项是要找的写法和改法（例如 [/重磅|炸裂/u, "不用夸张的说法，直接写发生了什么"]）。
-// 写作那一步写完中文标题、摘要和推荐理由后逐个查，用了就让模型只改这些地方一次（packages/backend/src/editorial/
-// analyze.ts 的 mendWording）。只列一眼就能判断的写法：拿不准的不列，否则会误改正常的词。空着就不查。
+// Palavras que o site não usa nos textos para o leitor: cada item é [o que procurar, como corrigir].
+// Depois que a IA escreve título, resumo e "Por que importa", o sistema confere; se achar, pede à IA que corrija só esses trechos.
+// Liste só o que se reconhece de imediato; na dúvida, não liste (evita correções erradas).
 
-export const READER_WORDING: ReadonlyArray<readonly [RegExp, string]> = [];
+export const READER_WORDING: ReadonlyArray<readonly [RegExp, string]> = [
+  [/\b(bomb[áa]stic[oa]s?|chocantes?|imperd[íi]ve(l|is)|explosiv[oa]s?)\b/iu, "sem sensacionalismo: diga o que aconteceu"],
+  [/\b(vergonhos[oa]s?|absurd[oa]s?|lament[áa]ve(l|is))\b/iu, "sem juízo de valor: atribua a opinião a quem a deu ou retire"],
+  [/\bentenda\b|\bsaiba (tudo|mais)\b/iu, "título direto: diga o fato, sem chamada"],
+];

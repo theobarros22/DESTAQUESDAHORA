@@ -8,7 +8,7 @@ import { RingMark } from "@aihot/site/brand/Logo.tsx";
 import { useEffect, useState, type ReactNode } from "react";
 import type { Route } from "./+types/root";
 import "./app.css";
-import { Sidebar } from "./components/shell/Sidebar";
+import { DesktopFooter, Masthead } from "./components/shell/Masthead";
 import { TabBar } from "./components/shell/TabBar";
 import { PullToRefresh } from "./components/shell/PullToRefresh";
 import { usePageTransition } from "./components/shell/transitions";
@@ -26,7 +26,7 @@ export const links: Route.LinksFunction = () => [
   { rel: "icon", type: "image/png", href: "/icon.png" },
   { rel: "apple-touch-icon", href: "/apple-icon.png" },
   { rel: "manifest", href: "/manifest.webmanifest" },
-  { rel: "alternate", type: "application/rss+xml", title: `${SITE.name} — 精选`, href: "/feed.xml" },
+  { rel: "alternate", type: "application/rss+xml", title: `${SITE.name} — Destaques`, href: "/feed.xml" },
 ];
 
 /** The release rendering this document: once a newer one is deployed, a render error reloads the page (entry.client). */
@@ -75,10 +75,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export function meta({ error }: Route.MetaArgs) {
   if (!error) return [];
   const notFound = isRouteErrorResponse(error) && error.status === 404;
-  return [{ title: titled(notFound ? "页面不存在" : "暂时无法加载") }, { name: "robots", content: "noindex" }];
+  return [{ title: titled(notFound ? "Página não encontrada" : "Não foi possível carregar") }, { name: "robots", content: "noindex" }];
 }
 
-/** Sidebar, main column and phone tab bar around a page (or an error). */
+/** Desktop masthead, main column and phone tab bar around a page (or an error). */
 function SiteShell({ changelogVersion, children }: { changelogVersion: string | null; children: ReactNode }) {
   const navigation = useNavigation();
   // The phone search and pull-to-refresh are client-side, mounted once the page is interactive.
@@ -87,20 +87,21 @@ function SiteShell({ changelogVersion, children }: { changelogVersion: string | 
   return (
     // The desktop shell also opens on large phones held sideways, where the notch takes a side: the whole
     // shell keeps clear of it (the phone shell does so through its gutters).
-    <div className="flex min-h-dvh lg:pl-[env(safe-area-inset-left)] lg:pr-[env(safe-area-inset-right)]">
+    <div className="flex min-h-dvh flex-col lg:pl-[env(safe-area-inset-left)] lg:pr-[env(safe-area-inset-right)]">
       <NavigationProgress active={navigation.state === "loading"} />
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[70] focus:rounded-control focus:bg-surface focus:px-3 focus:py-2">
-        跳到正文
+        Pular para o conteúdo
       </a>
-      <Sidebar changelogVersion={changelogVersion} />
+      <Masthead changelogVersion={changelogVersion} />
       {/* Phone shell (≤ 699px): each page's top bar (PhoneBar), one centred column, the tab bar below.
           Desktop: the page fills the main area up to the list width (--page-max-wide), centred beyond it. */}
-      <main id="main" className="min-w-0 flex-1 pb-[calc(72px+env(safe-area-inset-bottom))] lg:px-5 lg:pb-[72px] lg:pt-6 wide:px-7">
+      <main id="main" className="mx-auto w-full min-w-0 flex-1 pb-[calc(72px+env(safe-area-inset-bottom))] lg:px-5 lg:pb-[72px] lg:pt-6 wide:px-7">
         <div className="mx-auto w-full max-w-[640px] pl-[var(--gutter-l)] pr-[var(--gutter-r)] lg:max-w-[var(--page-max-wide)] lg:px-0">
           {webModules().map((m) => m.root?.Top && <m.root.Top key={m.name} />)}
           {children}
         </div>
       </main>
+      <DesktopFooter />
       <TabBar changelogVersion={changelogVersion} />
       {interactive && <SearchOverlay />}
       {interactive && <PullToRefresh />}
@@ -146,19 +147,19 @@ export function ErrorBoundary() {
       <div className="max-w-sm text-center">
         <RingMark className="mx-auto mb-5 size-10 text-accent" />
         <div className="mono text-[12px] text-ink-4">{status}</div>
-        <h1 className="mt-1.5 text-[20px] font-bold text-ink">{notFound ? "找不到这个页面" : "暂时无法加载"}</h1>
+        <h1 className="mt-1.5 text-[20px] font-bold text-ink">{notFound ? "Página não encontrada" : "Não foi possível carregar"}</h1>
         <p className="mt-2 text-[13.5px] leading-relaxed text-ink-3">
-          {notFound ? "链接可能有误，或者这条内容已经下架。" : "页面暂时无法显示，请重新加载后再试。"}
+          {notFound ? "O link pode estar errado, ou o conteúdo foi retirado do ar." : "A página não pôde ser exibida. Recarregue e tente de novo."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2.5">
           {!notFound && <Link reloadDocument to={pathname + search + hash} className={buttonClass("primary")}>
-            重新加载
+            Recarregar
           </Link>}
           <Link reloadDocument to="/" className={buttonClass(notFound ? "primary" : "secondary")}>
-            回到精选
+            Voltar aos destaques
           </Link>
           <Link reloadDocument to="/all" className={buttonClass("secondary")}>
-            浏览全部动态
+            Ver todas as notícias
           </Link>
         </div>
       </div>

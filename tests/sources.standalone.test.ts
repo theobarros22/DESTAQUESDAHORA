@@ -228,7 +228,7 @@ test("hidden page parts are dropped whole, and a news page's closing blocks are 
 });
 
 test("noise words match whatever their case", () => {
-  // 笔记本 is noise, but the lower-case exemption agent keeps a post about an Agent product.
+  // "caderno/notebook" em chinês é ruído, mas a exceção em minúsculas de agent mantém uma publicação sobre um produto de Agent.
   const source = { config: { ingestNoiseFilter: { dropMarkers: ["笔记本", "iphone"], keepIfMatches: ["agent"] } } } as never;
   const c = (title: string, excerpt: string) => ({ url: "https://example.org/a", title, excerpt }) as never;
   assert.equal(noiseFiltered(c("Manus：正组建团队开发面向国内市场的产品", "与笔记本厂商合作的 Agent 产品"), source), false);

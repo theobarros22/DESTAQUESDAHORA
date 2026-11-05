@@ -1,3 +1,4 @@
+import { BEIJING_TIMEZONE } from "@aihot/contracts/time";
 import { describePublicationTime } from "../sources/dates.ts";
 // The writing side of the analysis: the prefilter's and the content understanding's inputs, the
 // title/summary prompts for everything else, the output parsing and the deterministic guards. The
@@ -47,19 +48,14 @@ export function cleanArticleTextForLLM(s: string): string {
     .trim();
 }
 
-function chineseDensity(s: string): number {
-  const chinese = (s.match(/[一-鿿]/g) ?? []).length;
-  const total = s.replace(/\s+/g, "").length;
-  return total === 0 ? 0 : chinese / total;
-}
-
 const stripNoise = (s: string) => s.replace(/https?:\/\/\S+/g, " ").replace(/@[A-Za-z0-9_]+/g, " ").replace(/#[A-Za-z0-9_]+/g, " ");
 
 /** A short tweet in Chinese needs no translation; mixed or English ones do. */
 export function needsShortTweetTranslation(text: string): boolean {
   const clean = stripNoise(text);
+  // Destaques da Hora: a short post already in Portuguese needs no translation.
   if (!looksZh(clean)) return true;
-  if (chineseDensity(clean) < 0.65) return true;
+  if (/[一-鿿]/.test(clean)) return true;
   const englishRuns = clean.match(/[A-Za-z][A-Za-z0-9+.#/-]*(?:\s+[A-Za-z][A-Za-z0-9+.#/-]*)+/g) ?? [];
   return englishRuns.some((run) => run.replace(/\s+/g, "").length >= 10);
 }
@@ -70,44 +66,44 @@ export function needsShortTweetTranslation(text: string): boolean {
 const unfetchedXArticle = (a: AnalyzeInputArticle) => !!a.xPost && a.bodyStatus !== "ok" && onlyXArticleLink(String(a.xPost.text ?? ""));
 
 function materialQuality(a: AnalyzeInputArticle): string {
-  if (a.xPost) return "完整正文（来自 RSS / API 自带的 content 字段）";
-  if (a.bodyText) return a.source.fetchesBody ? "完整正文（抓自原始网页）" : "完整正文（来自 RSS / API 自带的 content 字段）";
-  if (a.excerpt) return "仅摘要（feed 未提供完整正文）";
-  if (a.bodyStatus === "unconfirmed") return "抓取失败，仅标题可用";
-  return "无有效文本";
+  if (a.xPost) return "texto completo (do campo content do RSS/API)";
+  if (a.bodyText) return a.source.fetchesBody ? "texto completo (coletado da página original)" : "texto completo (do campo content do RSS/API)";
+  if (a.excerpt) return "só resumo (o feed não traz o texto completo)";
+  if (a.bodyStatus === "unconfirmed") return "coleta falhou; só o título está disponível";
+  return "sem texto válido";
 }
 
 /** The material as the prefilter and the content understanding read it. */
 export function renderContext(a: AnalyzeInputArticle, opts: { annotateQuoted?: boolean } = {}): string {
   const lines: string[] = [];
-  lines.push(`【来源】${a.source.name}（${a.source.kind}，tier=${a.source.tier || "未分级"}）`);
-  if (a.source.tags?.length) lines.push(`【来源标签】${a.source.tags.join(", ")}`);
+  lines.push(`【Fonte】${a.source.name} (${a.source.kind}, tier=${a.source.tier || "sem nível"})`);
+  if (a.source.tags?.length) lines.push(`【Etiquetas da fonte】${a.source.tags.join(", ")}`);
   const name = a.xPost?.authorName || a.author;
   const handle = a.xPost?.handle;
-  if (name || handle) lines.push(`【作者】${[name, handle ? `@${handle}` : null].filter(Boolean).join(" · ")}`);
-  if (a.publishedAt) lines.push(`【发布时间】${describePublicationTime(a.publishedAt, a.publicationTime)}`);
+  if (name || handle) lines.push(`【Autor】${[name, handle ? `@${handle}` : null].filter(Boolean).join(" · ")}`);
+  if (a.publishedAt) lines.push(`【Data de publicação】${describePublicationTime(a.publishedAt, a.publicationTime)}`);
   const media = (a.xPost?.media ?? a.media ?? []) as Array<{ kind?: string }>;
   const images = media.filter((m) => m.kind === "image").length;
   const videos = media.filter((m) => m.kind === "video").length;
-  const mediaParts = [images ? `${images} 张图` : null, videos ? `${videos} 个视频` : null, unfetchedXArticle(a) ? "含 X 长文链接（正文未抓到）" : null].filter(Boolean);
-  if (mediaParts.length) lines.push(`【媒体】${mediaParts.join(" · ")}`);
-  lines.push(`【原文链接】${a.url}`);
-  lines.push(`【标题】${a.title}`);
+  const mediaParts = [images ? `${images} imagem(ns)` : null, videos ? `${videos} vídeo(s)` : null, unfetchedXArticle(a) ? "tem link de artigo longo do X (texto não coletado)" : null].filter(Boolean);
+  if (mediaParts.length) lines.push(`【Mídia】${mediaParts.join(" · ")}`);
+  lines.push(`【Link original】${a.url}`);
+  lines.push(`【Título】${a.title}`);
   const quoted = a.xPost?.quoted?.text ? a.xPost.quoted : null;
   if (quoted) {
-    const label = quoted.handle ? `@${quoted.handle}` : "原推";
+    const label = quoted.handle ? `@${quoted.handle}` : "post original";
     if (opts.annotateQuoted) {
-      lines.push(`【引用 ${label}】（以下是作者转发/引用的**他人**内容，不是作者本人的产出）`);
+      lines.push(`【Citação de ${label}】(a seguir, conteúdo de **outra pessoa** que o autor repassou ou citou; não é produção do autor)`);
       lines.push(String(quoted.text));
     } else {
-      lines.push(`【引用 ${label}】${quoted.text}`);
+      lines.push(`【Citação de ${label}】${quoted.text}`);
     }
   }
   lines.push("");
-  lines.push(opts.annotateQuoted && quoted ? "【正文（作者自己的内容）】" : "【正文】");
-  lines.push(capBody(a.xPost ? String(a.xPost.text ?? a.title) : (a.bodyText ?? a.excerpt ?? "(无正文)")));
+  lines.push(opts.annotateQuoted && quoted ? "【Corpo (conteúdo do próprio autor)】" : "【Corpo】");
+  lines.push(capBody(a.xPost ? String(a.xPost.text ?? a.title) : (a.bodyText ?? a.excerpt ?? "(sem corpo)")));
   lines.push("");
-  lines.push(`【材料质量】${materialQuality(a)}`);
+  lines.push(`【Qualidade do material】${materialQuality(a)}`);
   return lines.join("\n");
 }
 
@@ -120,7 +116,7 @@ export function missingEvidence(a: AnalyzeInputArticle): boolean {
 }
 
 export const understandUser = (a: AnalyzeInputArticle) =>
-  ["请按系统规则理解以下单篇材料，一次返回全部六个字段。", renderContext(a, { annotateQuoted: true })].join("\n\n");
+  ["Interprete, pelas regras do sistema, o material abaixo e devolva os seis campos de uma vez.", renderContext(a, { annotateQuoted: true })].join("\n\n");
 
 // Identity context and guard
 
@@ -196,9 +192,9 @@ function identityContext(input: TranslateInput) {
 function identityPrompt(input: TranslateInput): string {
   const ctx = identityContext(input);
   const facts: string[] = [];
-  if (ctx.publisher) facts.push(`文档发布域主体=${lexiconName(ctx.publisher) ?? ctx.publisher}`);
-  if (ctx.owner) facts.push(`来源账号主体=${lexiconName(ctx.owner) ?? ctx.owner}`);
-  return promptText("identity-context", { facts: facts.length > 0 ? facts.join("；") : "未识别到明确发布主体" });
+  if (ctx.publisher) facts.push(`entidade dona do domínio do documento=${lexiconName(ctx.publisher) ?? ctx.publisher}`);
+  if (ctx.owner) facts.push(`entidade dona da conta de origem=${lexiconName(ctx.owner) ?? ctx.owner}`);
+  return promptText("identity-context", { facts: facts.length > 0 ? facts.join("; ") : "nenhuma entidade publicadora identificada" });
 }
 
 export interface IdentityGuard {
@@ -269,11 +265,11 @@ export function finalizeCopy(input: TranslateInput, copy: { titleZh: string; sum
 
 // Title/summary prompts for items the content understanding does not write
 
-const sourceName = (name?: string) => name?.trim() || "（未注明）";
+const sourceName = (name?: string) => name?.trim() || "(não informada)";
 
 function anchorDate(d: Date | undefined): string {
-  if (!d || Number.isNaN(d.getTime())) return "未注明";
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+  if (!d || Number.isNaN(d.getTime())) return "não informada";
+  return new Intl.DateTimeFormat("en-CA", { timeZone: BEIJING_TIMEZONE, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
 }
 
 export function buildArticlePrompt(input: TranslateInput): string {
@@ -290,7 +286,7 @@ export function buildArticlePrompt(input: TranslateInput): string {
 /** The quoted post's block, appended after a blank line when there is one. */
 function quotedBlock(input: TranslateInput, name: string): string {
   if (!input.quotedText) return "";
-  return `\n\n${promptText(name, { quotedLabel: input.quotedAuthor ? `@${input.quotedAuthor}` : "引用推文", quotedText: clampText(input.quotedText, 1500) })}`;
+  return `\n\n${promptText(name, { quotedLabel: input.quotedAuthor ? `@${input.quotedAuthor}` : "Post citado", quotedText: clampText(input.quotedText, 1500) })}`;
 }
 
 export function buildShortTweetPrompt(input: TranslateInput): string {
@@ -303,8 +299,8 @@ export function buildLongTweetPrompt(input: TranslateInput): string {
   return promptText("summarize-long-post", { sourceName: sourceName(input.sourceName), identity: identityPrompt(input), post }) + quotedBlock(input, "summarize-long-post-quoted");
 }
 
-/** Prompt lines a model sometimes repeats after its answer (来源：…, 【已核验身份上下文】…, 原始标题：…). */
-const ECHO_LINE = /^(来源[:：]|【已核验身份上下文】|这些事实只用于防止|原始标题[:：]|【时间锚点】)/;
+/** Prompt lines a model sometimes repeats after its answer (Fonte: …, [contexto de identidade verificado] …, Título original: …). */
+const ECHO_LINE = /^(Fonte[:：]|【Contexto de identidade verificado】|Estes fatos servem só|Título original[:：]|【Âncora de tempo】)/;
 
 /** The answer without prompt lines repeated at its end. */
 export function stripEcho(text: string): string {

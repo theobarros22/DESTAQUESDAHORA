@@ -84,8 +84,8 @@ test("the daily archive counts every issue, as the masthead numbers them", async
   assert.match(masthead(await response.text()), /共\s*405\s*期/);
 });
 
-// On 2 January 2027 the chip for the 31 December issue read "12月31日" and the 1 January issue's "前一日"
-// link "前一日 · 12月31日": both read as 2027's (KKKKhazix/AIHOT#274).
+// Em 2 de janeiro de 2027, o chip da edição de 31 de dezembro dizia "31 dez" e o link "dia anterior" da edição de 1º de janeiro
+// "Dia anterior · 31 dez": ambos eram lidos como de 2027 (KKKKhazix/AIHOT#274).
 test("a day of another Beijing year carries its year in the phone chip and the prev/next links", () => {
   const days = [{ key: "2026-12-31", issueNumber: 400, title: "第400期" }, { key: "2027-01-01", issueNumber: 401, title: "第401期" }];
   assert.equal(chipLabel("daily", "2027-01-02", days, "2027-01-02"), "今天");

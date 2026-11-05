@@ -1,155 +1,145 @@
-// 这个行业的分类体系：类别、标签词表、公司（主体）名录，以及防止张冠李戴的身份词典。
-// 模型按这里的词表打标签，主题页（topics.json）按标签归类，筛选栏按类别分组。
-// 换行业时：类别的 key 会出现在网址里（/all?category=…），上线后就不要再改；标签和名录可以随时增减。
+// Editorias, etiquetas, entidades (instituições e empresas) e o dicionário que impede a IA de atribuir
+// um fato à instituição ou empresa errada. Destaques da Hora — Política, IA, Tecnologia, Brasil, Mundo, Esportes e Cinema.
+// As chaves das editorias aparecem nas URLs (/all?category=…): depois de publicar, não mude.
 
 /**
- * 网页上的类别（筛选栏、卡片角标、RSS 分类订阅）。key 是网址和接口里的身份，上线后不要改。
- * section 是日报里的分节标题（几个类别可以共用一节，按这里的顺序排）；guide 告诉结构抽取模型这一类收什么、
- * 和相邻类别的边界在哪（总的归类原则写在 prompts/structure.md 里）。
- * commentary 标出评论类（教程、观点）：日报写过的事又有评论类的后续报道，只占一行快讯（报道它的信源够多时除外）。
- * 没归上类的资料在日报里放进第一个 key 为 industry 的类别所在的节（没有就放最后一节）。
- * tagColor 是飞书推送卡片里跟在标题后面的这一类小标签的颜色（飞书 text_tag 的颜色名）。
- * feedLabel 是分类 RSS 标题里的名字（不写就用 label）。公开接口、RSS 和 MCP 里要把一类并进另一类发布，写在站点设置里（site/site.ts 的 PUBLIC_CATEGORIES）。
+ * Editorias do site. section é o título da seção no boletim (várias editorias podem dividir uma seção);
+ * guide diz ao modelo o que entra em cada editoria e onde fica a fronteira com as vizinhas.
+ * commentary marca as editorias de comentário (dicas, análises).
  */
 export const CATEGORIES = [
-  { key: "ai-models", tagColor: "indigo", label: "模型", feedLabel: "AI 模型", section: "模型发布/更新", guide: "模型本身的发布、版本、权重开放、能力或价格变化，以及既有榜单上的模型成绩。公布一次跑分不是发布新基准，也不是教程。" },
-  { key: "ai-products", tagColor: "turquoise", label: "产品", feedLabel: "AI 产品", section: "产品发布/更新", guide: "可使用的 AI 产品、功能、应用、工具、API、平台和工程组件的发布更新。模型厂商发布的推理框架、算子库、硬件适配组件仍是产品，不能因为厂商名归成模型。" },
-  { key: "industry", tagColor: "orange", label: "行业", feedLabel: "行业动态", section: "行业动态", guide: "已发生的公司经营、融资并购、人事、合作、诉讼、政策、真实安全事故及调查进展。新闻由当事人发帖、带有态度，也不因此变成观点。" },
-  { key: "paper", tagColor: "violet", label: "论文", feedLabel: "论文", section: "论文研究", guide: "以新研究方法、实验设计与发现为核心的论文、技术报告、新基准或研究数据集。系统性红队实验属于研究；既有榜单成绩归模型，真实事故的新闻调查归行业。" },
-  { key: "tip", tagColor: "green", label: "教程", section: "技巧与观点", guide: "读者可以照着使用的方法、提示词、工具用法、工程实践复盘与技术讲解。重点是可复用的做法；单纯发布工具归产品，只有态度和预测而无做法归观点。", commentary: true },
-  { key: "opinion", tagColor: "purple", label: "观点", section: "技巧与观点", guide: "重点是作者的解释、判断、主张、预测、评论或访谈观点。讨论市场不自动归行业，作者是名人不自动归观点。", commentary: true },
+  { key: "politica", tagColor: "blue", label: "Política", feedLabel: "Política", section: "Política", guide: "Fatos do poder público brasileiro já ocorridos: Congresso (votações, projetos, CPIs), Executivo federal e do RJ, Alerj, partidos, alianças, nomeações, decisões do STF e de outros tribunais sobre política, orçamento e economia pública. Quando o assunto principal é eleição ou Justiça Eleitoral, vai para Eleições; quando é IA ou tecnologia no poder público, vai para IA & Política." },
+  { key: "eleicoes", tagColor: "red", label: "Eleições", feedLabel: "Eleições", section: "Eleições", guide: "TSE e TREs (resoluções, julgamentos, cassações, registro de candidaturas), calendário eleitoral, campanhas, pesquisas eleitorais registradas, propaganda, financiamento e prestação de contas. Resolução do TSE sobre IA ou deepfake vai para IA & Política." },
+  { key: "ia-politica", tagColor: "violet", label: "IA & Política", feedLabel: "IA & Política", section: "IA & Política", guide: "O cruzamento entre inteligência artificial e poder público: regulação de IA (PL 2338/2023 e outras), deepfakes e desinformação com IA, uso de IA em campanhas, regras do TSE sobre IA, IA no governo e na Justiça, ANPD e dados pessoais em sistemas de IA, regulação de plataformas quando envolve IA. É a editoria-núcleo do site." },
+  { key: "ia", tagColor: "indigo", label: "Inteligência Artificial", feedLabel: "Inteligência Artificial", section: "Inteligência Artificial", guide: "Lançamentos e atualizações de modelos, produtos e ferramentas de IA, negócios das empresas de IA, pesquisas e estudos relevantes. Sem envolvimento do poder público. Tutorial de como usar uma ferramenta vai para Dicas." },
+  { key: "tecnologia", tagColor: "turquoise", label: "Tecnologia", feedLabel: "Tecnologia", section: "Tecnologia", guide: "Big techs, redes sociais, celulares e hardware, telecom, internet, cibersegurança e vazamentos, governo digital (gov.br, Pix, serviços públicos digitais) e regulação de plataformas sem foco em IA." },
+  { key: "brasil", tagColor: "orange", label: "Brasil", feedLabel: "Brasil", section: "Brasil", guide: "O que acontece no país fora da disputa política: cotidiano, economia (inflação, juros, emprego, preços), segurança pública, saúde, educação, meio ambiente, clima, cidades e o estado do Rio de Janeiro. Ato de governo, votação e decisão judicial vão para Política; eleição vai para Eleições; golpe digital e vazamento vão para Tecnologia ou Dicas." },
+  { key: "mundo", tagColor: "wathet", label: "Mundo", feedLabel: "Mundo", section: "Mundo", guide: "Fatos internacionais: geopolítica, guerras e conflitos, eleições e governos de outros países, organismos como ONU e OMS, economia global, desastres e clima no exterior. Quando o fato afeta diretamente o Brasil, mantenha em Mundo e cite o impacto. Regulação de IA no exterior vai para IA & Política; empresa de tecnologia estrangeira vai para Tecnologia ou Inteligência Artificial." },
+  { key: "esportes", tagColor: "lime", label: "Esportes", feedLabel: "Esportes", section: "Esportes", guide: "Resultados, decisões, transferências, convocações e bastidores do esporte: futebol (Brasileirão, Copa do Brasil, Libertadores, seleção, clubes do Rio), Olimpíadas, F1, vôlei, basquete, lutas e outros. Não é comentário: coluna e opinião esportiva vão para Análise. Negócios do esporte (direitos de transmissão, SAF) ficam em Esportes." },
+  { key: "cinema", tagColor: "carmine", label: "Cinema e Séries", feedLabel: "Cinema e Séries", section: "Cinema e Séries", guide: "Cinema, séries, streaming e premiações: estreias, bilheteria, festivais, trailers, elenco e produção, cinema nacional. Resenha e crítica assinada vão para Análise; uso de IA na produção audiovisual vai para Inteligência Artificial." },
+  { key: "dicas", tagColor: "green", label: "Dicas", feedLabel: "Dicas", section: "Dicas e Análises", guide: "Conteúdo prático que o leitor pode aplicar: como usar uma ferramenta de IA, prompts, configurações de privacidade e segurança, golpes digitais e como se proteger, produtividade. O foco é o passo a passo; lançar uma ferramenta é Inteligência Artificial ou Tecnologia.", commentary: true },
+  { key: "analise", tagColor: "purple", label: "Análise", feedLabel: "Análise e Opinião", section: "Dicas e Análises", guide: "O centro é a interpretação, opinião, previsão, entrevista ou coluna de alguém. Fato novo noticiado por um político em rede social continua sendo notícia, não opinião; ser famoso não transforma o texto em análise.", commentary: true },
 ] as const satisfies ReadonlyArray<{ key: string; tagColor: string; label: string; feedLabel?: string; section: string; guide: string; commentary?: true }>;
 
-/**
- * 这个行业最受关注的一类发布（AI 行业是新模型）：日报报头的“N 个新模型”、改分类后修订已出的报告都按它数。
- * category 是类别，tag 是标签，两者都对上才算；unit 接在数字后面。
- * 没有这样一类的行业设成 null，报头就不显示这个数。
- */
-export const RELEASE: { category: string; tag: string; unit: string } | null = { category: "ai-models", tag: "模型发布", unit: "个新模型" };
+/** O tipo de publicação que o cabeçalho do boletim conta ("3 lançamentos de IA"). null desliga. */
+export const RELEASE: { category: string; tag: string; unit: string } | null = { category: "ia", tag: "Lançamento de IA", unit: "lançamentos de IA" };
 
-/** 周报月报的总述可以直接写、不必在报道里找到出处的行业通用词（小写）。站名会自动算进去。 */
-export const PLAIN_TERMS: readonly string[] = ["ai", "api", "llm", "gpu", "agi", "ceo", "ipo"];
+/** Siglas e termos comuns que o resumo semanal/mensal pode escrever sem precisar achar na fonte (minúsculas). */
+export const PLAIN_TERMS: readonly string[] = ["ia", "api", "stf", "stj", "tse", "tre", "pec", "pl", "cpi", "lgpd", "anpd", "pib", "ceo", "rj", "alerj", "gov.br", "pix"];
 
-/**
- * 内容理解一步给每篇资料判的“内容类型”（写在 prompts/content-understanding.md 里，改了类型要同步改那份提示词）。
- * 评分提示词（prompts/selection-score.md）按类型给五个维度不同的权重。
- */
-export const ITEM_TYPES = ["model_release", "product_launch", "tool_or_prompt", "research_paper", "industry_event", "opinion_analysis", "tutorial_explainer"] as const;
+/** Tipo de conteúdo atribuído na etapa de compreensão (prompts/content-understanding.md). A nota usa pesos diferentes por tipo. */
+export const ITEM_TYPES = ["official_act", "political_event", "election_event", "ai_release", "tech_news", "general_news", "research_data", "opinion_analysis", "practical_tip"] as const;
 
-// ── 标签词表 ────────────────────────────────────────────────────────────────────────────
+// ── Etiquetas ─────────────────────────────────────────────────────────────────────────
 
-/** 每篇资料的第一个标签必须是这些“分类标签”之一。 */
+/** A primeira etiqueta de cada matéria tem de ser uma destas. A última é a de reserva. */
 export const CATEGORY_TAGS = [
-  "产品更新", "模型发布", "论文/研究", "开源/仓库", "教程/实践", "现象/趋势", "大佬观点", "评测/基准", "安全/对齐", "行业动态", "政策/监管",
-  "非AI/通用工具", "其他",
+  "Ato oficial", "Votação/Legislativo", "Decisão judicial", "Eleições", "Regulação de IA", "Deepfake/Desinformação", "Lançamento de IA",
+  "Produto/Atualização", "Pesquisa/Estudo", "Segurança digital", "Negócios/Mercado", "Cotidiano/Brasil", "Mundo/Geopolítica", "Esportes", "Cinema/Séries", "Dica/Tutorial", "Análise/Opinião", "Outros",
 ] as const;
 
-/** 可选的主题标签。 */
+/** Etiquetas de tema (opcionais). */
 export const TOPIC_TAGS = [
-  "Agent", "编码", "推理", "多模态", "语音", "视频", "图像生成", "RAG", "端侧", "数据/训练", "搜索", "部署/工程", "开源生态", "具身智能", "MCP/工具调用",
+  "Rio de Janeiro", "Congresso", "Governo federal", "Governo do RJ", "Partidos", "Orçamento", "Pesquisa eleitoral", "Campanha", "Big techs", "Redes sociais",
+  "IA generativa", "Agentes de IA", "Privacidade/LGPD", "Cibersegurança", "Golpes digitais", "Celulares/Hardware", "Governo digital",
 ] as const;
 
-/** 可选的实体标签（公司、机构、平台）。 */
-export const ENTITY_TAGS = ["OpenAI", "Anthropic", "DeepSeek", "DeepMind", "Google", "Meta", "Microsoft", "xAI", "Hugging Face", "GitHub", "arXiv"] as const;
+/** Etiquetas de entidade (instituições, empresas, plataformas). */
+export const ENTITY_TAGS = ["STF", "TSE", "Câmara", "Senado", "Planalto", "Alerj", "ANPD", "OpenAI", "Google", "Meta", "Microsoft", "Anthropic"] as const;
 
-/** 模型常写的近义词，统一成词表里的写法。 */
+/** Sinônimos que o modelo costuma usar → forma oficial da etiqueta. */
 export const TAG_SYNONYMS: Readonly<Record<string, string>> = {
-  "教程/玩法": "教程/实践", "技巧/最佳实践": "教程/实践", "合作/生态": "行业动态", "融资/收购": "行业动态", "公司动态": "行业动态",
-  合作: "行业动态", 生态: "行业动态", 融资: "行业动态", 收购: "行业动态", 投资: "行业动态", 并购: "行业动态",
-  政策: "政策/监管", 监管: "政策/监管", 法规: "政策/监管", 安全: "安全/对齐", 对齐: "安全/对齐",
-  论文: "论文/研究", 研究: "论文/研究", paper: "论文/研究", papers: "论文/研究",
-  "open-source": "开源/仓库", 开源: "开源/仓库", 仓库: "开源/仓库", repo: "开源/仓库",
-  教程: "教程/实践", 玩法: "教程/实践", 指南: "教程/实践", 技巧: "教程/实践", 最佳实践: "教程/实践", 实践: "教程/实践",
-  产品: "产品更新", 更新: "产品更新", 发布: "模型发布", 模型: "模型发布", 趋势: "现象/趋势", 现象: "现象/趋势", 观点: "大佬观点",
-  视频生成: "视频", 非ai: "非AI/通用工具", "non-ai": "非AI/通用工具", 通用工具: "非AI/通用工具", 工程工具: "非AI/通用工具",
-  安全扫描: "非AI/通用工具", devops: "非AI/通用工具", 行业: "行业动态", 动态: "行业动态",
+  lei: "Ato oficial", decreto: "Ato oficial", "medida provisória": "Ato oficial", portaria: "Ato oficial", "diário oficial": "Ato oficial", sanção: "Ato oficial",
+  votação: "Votação/Legislativo", legislativo: "Votação/Legislativo", "projeto de lei": "Votação/Legislativo", pec: "Votação/Legislativo", cpi: "Votação/Legislativo",
+  julgamento: "Decisão judicial", stf: "Decisão judicial", justiça: "Decisão judicial", tribunal: "Decisão judicial", decisão: "Decisão judicial",
+  eleição: "Eleições", eleitoral: "Eleições", tse: "Eleições", candidatura: "Eleições",
+  "regulação": "Regulação de IA", "regulamentação de ia": "Regulação de IA", "marco da ia": "Regulação de IA", "pl 2338": "Regulação de IA",
+  deepfake: "Deepfake/Desinformação", desinformação: "Deepfake/Desinformação", "fake news": "Deepfake/Desinformação",
+  lançamento: "Lançamento de IA", modelo: "Lançamento de IA", "novo modelo": "Lançamento de IA",
+  produto: "Produto/Atualização", atualização: "Produto/Atualização", recurso: "Produto/Atualização",
+  pesquisa: "Pesquisa/Estudo", estudo: "Pesquisa/Estudo", relatório: "Pesquisa/Estudo", dados: "Pesquisa/Estudo",
+  segurança: "Segurança digital", vazamento: "Segurança digital", ataque: "Segurança digital", hacker: "Segurança digital",
+  negócios: "Negócios/Mercado", mercado: "Negócios/Mercado", investimento: "Negócios/Mercado", aquisição: "Negócios/Mercado", empresa: "Negócios/Mercado",
+  cotidiano: "Cotidiano/Brasil", brasil: "Cotidiano/Brasil", economia: "Cotidiano/Brasil", saúde: "Cotidiano/Brasil", "segurança pública": "Cotidiano/Brasil", educação: "Cotidiano/Brasil",
+  mundo: "Mundo/Geopolítica", internacional: "Mundo/Geopolítica", geopolítica: "Mundo/Geopolítica", guerra: "Mundo/Geopolítica",
+  esporte: "Esportes", esportes: "Esportes", futebol: "Esportes", jogo: "Esportes", campeonato: "Esportes",
+  cinema: "Cinema/Séries", filme: "Cinema/Séries", série: "Cinema/Séries", streaming: "Cinema/Séries", estreia: "Cinema/Séries",
+  dica: "Dica/Tutorial", tutorial: "Dica/Tutorial", "passo a passo": "Dica/Tutorial", "como fazer": "Dica/Tutorial",
+  opinião: "Análise/Opinião", análise: "Análise/Opinião", coluna: "Análise/Opinião", entrevista: "Análise/Opinião",
+  outro: "Outros", outros: "Outros",
+  privacidade: "Privacidade/LGPD", lgpd: "Privacidade/LGPD", golpe: "Golpes digitais", golpes: "Golpes digitais",
 };
 
-// ── 公司与主体 ──────────────────────────────────────────────────────────────────────────
+// ── Instituições e empresas ───────────────────────────────────────────────────────────
 
 /**
- * 公司主题：id → 显示名、卡片上显示的标签（null 表示只用 entity:<id> 归类）、别名。
- * aliases 给结构抽取模型看；orgNames 是这家公司发消息时开头用的组织名（公司、实验室、团队），
- * 在它自己的主题页上读者知道说的是谁，可以省去；otherNames 是公司的其他称呼（官方账号名、子品牌）。
- * 所有这些名字都用来认出说的是哪家公司，比如把事实的主体对到发布方。
+ * Entidades com página de tema: id → nome, etiqueta exibida no card (null = só agrupa), apelidos.
+ * orgNames: nomes do órgão quando ele mesmo publica; otherNames: outros nomes (perfis, marcas).
  */
 export const ENTITIES: Record<string, { name: string; displayTag: string | null; aliases: string[]; orgNames?: string[]; otherNames?: string[] }> = {
-  "world-labs": { name: "World Labs", displayTag: null, aliases: ["World Labs"] },
-  "thinking-machines": { name: "Thinking Machines Lab", displayTag: null, aliases: ["Thinking Machines"] },
-  amd: { name: "AMD", displayTag: null, aliases: ["AMD", "Advanced Micro Devices"] },
-  openai: { name: "OpenAI", displayTag: "OpenAI", aliases: ["OpenAI", "ChatGPT", "Sora", "Codex", "GPT"], orgNames: ["OpenAI"], otherNames: ["OpenAI Developers"] },
-  anthropic: { name: "Anthropic", displayTag: "Anthropic", aliases: ["Anthropic", "Claude"], orgNames: ["Anthropic"], otherNames: ["Claude Code"] },
-  google: { name: "Google", displayTag: "Google", aliases: ["Google", "DeepMind", "Gemini", "谷歌"], orgNames: ["Google DeepMind", "Google Research", "Google", "DeepMind", "谷歌"], otherNames: ["Google AI", "Google Labs", "Google Cloud"] },
-  deepseek: { name: "DeepSeek", displayTag: "DeepSeek", aliases: ["DeepSeek", "深度求索"], orgNames: ["DeepSeek", "深度求索"] },
-  qwen: { name: "千问 Qwen", displayTag: null, aliases: ["Qwen", "通义", "阿里"], orgNames: ["通义千问", "通义实验室", "阿里巴巴", "阿里云", "阿里", "Qwen Team", "Qwen", "Alibaba"], otherNames: ["千问", "千问APP", "Alibaba Cloud"] },
-  kimi: { name: "月之暗面 / Kimi", displayTag: null, aliases: ["Kimi", "月之暗面", "Moonshot", "Kimi / 月之暗面"], orgNames: ["Moonshot AI", "月之暗面", "Kimi"] },
-  minimax: { name: "MiniMax", displayTag: null, aliases: ["MiniMax", "海螺"], orgNames: ["MiniMax", "稀宇科技"] },
-  zhipu: { name: "智谱 GLM", displayTag: null, aliases: ["智谱", "GLM", "Z.ai"], orgNames: ["智谱AI", "智谱", "Zhipu AI", "Z.ai"], otherNames: ["Zhipu"] },
-  xai: { name: "xAI", displayTag: "xAI", aliases: ["xAI", "Grok"], orgNames: ["SpaceX Super Intelligence", "SpaceXAI", "SpaceXSI", "xAI"], otherNames: ["Grok Bot"] },
-  meta: { name: "Meta", displayTag: "Meta", aliases: ["Meta", "Llama"], orgNames: ["Meta Superintelligence Labs", "Meta AI", "Meta"], otherNames: ["AI at Meta", "Muse"] },
-  microsoft: { name: "Microsoft", displayTag: "Microsoft", aliases: ["Microsoft", "微软", "Copilot"], orgNames: ["Microsoft Research", "Microsoft AI", "Microsoft", "微软"] },
-  nvidia: { name: "NVIDIA", displayTag: null, aliases: ["NVIDIA", "英伟达"], orgNames: ["NVIDIA", "英伟达"] },
-  "hugging-face": { name: "Hugging Face", displayTag: "Hugging Face", aliases: ["Hugging Face"], orgNames: ["Hugging Face", "HuggingFace"] },
-  cursor: { name: "Cursor", displayTag: null, aliases: ["Cursor", "Anysphere"], orgNames: ["Cursor"] },
-  openrouter: { name: "OpenRouter", displayTag: null, aliases: ["OpenRouter"], orgNames: ["OpenRouter"] },
+  stf: { name: "STF", displayTag: "STF", aliases: ["STF", "Supremo Tribunal Federal", "Supremo"], orgNames: ["Supremo Tribunal Federal", "STF"] },
+  tse: { name: "TSE", displayTag: "TSE", aliases: ["TSE", "Tribunal Superior Eleitoral", "Justiça Eleitoral"], orgNames: ["Tribunal Superior Eleitoral", "TSE"] },
+  camara: { name: "Câmara dos Deputados", displayTag: "Câmara", aliases: ["Câmara dos Deputados", "Câmara"], orgNames: ["Câmara dos Deputados", "Agência Câmara"] },
+  senado: { name: "Senado Federal", displayTag: "Senado", aliases: ["Senado Federal", "Senado"], orgNames: ["Senado Federal", "Agência Senado"] },
+  planalto: { name: "Governo federal / Planalto", displayTag: "Planalto", aliases: ["Planalto", "Palácio do Planalto", "Governo federal", "Presidência da República"], orgNames: ["Presidência da República", "Planalto"] },
+  "governo-rj": { name: "Governo do RJ", displayTag: null, aliases: ["Governo do Rio de Janeiro", "Governo do Estado do Rio", "Governo do RJ"], orgNames: ["Governo do Estado do Rio de Janeiro"] },
+  alerj: { name: "Alerj", displayTag: "Alerj", aliases: ["Alerj", "Assembleia Legislativa do Rio de Janeiro"], orgNames: ["Alerj"] },
+  anpd: { name: "ANPD", displayTag: "ANPD", aliases: ["ANPD", "Autoridade Nacional de Proteção de Dados"], orgNames: ["ANPD"] },
+  openai: { name: "OpenAI", displayTag: "OpenAI", aliases: ["OpenAI", "ChatGPT", "Sora", "Codex", "GPT"], orgNames: ["OpenAI"] },
+  anthropic: { name: "Anthropic", displayTag: "Anthropic", aliases: ["Anthropic", "Claude"], orgNames: ["Anthropic"] },
+  google: { name: "Google", displayTag: "Google", aliases: ["Google", "DeepMind", "Gemini", "YouTube"], orgNames: ["Google DeepMind", "Google", "DeepMind"] },
+  meta: { name: "Meta", displayTag: "Meta", aliases: ["Meta", "Llama", "Facebook", "Instagram", "WhatsApp"], orgNames: ["Meta"] },
+  microsoft: { name: "Microsoft", displayTag: "Microsoft", aliases: ["Microsoft", "Copilot"], orgNames: ["Microsoft"] },
+  xai: { name: "xAI / X", displayTag: null, aliases: ["xAI", "Grok", "X (antigo Twitter)"], orgNames: ["xAI"] },
+  nvidia: { name: "NVIDIA", displayTag: null, aliases: ["NVIDIA", "Nvidia"], orgNames: ["NVIDIA"] },
+  apple: { name: "Apple", displayTag: null, aliases: ["Apple", "iPhone", "Apple Intelligence"], orgNames: ["Apple"] },
 };
 
 /**
- * 身份词典：摘要和标题里出现的公司，必须在原文里也出现过，否则退回原标题、丢掉摘要（防止模型张冠李戴）。
- * 行业没有这个问题时可以留空数组。
+ * Dicionário de identidade: se o título ou resumo citar uma destas entidades e o texto original não citar,
+ * o sistema volta ao título original e descarta o resumo (evita atribuir o fato ao órgão ou empresa errada).
  */
 export const IDENTITY_LEXICON: ReadonlyArray<{ id: string; name: string; patterns: RegExp[] }> = [
+  { id: "stf", name: "STF", patterns: [/\bSTF\b|Supremo Tribunal Federal/] },
+  { id: "stj", name: "STJ", patterns: [/\bSTJ\b|Superior Tribunal de Justiça/] },
+  { id: "tse", name: "TSE", patterns: [/\bTSE\b|Tribunal Superior Eleitoral/] },
+  { id: "tcu", name: "TCU", patterns: [/\bTCU\b|Tribunal de Contas da União/] },
+  { id: "pgr", name: "PGR", patterns: [/\bPGR\b|Procuradoria-Geral da República/] },
+  { id: "pf", name: "Polícia Federal", patterns: [/\bPF\b|Polícia Federal/] },
+  { id: "alerj", name: "Alerj", patterns: [/\bAlerj\b/i] },
+  { id: "anpd", name: "ANPD", patterns: [/\bANPD\b/] },
+  { id: "anatel", name: "Anatel", patterns: [/\bAnatel\b/i] },
   { id: "openai", name: "OpenAI", patterns: [/openai|chatgpt|\bgpt-?[o\d]|\bsora\b|\bcodex\b/i] },
-  { id: "anthropic", name: "Anthropic", patterns: [/anthropic|\bclaude\b/i, /\b(?:opus|sonnet|haiku)\s*\d+(?:[.\-]\d+)*\b/i, /\bfable\s*\d+(?:[.\-]\d+)*\b|\bmythos\b/i] },
-  { id: "google", name: "Google / Gemini", patterns: [/google|deepmind|\bgemini\b|notebooklm|\bveo\s?\d|\bAlphaFold\b|\bAMIE\b/i] },
-  { id: "deepseek", name: "DeepSeek", patterns: [/deepseek|深度求索/i] },
+  { id: "anthropic", name: "Anthropic", patterns: [/anthropic|\bclaude\b/i] },
+  { id: "google", name: "Google / Gemini", patterns: [/google|deepmind|\bgemini\b|youtube/i] },
+  { id: "meta", name: "Meta", patterns: [/\bMeta\b|\bllama\b|whatsapp|instagram|facebook/i] },
+  { id: "microsoft", name: "Microsoft / Copilot", patterns: [/microsoft|copilot/i] },
   { id: "xai", name: "xAI / Grok", patterns: [/\bxai\b|\bgrok\b/i] },
-  { id: "meta", name: "Meta / Llama", patterns: [/\bMeta\b/, /\bmeta\s?ai\b|\bllama\b/i] },
-  { id: "microsoft", name: "Microsoft / Copilot", patterns: [/microsoft|copilot|微软/i] },
-  { id: "nvidia", name: "NVIDIA", patterns: [/nvidia|英伟达|\bnemotron\b|\bnemo\b|\bblackwell\b|\brubin(?:\s+ultra)?\b|\bcuda\b/i] },
-  { id: "qwen", name: "千问 Qwen", patterns: [/\bqwen|通义|千问/i] },
-  { id: "hugging-face", name: "Hugging Face", patterns: [/hugging\s?face/i] },
-  { id: "cursor", name: "Cursor", patterns: [/\bCursor\b/] },
-  { id: "kimi", name: "月之暗面 / Kimi", patterns: [/\bkimi\b|月之暗面|\bmoonshot\s?ai\b/i] },
-  { id: "openrouter", name: "OpenRouter", patterns: [/openrouter/i] },
-  { id: "minimax", name: "MiniMax", patterns: [/minimax/i] },
-  { id: "zhipu", name: "智谱 GLM", patterns: [/智谱|\bglm-?[4-9]/i] },
-  { id: "hunyuan", name: "腾讯混元", patterns: [/混元|hunyuan/i] },
-  { id: "doubao", name: "字节豆包", patterns: [/豆包|doubao|字节跳动|bytedance/i] },
-  { id: "mistral", name: "Mistral", patterns: [/mistral/i] },
-  { id: "perplexity", name: "Perplexity", patterns: [/\bPerplexity\b/] },
-  { id: "runway", name: "Runway", patterns: [/\brunway\b/i] },
-  { id: "suno", name: "Suno", patterns: [/\bsuno\b/i] },
-  { id: "midjourney", name: "Midjourney", patterns: [/midjourney/i] },
-  { id: "stability-ai", name: "Stability AI", patterns: [/stability\s?ai/i] },
-  { id: "elevenlabs", name: "ElevenLabs", patterns: [/eleven\s?labs/i] },
-  { id: "vllm", name: "vLLM", patterns: [/\bvllm\b/i] },
-  { id: "ollama", name: "Ollama", patterns: [/\bollama\b/i] },
-  { id: "windsurf", name: "Windsurf", patterns: [/windsurf/i] },
-  { id: "devin", name: "Devin", patterns: [/\bdevin\b/i] },
-  { id: "manus", name: "Manus", patterns: [/\bmanus\b/i] },
-  { id: "apple", name: "Apple AI", patterns: [/\bapple\s?(intelligence|silicon|ai)\b|苹果(智能|\s?AI)/i] },
-  { id: "amazon", name: "Amazon / AWS", patterns: [/amazon|\baws\b|亚马逊/i] },
-  { id: "baidu", name: "百度文心", patterns: [/百度|baidu|文心|\bernie\s?bot\b/i] },
+  { id: "nvidia", name: "NVIDIA", patterns: [/nvidia/i] },
+  { id: "apple", name: "Apple", patterns: [/\bapple\b|\biphone\b/i] },
+  { id: "amazon", name: "Amazon / AWS", patterns: [/amazon|\baws\b/i] },
+  { id: "deepseek", name: "DeepSeek", patterns: [/deepseek/i] },
+  { id: "tiktok", name: "TikTok", patterns: [/tiktok|bytedance/i] },
+  { id: "telegram", name: "Telegram", patterns: [/telegram/i] },
 ];
 
-/** 这些域名上的文章，发布方就是对应的公司（托管平台如 GitHub、arXiv 不算）。 */
+/** Artigos nestes domínios são publicados pela própria entidade. */
 export const PUBLISHER_DOMAINS: ReadonlyArray<{ entityId: string; domains: readonly string[] }> = [
+  { entityId: "stf", domains: ["stf.jus.br"] },
+  { entityId: "tse", domains: ["tse.jus.br"] },
+  { entityId: "camara", domains: ["camara.leg.br"] },
+  { entityId: "senado", domains: ["senado.leg.br"] },
+  { entityId: "alerj", domains: ["alerj.rj.gov.br"] },
   { entityId: "openai", domains: ["openai.com"] },
   { entityId: "anthropic", domains: ["anthropic.com", "claude.com"] },
-  { entityId: "google", domains: ["deepmind.google", "ai.google", "blog.google"] },
-  { entityId: "deepseek", domains: ["deepseek.com"] },
-  { entityId: "xai", domains: ["x.ai"] },
-  { entityId: "meta", domains: ["ai.meta.com"] },
+  { entityId: "google", domains: ["deepmind.google", "blog.google"] },
+  { entityId: "meta", domains: ["about.fb.com", "ai.meta.com"] },
   { entityId: "microsoft", domains: ["microsoft.com"] },
   { entityId: "nvidia", domains: ["nvidia.com"] },
-  { entityId: "qwen", domains: ["qwen.ai"] },
-  { entityId: "cursor", domains: ["cursor.com"] },
-  { entityId: "openrouter", domains: ["openrouter.ai"] },
 ];
 
-/** 原文里的这些写法也算提到了对应公司。 */
+/** Estas grafias no texto original também contam como menção à entidade. */
 export const IDENTITY_CONTEXT_ALIASES: ReadonlyArray<{ entityId: string; pattern: RegExp }> = [
+  { entityId: "stf", pattern: /\bSupremo\b/ },
   { entityId: "meta", pattern: /@AIatMeta\b/i },
-  { entityId: "zhipu", pattern: /\bZhipu(?:\s+AI\b|['’]s\b)/i },
 ];

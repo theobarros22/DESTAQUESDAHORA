@@ -121,10 +121,10 @@ export async function periodReports(start: Date, end: Date): Promise<ReportRow[]
 }
 
 function roleOf(kind: string, official: boolean): string {
-  if (official) return kind === "x_search" ? "X·官方" : "官方";
-  if (kind === "x_search") return "X·KOL";
-  if (kind === "mp_account") return "公众号";
-  return "媒体";
+  if (official) return kind === "x_search" ? "X · Oficial" : "Oficial";
+  if (kind === "x_search") return "X · Perfil";
+  if (kind === "mp_account") return "WeChat";
+  return "Imprensa";
 }
 
 function reportEntry(r: ReportRow): ReportEntry {

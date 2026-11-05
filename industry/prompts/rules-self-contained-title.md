@@ -1,12 +1,11 @@
 
-【标题自洽规则 — 让读者不点开就知道"这是关于谁的什么事"】
+【Regra do título autoexplicativo: o leitor sabe de quem e do que se trata sem abrir】
 
-1. 标题必须点出核心主体：模型名 / 产品名 / 公司名 / 项目名。
-2. 原标题已经清楚点出主体的：英文标题翻译成中文、中文标题保持原意，不要为改写而改写。
-3. 原标题只是版本号 / 代号 / 没信息量的 teaser（如 "v2.1.159"、"Small is a feature"、"Day 1"、"重磅发布"）时，结合【来源】和正文把主体补进标题。例：原标题 "v2.1.159" + 来源 "Claude Code：GitHub Releases" → "Claude Code v2.1.159 发布"。
-4. 补主体只能用【来源】或正文里真实出现的名字。正文和来源都没点出具体型号时，用上位词（如"开源多模态模型"）兜底，绝不凭"行业常识"编一个具体型号 / 版本 / 数字。
-5. 原标题表达的【文章类型和核心动作】是硬边界：How / Why / Guide / Analysis / Review / Benchmark 这类解释、分析、教程或评测标题，中文标题必须保留这个类型；不能因为正文谈到一个已经存在的模型、产品或新数据，就改写成“发布 / 推出 / 上线 / 开源”。只有原标题明确宣布了发布、推出、上线或开源，中文标题才能使用对应动作。保留文章类型不等于删主体：仍须按第 1-4 条补全正文或来源明确给出的公司、产品、项目名。
-   例：原标题 "How GPT-5.6 fuses frontier intelligence with frontier efficiency" → "GPT-5.6 如何兼顾前沿智能与效率"，不能写成 "OpenAI 发布 GPT-5.6"。
-   例：原标题 "How to build interactive experiences with canvases" + 来源和正文明确是 GitHub Copilot → "GitHub Copilot 如何用 canvases 构建交互体验"，不能只写成缺主体的 "如何用 canvases 构建交互体验"。
-6. 本条的动作和背景里的旧发布要分清：原文把发布写成过去的事（“At DevDay, we introduced …”“Last week we launched …”“上周我们发布了…”），本条是在讲用法、做演示或再次推广时，标题写介绍、演示或讲解，把发布交代成此前的事；不能写成“推出 / 发布 / 上线”，否则读者会当成今天的新闻。只有原文明确某项能力是现在才开放或新增，才对那一项用对应动作。
-   例：正文 "At DevDay, we introduced ChatGPT Space … See how it works below" → "OpenAI 演示 DevDay 发布的 ChatGPT Space 团队协作用法"，不能写成 "OpenAI 在 DevDay 推出 ChatGPT Space"。
+1. O título precisa nomear o sujeito central: instituição, político, partido, empresa, produto, lei ou projeto.
+2. Se o título original já é claro: em outra língua, traduza; em português, mantenha o sentido. Não reescreva por reescrever.
+3. Se o título original é só número de versão, codinome ou chamada sem informação ("v2.1", "Dia 1", "Saiba tudo", "Bomba!"), use a 【Fonte】 e o corpo para completar o sujeito. Ex.: título "v2.1.159" + fonte "Claude Code: GitHub Releases" → "Claude Code lança a versão 2.1.159".
+4. Para completar o sujeito, use só nomes que estão de fato na 【Fonte】 ou no corpo. Se nenhum dos dois dá o nome exato, use um termo genérico ("comissão da Câmara", "modelo de IA de código aberto"); nunca invente nome, número de projeto ou versão.
+5. O tipo de texto e a ação central do título original são um limite rígido: explicações, análises, guias, entrevistas e avaliações (Como, Por que, Entenda, Análise, Guia, Review) continuam sendo isso no título. Não vire um explicativo em "aprova", "lança", "sanciona" ou "decide" só porque o corpo cita um fato existente. Só use o verbo de ação se o título original anuncia essa ação. Manter o tipo não significa apagar o sujeito: complete com o nome que o corpo ou a fonte trazem.
+   Ex.: "Como a nova regra do TSE afeta o uso de IA nas campanhas" → mantenha como explicação; não escreva "TSE aprova nova regra".
+6. Separe a ação desta matéria do anúncio antigo: se o texto trata o anúncio como passado ("na semana passada o governo anunciou…") e agora explica, detalha ou repercute, o título diz explica, detalha ou repercute, e não "anuncia" ou "lança"; senão o leitor acha que é notícia de hoje.
+7. Use a fase exata: projeto "apresentado" não é "aprovado"; aprovado na Câmara não é "vira lei"; liminar não é "STF decide" sem qualificação ("Ministro do STF suspende…" é diferente de "STF suspende…").

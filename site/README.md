@@ -1,13 +1,13 @@
-# 站点
+# Site
 
-这个站自己的东西：名字、文案、品牌、页面，以及启用哪些模块。步骤见 [把它改成你的行业](../docs/customize.md)。
+Tudo o que é próprio deste site: nome, textos, marca, páginas e quais módulos ficam ativos. Os passos estão em [Adaptar para o seu setor](../docs/customize.md).
 
-| 文件 | 内容 |
+| Arquivo | Conteúdo |
 |---|---|
-| `site.ts` | 站名、行业词、出刊时间、首页和关于页文案、分享图文字、条目与日报周报月报上的说法、公开接口的分类、备案号 |
-| `models.ts` | 具名的模型和每一步默认用哪个（没写的步骤用 `.env` 里配的那一个） |
-| `brand/` | 图标、Logo（`Logo.tsx`）、分享图和海报上的字标（`wordmark.svg`、`wordmark-dark.svg`，可选）、日报周报月报的报头字（`nameplates/`）、关于页的二维码（`contact/`，可选） |
-| `pages/` | 使用规则、隐私说明（模板，上线前按实际情况改写） |
-| `public/` | 发布在网站根目录的固定文件（站名、地址等占位符替换后发布）：`robots.txt`、`manifest.webmanifest`、`openapi-v1.json`，以及可选的 `.well-known/security.txt` |
-| `changelog.json` | 更新日志 |
-| `modules/` | 启用哪些模块：`index.ts`、`server.ts`、`web.ts` 三份清单，列出仓库根目录 `modules/<名字>/` 里要用的模块，默认都为空，见 [架构](../docs/architecture.md#模块) 的“模块” |
+| `site.ts` | Nome do site, termos do setor, horário de publicação, textos da página inicial e da página Sobre, texto das imagens de compartilhamento, expressões usadas em itens e nos resumos diário, semanal e mensal, categorias da API pública, número de registro |
+| `models.ts` | Modelos nomeados e qual deles cada etapa usa por padrão (etapas não listadas usam o configurado no `.env`) |
+| `brand/` | Ícones, logo (`Logo.tsx`), marca tipográfica das imagens de compartilhamento e pôsteres (`wordmark.svg`, `wordmark-dark.svg`, opcionais), títulos de cabeçalho dos resumos diário, semanal e mensal (`nameplates/`), QR code da página Sobre (`contact/`, opcional) |
+| `pages/` | Termos de uso e aviso de privacidade (modelos; reescreva conforme a realidade do site antes de publicar) |
+| `public/` | Arquivos fixos publicados na raiz do site (depois de trocar os marcadores de nome e endereço): `robots.txt`, `manifest.webmanifest`, `openapi-v1.json` e, opcionalmente, `.well-known/security.txt` |
+| `changelog.json` | Histórico de atualizações |
+| `modules/` | Quais módulos ficam ativos: três listas, `index.ts`, `server.ts` e `web.ts`, com os módulos de `modules/<nome>/` na raiz do repositório que serão usados; todas vazias por padrão; veja “Módulos” em [Arquitetura](../docs/architecture.md#módulos) |

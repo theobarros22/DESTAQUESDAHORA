@@ -1,16 +1,17 @@
 import { redirect, useLoaderData } from "react-router";
 import type { Route } from "./+types/home";
-import type { TimelineResponse } from "@aihot/contracts/site";
-import { cachedPage, loadOr404 } from "../lib/api.server";
+import type { FeedItemSummary, TimelineResponse, TopicPage } from "@aihot/contracts/site";
+import { apiGet, cachedPage, loadOr404 } from "../lib/api.server";
 import { pageReuse } from "../lib/page-reuse";
 import { filterParams, hasFeedFilters, itemListLd, listPath, pageMeta, readFilters, siteLd } from "../lib/seo";
 import { inNav } from "../components/shell/nav";
 import type { Screen } from "../components/shell/screens";
 import { Timeline } from "../features/feed/Timeline";
 import { HotTopics } from "../features/feed/HotTopics";
+import { FrontPage } from "../features/feed/FrontPage";
 import { ActiveFilters, CategoryTabs, FeedBar, SearchField } from "../features/feed/Filters";
 
-export const handle: Screen = { tab: "featured", name: "精选" };
+export const handle: Screen = { tab: "featured", name: "Destaques" };
 export { pageHeaders as headers } from "../lib/api.server";
 export const { clientLoader, shouldRevalidate } = pageReuse<typeof loader>();
 
@@ -22,22 +23,26 @@ export async function loader({ request }: Route.LoaderArgs) {
   const filters = readFilters(url.searchParams);
   const upstream = new Headers();
   const data = await loadOr404<TimelineResponse>(listPath("/api/site/timeline", filterParams(filters)), { responseHeaders: upstream, signal: request.signal });
+  // O Rio agora só entra na primeira página sem filtros; sem o tema (ainda vazio ou fora do ar) a seção some.
+  const rio: FeedItemSummary[] = hasFeedFilters(filters)
+    ? []
+    : await apiGet<TopicPage>("/api/site/topics/rio-de-janeiro", { signal: request.signal }).then((t) => t.items.slice(0, 5), () => []);
   // A minute at most, here and on /all: new selections must not wait longer at the edge or in a browser.
-  return cachedPage(60, { data, filters }, upstream);
+  return cachedPage(60, { data, filters, rio }, upstream);
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
   const path = listPath("/", loaderData ? filterParams(loaderData.filters) : {});
   const titles = loaderData?.data.cards.map((c) => c.item.title) ?? [];
-  return pageMeta({ path, noindex: hasFeedFilters(loaderData?.filters), jsonLd: path === "/" ? [...siteLd(), itemListLd("/", "精选", titles)] : undefined });
+  return pageMeta({ path, noindex: hasFeedFilters(loaderData?.filters), jsonLd: path === "/" ? [...siteLd(), itemListLd("/", "Destaques", titles)] : undefined });
 }
 
 export default function Home() {
-  const { data, filters } = useLoaderData<typeof loader>();
-  const title = filters.tag ? `#${filters.tag}` : "精选";
+  const { data, filters, rio } = useLoaderData<typeof loader>();
+  const title = filters.tag ? `#${filters.tag}` : "Destaques";
   return (
     <div className="pb-6">
-      {/* Phones: the bar (精选 | 全部, filter, search), the filter in use, today's hot topics, the feed. */}
+      {/* Phones: the bar (Seleção | Todas, filter, search), the filter in use, today's hot topics, the feed. */}
       <FeedBar base="/" category={filters.category} channel={filters.channel} />
       <ActiveFilters base="/" category={filters.category} channel={filters.channel} tag={filters.tag} />
       <div className="hidden lg:block">
@@ -47,6 +52,8 @@ export default function Home() {
           <SearchField keep={{ category: filters.category }} />
         </div>
       </div>
+
+      {!hasFeedFilters(filters) && <FrontPage cards={data.cards} rio={rio} />}
 
       {data.hot && inNav("/hot") && <HotTopics entries={data.hot} />}
 

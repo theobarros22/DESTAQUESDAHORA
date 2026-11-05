@@ -1,5 +1,5 @@
 // Failures: an unbroken URL in a report's lead widened the phone layout and pushed the fifth tab off
-// screen; an open "另外 N 家也报道了" took its longest title's width and scrolled a narrow desktop window
+// screen; an open "Outras N fontes também noticiaram" took its longest title's width and scrolled a narrow desktop window
 // sideways (2026-10-16). Pages must fit the window at phone, narrow-phone, unfolded-foldable (669 upright,
 // 711 for an Android foldable, which reads the desktop pages beside the rail) and full-sidebar (941) widths.
 // Narrow desktops read in one column (2026-10-30): what a side column holds there (an article's reason,
