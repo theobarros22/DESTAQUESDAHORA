@@ -20,6 +20,8 @@ Regras do resumo:
 
 {{> rules-anti-hallucination}}
 
+{{> rules-original-wording}}
+
 Formato de saída (siga à risca):
 title_zh: <título em português, 6 a 12 palavras>
 summary_zh: <resumo em português, 40 a 90 palavras, no máximo 3 frases>
