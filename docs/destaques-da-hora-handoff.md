@@ -90,7 +90,10 @@ Aprovar o layout da capa; decidir sobre o PR para a `main`; conta DigitalPlat/Cl
 
 ### Feito, ainda NÃO verificado (código novo da casca)
 - `apps/web/app/components/shell/Masthead.tsx` (faixa com data, `ThemeSwitch`, nome do site e navegação; `DesktopFooter` com GitHub e registros), `apps/web/app/lib/changelog-dot.ts` (hook movido), tokens `--masthead`/`--masthead-hi` em `app.css`, `root.tsx` em coluna, `Sidebar.tsx` removido (junto com o trilho `rail()` e a variante `short`), `nav.ts` com `mastheadNav()` e `navIsActive()`. `--page-max-wide` agora desconta 56px, não 236px.
-- **Falta rodar**: `npm run typecheck`, `npm run build -w @aihot/web && npm run test:web` (`apps/web/tests/page-width.test.ts` cita o trilho/barra lateral nos comentários e mede larguras 669/711/941: confira e atualize), e conferir no navegador em duas larguras (desktop e ~800px): faixa rolando de lado com poucas e muitas entradas, botão de voltar, entrada "Minha área" (`/more`), barra inferior do celular, configuração padrão e não padrão de `site/site.ts` NAV (exigência do AGENTS.md para mudanças de navegação).
+- **Verificado em 05/11/2026**: `npm run typecheck` e `npm run build -w @aihot/web` passam. Conferência em Chromium (servidor de teste com API falsa) em 1280, 800 e 393 px, nas páginas `/`, `/hot` e `/more`: a faixa aparece de 700 px para cima, a barra inferior só no celular, sem rolagem horizontal, entrada ativa marcada com `aria-current`.
+- **Ainda falta**: conferir à mão a faixa com poucas entradas e com módulos (`site/site.ts` NAV não padrão), o botão de voltar e a rolagem lateral da faixa em largura muito estreita (700 px).
+- **`npm run test:web` está quebrado antes desta mudança**: os testes em `apps/web/tests/` procuram textos em chinês (ex.: "今日头条", "周报") que o fork já traduziu, então falham em qualquer versão; os de WebKit também precisam do navegador (`npx playwright install`). **Tarefa para o próximo agente**: atualizar os textos dos testes para o português e atualizar os comentários de `page-width.test.ts` que citam o trilho e a barra lateral.
+- Dica de ambiente: o Chromium disponível é o `chromium-1243`; o Playwright pede o `1228`, e um link simbólico em `/opt/pw-browsers` resolve (ambiente de teste do agente, não faz parte do repositório).
 
 ### Próximos passos (nesta ordem)
 1. Verificar a casca (acima) e corrigir o que quebrar.

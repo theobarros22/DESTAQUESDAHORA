@@ -22,7 +22,7 @@ export function Masthead({ changelogVersion }: { changelogVersion: string | null
     <header className="hidden lg:block">
       <div className="border-b border-line bg-surface">
         <div className="mx-auto flex h-8 max-w-[var(--page-max-wide)] items-center justify-between px-5 text-[12px] text-ink-3 wide:px-7">
-          <span className="capitalize" suppressHydrationWarning>{today()}</span>
+          <span className="first-letter:uppercase" suppressHydrationWarning>{today()}</span>
           <ThemeSwitch />
         </div>
         <div className="mx-auto flex max-w-[var(--page-max-wide)] items-center px-5 py-4 text-ink wide:px-7">
